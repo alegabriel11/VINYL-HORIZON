@@ -42,11 +42,6 @@ const Sidebar = ({ isLoggedIn = false }) => {
           <span className="material-symbols-outlined">shopping_bag</span>
           <span className="text-sm">Cart</span>
         </Link>
-
-        <Link to="/wishlist" className={`${linkStyle} ${isActive('/wishlist') ? activeStyle : inactiveStyle}`}>
-          <span className="material-symbols-outlined">favorite</span>
-          <span className="text-sm">Wishlist</span>
-        </Link>
       </nav>
 
       {/* BOTTOM SECTION - Solo se renderiza si isLoggedIn es true */}
