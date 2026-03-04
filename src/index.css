@@ -28,3 +28,14 @@
 .hero-gradient {
   background: linear-gradient(to bottom, rgba(9, 28, 42, 0.4), #122838);
 }
+@keyframes floating {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+@keyframes floating-delayed {
+  0%, 100% { transform: translateY(-10px); }
+  50% { transform: translateY(5px); }
+}
+.animate-floating { animation: floating 4s ease-in-out infinite; }
+.animate-floating-delayed { animation: floating-delayed 5s ease-in-out infinite; }
+.animate-card { animation: floating 6s ease-in-out infinite; }
