@@ -12,9 +12,9 @@ const CheckoutPage = () => {
     };
 
     return (
-        <div className="bg-black-pearl min-h-screen">
+        <div className="bg-black-pearl min-h-screen flex">
             <Sidebar />
-            <main className="relative ml-64 transition-all duration-300 min-h-screen bg-black-pearl-light p-8 lg:p-16">
+            <main className="relative flex-1 lg:ml-64 transition-all duration-300 min-h-screen bg-black-pearl-light p-4 sm:p-8 border-l border-walnut">
                 <button
                     onClick={toggleDarkMode}
                     className="absolute top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog dark:text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group focus:outline-none"
@@ -32,7 +32,7 @@ const CheckoutPage = () => {
                         <p className="mt-4 serif-font italic text-xl dark:text-rose-fog/60 text-black-pearl/60">Complete your curation by securing your selection.</p>
                     </header>
 
-                    <div className="flex flex-col lg:flex-row gap-12">
+                    <div className="flex flex-col xl:flex-row gap-12">
                         <div className="flex-grow space-y-8">
                             <section className="checkout-card p-8 rounded-friendly bg-walnut dark:bg-walnut shadow-xl border border-rose-fog/20">
                                 <h2 className="serif-font text-3xl font-semibold mb-8 text-rose-fog dark:text-rose-fog">Shipping Details</h2>
@@ -134,7 +134,7 @@ const CheckoutPage = () => {
                         </div>
 
                         {/* Order Summary Sidebar */}
-                        <div className="lg:w-96">
+                        <div className="xl:w-96 w-full">
                             <div className="sticky top-8 bg-black-pearl-light dark:bg-black-pearl-light rounded-friendly p-8 border border-walnut shadow-2xl space-y-8">
                                 <h2 className="serif-font text-3xl font-bold text-rose-fog border-b border-walnut pb-4 uppercase tracking-wider">Order Summary</h2>
 

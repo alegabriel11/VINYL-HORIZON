@@ -58,9 +58,9 @@ const CartPage = () => {
     const shipping = 0; // Complimentary
 
     return (
-        <div className="bg-black-pearl min-h-screen">
+        <div className="bg-black-pearl min-h-screen flex">
             <Sidebar />
-            <main className="relative ml-64 transition-all duration-300 min-h-screen bg-black-pearl-light p-8 lg:p-16">
+            <main className="relative flex-1 lg:ml-64 transition-all duration-300 min-h-screen bg-black-pearl-light p-4 sm:p-8 border-l border-walnut">
                 <button
                     onClick={toggleDarkMode}
                     className="absolute top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog dark:text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group focus:outline-none"
@@ -85,7 +85,7 @@ const CartPage = () => {
                     </header>
 
                     {items.length > 0 ? (
-                        <div className="flex flex-col lg:flex-row gap-12">
+                        <div className="flex flex-col xl:flex-row gap-12">
                             <div className="flex-grow space-y-6">
                                 {items.map(item => (
                                     <CartItem
