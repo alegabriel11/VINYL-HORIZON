@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+:root {
+    --black-pearl: #091C2A;
+    --black-pearl-light: #122838;
+    --jungle-green: #233326;
+    --walnut: #3A2E29;
+    --rose-fog: #E1C2B3;
+    --pale-taupe: #BE9C83;
+    --white-berry: #EFEFEF;
+    --timberwolf: #D1D1D1;
+    --rounded-heavy: 2rem;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--black-pearl);
+    color: var(--rose-fog);
+}
+
+.serif-font {
+    font-family: 'Cormorant Garamond', serif;
+}
+
+.display-font {
+    font-family: 'Playfair Display', serif;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--pale-taupe);
+    border-radius: 10px;
+}
+
+.vinyl-shadow {
+    box-shadow: 15px 0 30px rgba(0,0,0,0.5);
+}
+
+.hero-gradient {
+    background: linear-gradient(to bottom, rgba(9, 28, 42, 0.4), var(--black-pearl-light));
+}
+
+.sidebar-item-active {
+    background-color: var(--white-berry);
+    color: var(--black-pearl);
+}
+
+.rounded-friendly {
+    border-radius: var(--rounded-heavy);
+}
