@@ -10,12 +10,47 @@
   --color-pale-taupe: #BE9C83;
   --color-white-berry: #EFEFEF;
   --color-timberwolf: #D1D1D1;
+  --color-wine-berry: #5E1914;
+  --radius-friendly: 2rem;
 }
 
 :root {
   background-color: #091C2A;
   color: #E1C2B3;
   font-family: 'Montserrat', sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+html:not(.dark) body {
+  background-color: #EFEFEF;
+  color: #091C2A;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #BE9C83;
+  border-radius: 10px;
+}
+
+.cart-item-container {
+  transition: all 0.3s ease;
+}
+
+html:not(.dark) .cart-item-container {
+  background-color: #D1D1D1 !important;
+  color: #091C2A !important;
+  border-color: rgba(0,0,0,0.05);
+}
+html:not(.dark) .cart-item-container h3, 
+html:not(.dark) .cart-item-container p, 
+html:not(.dark) .cart-item-container span,
+html:not(.dark) .cart-item-container button {
+  color: #091C2A !important;
+}
+html:not(.dark) .cart-item-container .material-symbols-outlined {
+  color: #091C2A !important;
 }
 
 .serif-font { font-family: 'Cormorant Garamond', serif; }
