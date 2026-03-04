@@ -28,12 +28,12 @@ const CartSummary = ({ subtotal, shipping, taxes }) => {
                 <div className="pt-6 border-t border-walnut">
                     <div className="flex justify-between items-end mb-8">
                         <span className="serif-font text-xl uppercase tracking-widest text-rose-fog">Total</span>
-                        <span className="serif-font text-4xl font-bold text-wine-berry">${total.toFixed(2)}</span>
+                        <span className="serif-font text-4xl font-bold text-rose-fog">${total.toFixed(2)}</span>
                     </div>
 
-                    <button className="w-full bg-black-pearl text-wine-berry hover:bg-wine-berry hover:text-white-berry transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group">
-                        Proceed to Checkout
-                        <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <button className="w-full bg-wine-berry text-white-berry hover:bg-black-pearl transition-all py-4 rounded-friendly font-extrabold uppercase tracking-wide text-base shadow-xl flex items-center justify-center gap-3 group">
+                       PROCEED TO CHECKOUT
+                       <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-[20px]">arrow_forward</span>
                     </button>
 
                     <p className="mt-6 text-center text-xs text-rose-fog/40 uppercase tracking-widest">
