@@ -90,9 +90,9 @@ export default function Login() {
                     </form>
 
                     <div className="mt-10 flex flex-col items-center gap-4">
-                        <a className="text-xs uppercase tracking-widest text-[#E1C2B3]/80 hover:text-[#E1C2B3] transition-colors font-medium" href="#forgot-password">
+                        <Link className="text-xs uppercase tracking-widest text-[#E1C2B3]/80 hover:text-[#E1C2B3] transition-colors font-medium" to="/forgot-password">
                             Forgot Password?
-                        </a>
+                        </Link>
                         <div className="flex items-center gap-4 w-full opacity-20">
                             <div className="h-px flex-1 bg-[#E1C2B3]"></div>
                             <span className="text-[10px] uppercase tracking-widest text-[#E1C2B3]">or</span>

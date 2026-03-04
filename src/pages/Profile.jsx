@@ -112,7 +112,7 @@ export default function Profile({ isLoggedIn = false }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {[1, 2, 3].map((i) => (
+            {[1, 2].map((i) => (
               <div key={i} className="group bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-[#E1C2B3]/5 transition-all duration-500 animate-card">
                 <div className="relative p-8 aspect-square flex items-center justify-center">
                   <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
@@ -132,6 +132,40 @@ export default function Profile({ isLoggedIn = false }) {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* WISHLIST SECTION */}
+        <section className="px-8 lg:px-20 py-16 bg-[#091C2A]">
+          <div className="flex items-center gap-6 mb-12">
+            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-[#E1C2B3]">Wishlist</h3>
+            <div className="h-px flex-1 bg-[#3A2E29]/50" />
+            <span className="material-symbols-outlined opacity-40 text-[#E1C2B3]">favorite</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="bg-[#3A2E29] rounded-[2rem] p-6 flex flex-col items-center justify-between border border-[#E1C2B3]/5 shadow-xl transition-transform hover:-translate-y-2 relative overflow-hidden">
+              <div className="relative w-full aspect-square flex items-center justify-center mb-6 mt-4">
+                <div className="absolute w-[85%] h-[85%] bg-[#122838] rounded-md shadow-2xl z-10 flex items-center justify-center border border-[#E1C2B3]/10">
+                  <div className="w-8 h-8 rounded-full border-4 border-[#3A2E29] flex items-center justify-center bg-[#122838]">
+                    <div className="w-2 h-2 rounded-full bg-[#E1C2B3]/20"></div>
+                  </div>
+                </div>
+                <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[70%] h-[80%] bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
+                  <div className="w-10 h-10 bg-[#3A2E29] rounded-full border-4 border-black" />
+                </div>
+              </div>
+              <div className="w-full text-left space-y-1 z-10">
+                <div className="flex justify-between items-end">
+                  <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase text-[#E1C2B3] tracking-widest">Joe Mean</h4>
+                  <span className="font-['Playfair_Display'] text-lg font-bold text-[#E1C2B3]">$42</span>
+                </div>
+                <p className="text-[#E1C2B3]/60 font-light italic text-sm">Selena / 2021</p>
+              </div>
+              <button className="w-full mt-6 bg-[#E1C2B3] text-[#091C2A] py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white transition-all shadow-md">
+                Purchase
+              </button>
+            </div>
           </div>
         </section>
       </main>
