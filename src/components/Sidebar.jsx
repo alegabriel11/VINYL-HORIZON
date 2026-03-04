@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ isLoggedIn = false }) => {
   const location = useLocation();
 
   // Función para detectar si la ruta actual coincide con el botón
@@ -26,8 +26,8 @@ const Sidebar = () => {
       {/* NAVIGATION LINKS */}
       <nav className="flex-1 px-4 py-4 space-y-2">
         {/* HOME */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className={`${linkStyle} ${isActive('/') ? activeStyle : inactiveStyle}`}
         >
           <span className="material-symbols-outlined">home</span>
@@ -35,8 +35,8 @@ const Sidebar = () => {
         </Link>
 
         {/* PROFILE */}
-        <Link 
-          to="/profile" 
+        <Link
+          to="/profile"
           className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}
         >
           <span className="material-symbols-outlined">person</span>
@@ -44,8 +44,8 @@ const Sidebar = () => {
         </Link>
 
         {/* CATALOG */}
-        <Link 
-          to="/catalog" 
+        <Link
+          to="/catalog"
           className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}
         >
           <span className="material-symbols-outlined">grid_view</span>
@@ -53,8 +53,8 @@ const Sidebar = () => {
         </Link>
 
         {/* CART */}
-        <Link 
-          to="/cart" 
+        <Link
+          to="/cart"
           className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}
         >
           <span className="material-symbols-outlined">shopping_bag</span>
@@ -62,8 +62,8 @@ const Sidebar = () => {
         </Link>
 
         {/* WISHLIST */}
-        <Link 
-          to="/wishlist" 
+        <Link
+          to="/wishlist"
           className={`${linkStyle} ${isActive('/wishlist') ? activeStyle : inactiveStyle}`}
         >
           <span className="material-symbols-outlined">favorite</span>
@@ -71,23 +71,35 @@ const Sidebar = () => {
         </Link>
       </nav>
 
-      {/* BOTTOM SECTION (Settings & Logout) */}
+      {/* BOTTOM SECTION (Settings & Logout or Login/Register) */}
       <div className="px-4 py-8 border-t border-[#3A2E29] space-y-2">
-        <Link 
-          to="/settings" 
-          className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
-        >
-          <span className="material-symbols-outlined">settings</span>
-          <span className="text-sm">Settings</span>
-        </Link>
+        {isLoggedIn ? (
+          <>
+            <Link
+              to="/settings"
+              className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
+            >
+              <span className="material-symbols-outlined">settings</span>
+              <span className="text-sm">Settings</span>
+            </Link>
 
-        <button 
-          className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
-          onClick={() => console.log("Cerrando sesión...")}
-        >
-          <span className="material-symbols-outlined">logout</span>
-          <span className="text-sm font-medium">Log Out</span>
-        </button>
+            <button
+              className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
+              onClick={() => console.log("Cerrando sesión...")}
+            >
+              <span className="material-symbols-outlined">logout</span>
+              <span className="text-sm font-medium">Log Out</span>
+            </button>
+          </>
+        ) : (
+          <Link
+            to="/login"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-[2rem] bg-[#E1C2B3] text-[#091C2A] font-bold hover:bg-white transition-all shadow-lg"
+          >
+            <span className="material-symbols-outlined">login</span>
+            <span className="text-sm">Log In / Register</span>
+          </Link>
+        )}
       </div>
     </aside>
   );

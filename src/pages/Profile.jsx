@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar"; // Importamos el sidebar que ya tienes
 
-export default function Profile() {
+export default function Profile({ isLoggedIn = false }) {
   const [isDark, setIsDark] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -42,7 +42,7 @@ export default function Profile() {
       `}</style>
 
       {/* Reemplazamos el aside manual por tu componente Sidebar */}
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isLoggedIn={isLoggedIn} />
 
       <main className={`${mainMl} transition-all duration-300 min-h-screen relative bg-[#091C2A]`}>
         {/* Toggle Dark Mode */}
@@ -53,69 +53,90 @@ export default function Profile() {
           <span className="material-symbols-outlined">{isDark ? 'light_mode' : 'dark_mode'}</span>
         </button>
 
-        {/* HERO SECTION */}
-        <section className="pt-20 pb-16 px-8 flex flex-col items-center">
-          <div className="flex items-center justify-center relative h-80 w-full max-w-4xl">
-            {/* Vinilo Decorativo */}
-            <div className="absolute left-[15%] w-64 h-64 rounded-full bg-black flex items-center justify-center vinyl-shadow animate-floating z-10 border-4 border-[#122838] overflow-hidden">
-              <div className="w-24 h-24 bg-[#3A2E29] rounded-full border-[8px] border-black flex items-center justify-center">
-                <div className="w-2 h-2 bg-[#E1C2B3]/30 rounded-full" />
-              </div>
-            </div>
-
-            {/* Foto de Perfil */}
-            <div className="relative w-72 h-72 rounded-full overflow-hidden border-8 border-[#091C2A] shadow-2xl z-30">
-              <img
-                alt="Alex Rivera"
-                className="w-full h-full object-cover"
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-              />
-            </div>
-
-            {/* Placa MUSA */}
-            <div className="absolute right-[15%] w-64 h-64 rounded-full bg-[#3A2E29] flex flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-[#122838] text-[#E1C2B3] text-center p-8">
-              <h2 className="font-['Cormorant_Garamond'] text-5xl font-bold tracking-widest uppercase">MUSA</h2>
-              <div className="h-px w-12 bg-[#E1C2B3]/40 mt-2" />
-            </div>
-          </div>
-
-          <div className="mt-12 text-center space-y-2">
-            <h1 className="font-['Playfair_Display'] text-5xl font-bold text-[#E1C2B3]">Alex Rivera</h1>
-            <p className="font-['Cormorant_Garamond'] text-2xl opacity-80 italic text-[#E1C2B3]">alex@vinylhorizon.com</p>
-          </div>
-        </section>
-
-        {/* COLLECTION */}
-        <section className="px-8 lg:px-20 py-16 bg-[#122838]/30">
-          <div className="flex items-center gap-6 mb-12">
-            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-[#E1C2B3]">My Collection</h3>
-            <div className="h-px flex-1 bg-[#3A2E29]/50" />
-            <span className="material-symbols-outlined opacity-40 text-[#E1C2B3]">library_music</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="group bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-[#E1C2B3]/5 transition-all duration-500 animate-card">
-                <div className="relative p-8 aspect-square flex items-center justify-center">
-                  <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                    <img
-                      alt="Album"
-                      className="w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
-                      src={`https://picsum.photos/seed/${i + 20}/400`}
-                    />
-                    <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                      <div className="w-16 h-16 bg-[#3A2E29] rounded-full border-8 border-black" />
-                    </div>
+        {isLoggedIn ? (
+          <>
+            {/* HERO SECTION */}
+            <section className="pt-20 pb-16 px-8 flex flex-col items-center">
+              <div className="flex items-center justify-center relative h-80 w-full max-w-4xl">
+                {/* Vinilo Decorativo */}
+                <div className="absolute left-[15%] w-64 h-64 rounded-full bg-black flex items-center justify-center vinyl-shadow animate-floating z-10 border-4 border-[#122838] overflow-hidden">
+                  <div className="w-24 h-24 bg-[#3A2E29] rounded-full border-[8px] border-black flex items-center justify-center">
+                    <div className="w-2 h-2 bg-[#E1C2B3]/30 rounded-full" />
                   </div>
                 </div>
-                <div className="p-8">
-                  <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase text-[#E1C2B3]">Album Artist {i}</h4>
-                  <p className="text-[#E1C2B3]/70 font-light italic">Limited Edition</p>
+
+                {/* Foto de Perfil */}
+                <div className="relative w-72 h-72 rounded-full overflow-hidden border-8 border-[#091C2A] shadow-2xl z-30">
+                  <img
+                    alt="Alex Rivera"
+                    className="w-full h-full object-cover"
+                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
+                  />
+                </div>
+
+                {/* Placa MUSA */}
+                <div className="absolute right-[15%] w-64 h-64 rounded-full bg-[#3A2E29] flex flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-[#122838] text-[#E1C2B3] text-center p-8">
+                  <h2 className="font-['Cormorant_Garamond'] text-5xl font-bold tracking-widest uppercase">MUSA</h2>
+                  <div className="h-px w-12 bg-[#E1C2B3]/40 mt-2" />
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
+
+              <div className="mt-12 text-center space-y-2">
+                <h1 className="font-['Playfair_Display'] text-5xl font-bold text-[#E1C2B3]">Alex Rivera</h1>
+                <p className="font-['Cormorant_Garamond'] text-2xl opacity-80 italic text-[#E1C2B3]">alex@vinylhorizon.com</p>
+              </div>
+            </section>
+
+            {/* COLLECTION */}
+            <section className="px-8 lg:px-20 py-16 bg-[#122838]/30">
+              <div className="flex items-center gap-6 mb-12">
+                <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-[#E1C2B3]">My Collection</h3>
+                <div className="h-px flex-1 bg-[#3A2E29]/50" />
+                <span className="material-symbols-outlined opacity-40 text-[#E1C2B3]">library_music</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="group bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-[#E1C2B3]/5 transition-all duration-500 animate-card">
+                    <div className="relative p-8 aspect-square flex items-center justify-center">
+                      <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
+                        <img
+                          alt="Album"
+                          className="w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
+                          src={`https://picsum.photos/seed/${i + 20}/400`}
+                        />
+                        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
+                          <div className="w-16 h-16 bg-[#3A2E29] rounded-full border-8 border-black" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-8">
+                      <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase text-[#E1C2B3]">Album Artist {i}</h4>
+                      <p className="text-[#E1C2B3]/70 font-light italic">Limited Edition</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <section className="pt-32 pb-16 px-8 flex flex-col items-center justify-center min-h-[80vh]">
+            <div className="text-center space-y-6 max-w-lg">
+              <span className="material-symbols-outlined text-[6rem] text-[#E1C2B3]/30 animate-floating">lock</span>
+              <h2 className="font-['Playfair_Display'] text-4xl font-bold text-[#E1C2B3]">Access Restricted</h2>
+              <p className="font-['Montserrat'] text-lg text-[#E1C2B3]/80">Please log in or register to view your profile and manage your collection.</p>
+
+              <div className="pt-8 flex gap-4 justify-center">
+                <a href="/login" className="px-8 py-3 bg-[#E1C2B3] text-[#091C2A] font-bold rounded-full hover:bg-white transition-all shadow-lg">
+                  Log In
+                </a>
+                <a href="/register" className="px-8 py-3 border border-[#E1C2B3] text-[#E1C2B3] font-bold rounded-full hover:bg-[#E1C2B3] hover:text-[#091C2A] transition-all">
+                  Register
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
