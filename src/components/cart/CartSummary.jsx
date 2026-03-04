@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CartSummary = ({ subtotal, shipping, taxes }) => {
     const total = subtotal + shipping + taxes;
@@ -31,10 +32,10 @@ const CartSummary = ({ subtotal, shipping, taxes }) => {
                         <span className="serif-font text-4xl font-bold text-rose-fog">${total.toFixed(2)}</span>
                     </div>
 
-                    <button className="w-full bg-wine-berry text-white-berry hover:bg-black-pearl transition-all py-4 rounded-friendly font-extrabold uppercase tracking-wide text-base shadow-xl flex items-center justify-center gap-3 group">
-                       PROCEED TO CHECKOUT
-                       <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-[20px]">arrow_forward</span>
-                    </button>
+                    <Link to="/checkout" className="w-full bg-wine-berry text-white-berry hover:bg-black-pearl transition-all py-4 rounded-friendly font-extrabold uppercase tracking-wide text-base shadow-xl flex items-center justify-center gap-3 group">
+                        PROCEED TO CHECKOUT
+                        <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-[20px]">arrow_forward</span>
+                    </Link>
 
                     <p className="mt-6 text-center text-xs text-rose-fog/40 uppercase tracking-widest">
                         Secure payment guaranteed
