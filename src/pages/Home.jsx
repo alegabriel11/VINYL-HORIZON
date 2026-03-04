@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
-import '../styles/Home.css';
+import '../Styles/Home.css';
 
 const Home = () => {
   // Manejo de estado solo para el Dark Mode
@@ -18,15 +18,15 @@ const Home = () => {
 
   return (
     <div className="bg-black-pearl text-rose-fog selection:bg-rose-fog selection:text-black-pearl">
-      
+
       <Sidebar />
 
       {/* Contenedor Principal */}
       <main className="min-h-screen relative bg-black-pearl-light ml-64" id="main-content">
-        
+
         {/* Botón Dark Mode */}
-        <button 
-          className="fixed top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group" 
+        <button
+          className="fixed top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group"
           onClick={toggleDarkMode}
         >
           {isDarkMode ? (
@@ -129,13 +129,13 @@ const Home = () => {
             </div>
             <p className="text-rose-fog/60 uppercase tracking-widest text-xs border-b border-rose-fog/60 pb-2">Updated weekly</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {/* Record Item 1 */}
             <div className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
               <div className="relative p-8 aspect-square flex items-center justify-center">
                 <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                  <img alt="Linda Trusten" className="w-4/5 h-full object-cover shadow-2xl z-10 relative grayscale group-hover:grayscale-0 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i"/>
+                  <img alt="Linda Trusten" className="w-4/5 h-full object-cover shadow-2xl z-10 relative grayscale group-hover:grayscale-0 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i" />
                   <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
                     <div className="w-16 h-16 bg-walnut rounded-full border-8 border-black"></div>
                   </div>
@@ -159,7 +159,7 @@ const Home = () => {
             <div className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
               <div className="relative p-8 aspect-square flex items-center justify-center">
                 <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                  <img alt="Terry Wine" className="w-4/5 h-full object-cover shadow-2xl z-10 relative brightness-90 group-hover:brightness-105 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT"/>
+                  <img alt="Terry Wine" className="w-4/5 h-full object-cover shadow-2xl z-10 relative brightness-90 group-hover:brightness-105 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT" />
                   <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
                     <div className="w-16 h-16 bg-rose-fog/20 rounded-full border-8 border-black"></div>
                   </div>
@@ -205,7 +205,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-20 flex justify-center">
             <button className="px-16 py-6 bg-rose-fog text-black-pearl font-bold hover:bg-white-berry transition-all uppercase tracking-[0.3em] text-sm rounded-friendly shadow-xl">
               Explore Entire Archive
@@ -217,8 +217,8 @@ const Home = () => {
         <section className="px-8 lg:px-12 py-32">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 relative">
-            <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>                
-            <h2 className="display-font text-6xl text-rose-fog leading-tight">About Our Craft</h2>
+              <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>
+              <h2 className="display-font text-6xl text-rose-fog leading-tight">About Our Craft</h2>
               <div className="w-20 h-2 bg-rose-fog rounded-full"></div>
               <p className="text-rose-fog text-lg leading-relaxed font-light italic">
                 "We believe in the pure sound of analog souls. In an age of digital transience, the needle on wax remains the most honest bridge between artist and listener."
@@ -228,7 +228,7 @@ const Home = () => {
               </p>
             </div>
             <div className="relative aspect-[4/5] overflow-hidden rounded-friendly border border-walnut group">
-              <img alt="Atmospheric Record Player" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp"/>
+              <img alt="Atmospheric Record Player" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp" />
               <div className="absolute inset-0 bg-black-pearl/30 flex items-center justify-center group-hover:bg-black-pearl/10 transition-all">
                 <div className="w-24 h-24 rounded-full border border-rose-fog/30 flex items-center justify-center bg-black-pearl/20 backdrop-blur-sm group-hover:scale-110 transition-all">
                   <span className="material-symbols-outlined text-rose-fog text-4xl">play_circle</span>
