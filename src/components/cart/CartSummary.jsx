@@ -31,7 +31,7 @@ const CartSummary = ({ subtotal, shipping, taxes }) => {
                         <span className="serif-font text-4xl font-bold text-wine-berry">${total.toFixed(2)}</span>
                     </div>
 
-                    <button className="w-full bg-wine-berry text-white-berry hover:bg-black-pearl transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group">
+                    <button className="w-full bg-black-pearl text-wine-berry hover:bg-wine-berry hover:text-white-berry transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group">
                         Proceed to Checkout
                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
