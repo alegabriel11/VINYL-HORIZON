@@ -4,10 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 const Sidebar = ({ isLoggedIn = false }) => {
   const location = useLocation();
 
-  // Función para detectar si la ruta actual coincide con el botón
   const isActive = (path) => location.pathname === path;
 
-  // Estilo base para los botones del menú
   const linkStyle = "flex items-center gap-3 px-5 py-3 rounded-[2rem] transition-all duration-300 group";
   const activeStyle = "bg-[#EFEFEF] text-[#091C2A] font-semibold shadow-lg";
   const inactiveStyle = "text-[#BE9C83] hover:text-[#091C2A] hover:bg-[#EFEFEF]";
@@ -25,82 +23,52 @@ const Sidebar = ({ isLoggedIn = false }) => {
 
       {/* NAVIGATION LINKS */}
       <nav className="flex-1 px-4 py-4 space-y-2">
-        {/* HOME */}
-        <Link
-          to="/"
-          className={`${linkStyle} ${isActive('/') ? activeStyle : inactiveStyle}`}
-        >
+        <Link to="/" className={`${linkStyle} ${isActive('/') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">home</span>
           <span className="text-sm">Home</span>
         </Link>
 
-        {/* PROFILE */}
-        <Link
-          to="/profile"
-          className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}
-        >
+        <Link to="/profile" className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">person</span>
           <span className="text-sm">Profile</span>
         </Link>
 
-        {/* CATALOG */}
-        <Link
-          to="/catalog"
-          className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}
-        >
+        <Link to="/catalog" className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">grid_view</span>
           <span className="text-sm">Catalog</span>
         </Link>
 
-        {/* CART */}
-        <Link
-          to="/cart"
-          className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}
-        >
+        <Link to="/cart" className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">shopping_bag</span>
           <span className="text-sm">Cart</span>
         </Link>
 
-        {/* WISHLIST */}
-        <Link
-          to="/wishlist"
-          className={`${linkStyle} ${isActive('/wishlist') ? activeStyle : inactiveStyle}`}
-        >
+        <Link to="/wishlist" className={`${linkStyle} ${isActive('/wishlist') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">favorite</span>
           <span className="text-sm">Wishlist</span>
         </Link>
       </nav>
 
-      {/* BOTTOM SECTION (Settings & Logout or Login/Register) */}
-      <div className="px-4 py-8 border-t border-[#3A2E29] space-y-2">
-        {isLoggedIn ? (
-          <>
-            <Link
-              to="/settings"
-              className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
-            >
-              <span className="material-symbols-outlined">settings</span>
-              <span className="text-sm">Settings</span>
-            </Link>
-
-            <button
-              className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
-              onClick={() => console.log("Cerrando sesión...")}
-            >
-              <span className="material-symbols-outlined">logout</span>
-              <span className="text-sm font-medium">Log Out</span>
-            </button>
-          </>
-        ) : (
+      {/* BOTTOM SECTION - Solo se renderiza si isLoggedIn es true */}
+      {isLoggedIn && (
+        <div className="px-4 py-8 border-t border-[#3A2E29] space-y-2">
           <Link
-            to="/login"
-            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-[2rem] bg-[#E1C2B3] text-[#091C2A] font-bold hover:bg-white transition-all shadow-lg"
+            to="/settings"
+            className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
           >
-            <span className="material-symbols-outlined">login</span>
-            <span className="text-sm">Log In / Register</span>
+            <span className="material-symbols-outlined">settings</span>
+            <span className="text-sm">Settings</span>
           </Link>
-        )}
-      </div>
+
+          <button
+            className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
+            onClick={() => console.log("Cerrando sesión...")}
+          >
+            <span className="material-symbols-outlined">logout</span>
+            <span className="text-sm font-medium">Log Out</span>
+          </button>
+        </div>
+      )}
     </aside>
   );
 };
