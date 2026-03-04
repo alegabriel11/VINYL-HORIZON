@@ -29,6 +29,7 @@ html:not(.dark) body {
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #BE9C83;
   border-radius: 10px;
@@ -41,36 +42,68 @@ html:not(.dark) body {
 html:not(.dark) .cart-item-container {
   background-color: #D1D1D1 !important;
   color: #091C2A !important;
-  border-color: rgba(0,0,0,0.05);
+  border-color: rgba(0, 0, 0, 0.05);
 }
-html:not(.dark) .cart-item-container h3, 
-html:not(.dark) .cart-item-container p, 
+
+html:not(.dark) .cart-item-container h3,
+html:not(.dark) .cart-item-container p,
 html:not(.dark) .cart-item-container span,
 html:not(.dark) .cart-item-container button {
   color: #091C2A !important;
 }
+
 html:not(.dark) .cart-item-container .material-symbols-outlined {
   color: #091C2A !important;
 }
 
-.serif-font { font-family: 'Cormorant Garamond', serif; }
-.display-font { font-family: 'Playfair Display', serif; }
+.serif-font {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.display-font {
+  font-family: 'Playfair Display', serif;
+}
 
 .vinyl-shadow {
-  box-shadow: 15px 0 30px rgba(0,0,0,0.5);
+  box-shadow: 15px 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .hero-gradient {
   background: linear-gradient(to bottom, rgba(9, 28, 42, 0.4), #122838);
 }
+
 @keyframes floating {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
 }
+
 @keyframes floating-delayed {
-  0%, 100% { transform: translateY(-10px); }
-  50% { transform: translateY(5px); }
+
+  0%,
+  100% {
+    transform: translateY(-10px);
+  }
+
+  50% {
+    transform: translateY(5px);
+  }
 }
-.animate-floating { animation: floating 4s ease-in-out infinite; }
-.animate-floating-delayed { animation: floating-delayed 5s ease-in-out infinite; }
-.animate-card { animation: floating 6s ease-in-out infinite; }
+
+.animate-floating {
+  animation: floating 4s ease-in-out infinite;
+}
+
+.animate-floating-delayed {
+  animation: floating-delayed 5s ease-in-out infinite;
+}
+
+.animate-card {
+  animation: floating 6s ease-in-out infinite;
+}
