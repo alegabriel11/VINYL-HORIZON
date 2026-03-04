@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar"; // Importamos el sidebar que ya tienes
 
 export default function Profile({ isLoggedIn = false }) {
@@ -90,12 +91,12 @@ export default function Profile({ isLoggedIn = false }) {
                 <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#E1C2B3]">Welcome to Vinyl Horizon</h1>
                 <p className="font-['Montserrat'] text-lg text-[#E1C2B3]/80 max-w-md">Join us to manage your collection and explore new music.</p>
                 <div className="flex gap-4 pt-2">
-                  <a href="/login" className="px-8 py-3 bg-[#E1C2B3] text-[#091C2A] font-bold rounded-full hover:bg-white transition-all shadow-lg">
+                  <Link to="/login" className="px-8 py-3 bg-[#E1C2B3] text-[#091C2A] font-bold rounded-full hover:bg-white transition-all shadow-lg">
                     Log In
-                  </a>
-                  <a href="/register" className="px-8 py-3 border border-[#E1C2B3] text-[#E1C2B3] font-bold rounded-full hover:bg-[#E1C2B3] hover:text-[#091C2A] transition-all">
+                  </Link>
+                  <Link to="/register" className="px-8 py-3 border border-[#E1C2B3] text-[#E1C2B3] font-bold rounded-full hover:bg-[#E1C2B3] hover:text-[#091C2A] transition-all">
                     Register
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}
