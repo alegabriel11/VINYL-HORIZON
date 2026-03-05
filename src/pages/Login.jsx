@@ -40,7 +40,11 @@ export default function Login() {
                     icon: '🎵',
                 });
 
-                navigate('/profile');
+                if (data.user.role === 'admin') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/profile');
+                }
             } else {
                 setError(data.message || 'Credenciales inválidas.');
             }
