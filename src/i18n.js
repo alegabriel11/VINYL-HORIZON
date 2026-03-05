@@ -69,13 +69,16 @@ const resources = {
             },
             profile: {
                 welcome: "Welcome to Vinyl Horizon",
+                welcome_back: "Welcome back",
                 join_us: "Join us to manage your collection and explore new music.",
                 login: "Log In",
                 register: "Register",
                 my_collection: "My Collection",
                 limited_edition: "Limited Edition",
                 wishlist: "Wishlist",
-                purchase: "Purchase"
+                purchase: "Purchase",
+                level: "MUSA",
+                logout: "Log Out"
             },
             auth: {
                 email: "Email Address",
@@ -241,13 +244,16 @@ const resources = {
             },
             profile: {
                 welcome: "Bienvenido a Vinyl Horizon",
+                welcome_back: "Que bueno verte de nuevo",
                 join_us: "Únete a nosotros para gestionar tu colección y explorar nueva música.",
                 login: "Iniciar Sesión",
                 register: "Registrarse",
                 my_collection: "Mi Colección",
                 limited_edition: "Edición Limitada",
                 wishlist: "Lista de Deseos",
-                purchase: "Comprar"
+                purchase: "Comprar",
+                level: "MUSA",
+                logout: "Cerrar Sesión"
             },
             auth: {
                 email: "Correo Electrónico",
