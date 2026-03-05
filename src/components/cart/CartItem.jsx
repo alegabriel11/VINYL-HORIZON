@@ -3,13 +3,12 @@ import React from 'react';
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
     return (
         <div className="cart-item-container flex items-center gap-6 p-6 rounded-friendly bg-timberwolf dark:bg-walnut shadow-xl group border border-black-pearl/10 dark:border-rose-fog/5 transition-colors duration-500">
-        <div className="cart-item-container flex flex-col sm:flex-row sm:items-center gap-6 p-6 rounded-friendly bg-walnut dark:bg-walnut shadow-xl group border border-rose-fog/5">
             <img
                 alt={item.artist}
-                className={`w-24 h-24 sm:w-32 sm:h-32 shrink-0 object-cover rounded-xl shadow-lg ${item.grayscale ? 'grayscale group-hover:grayscale-0 transition-all' : ''}`}
+                className={`w-32 h-32 object-cover rounded-xl shadow-lg ${item.grayscale ? 'grayscale group-hover:grayscale-0 transition-all' : ''}`}
                 src={item.image}
             />
-            <div className="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+            <div className="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h3 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog">{item.artist}</h3>
                     <p className="text-black-pearl/70 dark:text-rose-fog/70 italic">{item.title}</p>
