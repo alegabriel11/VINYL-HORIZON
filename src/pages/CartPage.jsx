@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import Sidebar from '../components/Sidebar';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
@@ -34,13 +35,8 @@ const initialCartItems = [
 ];
 
 const CartPage = () => {
+    const { isDark, toggleTheme } = useTheme();
     const [items, setItems] = useState(initialCartItems);
-    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
-
-    const toggleDarkMode = () => {
-        document.documentElement.classList.toggle('dark');
-        setIsDark(!isDark);
-    };
 
     const handleUpdateQuantity = (id, newQuantity) => {
         if (newQuantity < 1) return;
@@ -58,12 +54,12 @@ const CartPage = () => {
     const shipping = 0; // Complimentary
 
     return (
-        <div className="bg-black-pearl min-h-screen flex">
+        <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
             <Sidebar />
-            <main className="relative flex-1 lg:ml-64 transition-all duration-300 min-h-screen bg-black-pearl-light p-4 sm:p-8 border-l border-walnut">
+            <main className="relative ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light p-8 lg:p-16">
                 <button
-                    onClick={toggleDarkMode}
-                    className="absolute top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog dark:text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group focus:outline-none"
+                    onClick={toggleTheme}
+                    className="absolute top-8 right-8 z-[60] p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
                     aria-label="Toggle Dark Mode"
                 >
                     {isDark ? (
@@ -100,9 +96,9 @@ const CartPage = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-32 text-center">
-                            <span className="material-symbols-outlined text-9xl text-rose-fog/10 mb-8">album</span>
-                            <h2 className="serif-font text-4xl text-rose-fog mb-4">Your collection is empty</h2>
-                            <button className="px-12 py-4 bg-rose-fog text-black-pearl rounded-friendly font-bold uppercase tracking-widest hover:bg-white-berry transition-all">
+                            <span className="material-symbols-outlined text-9xl text-black-pearl/10 dark:text-rose-fog/10 mb-8">album</span>
+                            <h2 className="serif-font text-4xl text-black-pearl dark:text-rose-fog mb-4">Your collection is empty</h2>
+                            <button className="px-12 py-4 bg-rose-fog text-black-pearl rounded-friendly font-bold uppercase tracking-widest hover:bg-black-pearl hover:text-white-berry transition-all">
                                 Start Exploring
                             </button>
                         </div>

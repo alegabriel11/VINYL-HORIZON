@@ -7,17 +7,17 @@ const Sidebar = ({ isLoggedIn = false }) => {
   const isActive = (path) => location.pathname === path;
 
   const linkStyle = "flex items-center gap-3 px-5 py-3 rounded-[2rem] transition-all duration-300 group";
-  const activeStyle = "bg-[#EFEFEF] text-[#091C2A] font-semibold shadow-lg";
-  const inactiveStyle = "text-[#BE9C83] hover:text-[#091C2A] hover:bg-[#EFEFEF]";
+  const activeStyle = "bg-black-pearl/10 dark:bg-walnut text-black-pearl dark:text-rose-fog font-semibold shadow-lg";
+  const inactiveStyle = "text-black-pearl/60 dark:text-pale-taupe hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/5 dark:hover:bg-walnut";
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#091C2A] border-r border-[#3A2E29] z-50 flex flex-col">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white-berry dark:bg-black-pearl border-r border-black-pearl/10 dark:border-walnut z-50 flex flex-col transition-colors duration-500">
       {/* LOGO SECTION */}
       <div className="p-8 flex items-center justify-between">
         <div className="flex flex-col relative">
-          <span className="material-symbols-outlined absolute -left-6 -top-2 text-[#E1C2B3]/30 scale-75">album</span>
-          <span className="font-['Cormorant_Garamond'] text-2xl font-bold tracking-widest text-[#E1C2B3] uppercase">Vinyl</span>
-          <span className="font-['Cormorant_Garamond'] text-xl tracking-[0.2em] text-[#E1C2B3] uppercase">Horizon</span>
+          <span className="material-symbols-outlined absolute -left-6 -top-2 text-black-pearl/10 dark:text-rose-fog/30 scale-75">album</span>
+          <span className="font-['Cormorant_Garamond'] text-2xl font-bold tracking-widest text-black-pearl dark:text-rose-fog uppercase">Vinyl</span>
+          <span className="font-['Cormorant_Garamond'] text-xl tracking-[0.2em] text-black-pearl dark:text-rose-fog uppercase">Horizon</span>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
 
       {/* BOTTOM SECTION - Solo se renderiza si isLoggedIn es true */}
       {isLoggedIn && (
-        <div className="px-4 py-8 border-t border-[#3A2E29] space-y-2">
+        <div className="px-4 py-8 border-t border-black-pearl/10 dark:border-walnut space-y-2">
           <Link
             to="/settings"
             className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}

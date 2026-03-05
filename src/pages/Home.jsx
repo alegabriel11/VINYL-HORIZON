@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Sidebar from '../components/Sidebar';
 import '../Styles/Home.css';
+import { useTheme } from '../context/ThemeContext';
 
 const Home = () => {
-  // Manejo de estado solo para el Dark Mode
-  const [isDarkMode, setIsDarkMode] = useState(true);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="bg-black-pearl text-rose-fog selection:bg-rose-fog selection:text-black-pearl">
+    <div className="bg-timberwolf dark:bg-black-pearl text-black-pearl dark:text-rose-fog selection:bg-black-pearl selection:text-timberwolf dark:selection:bg-rose-fog dark:selection:text-black-pearl transition-colors duration-500">
 
       <Sidebar />
 
       {/* Contenedor Principal */}
-      <main className="min-h-screen relative bg-black-pearl-light ml-64" id="main-content">
+      <main className="min-h-screen relative bg-[#EFEFEF] dark:bg-black-pearl-light ml-64 transition-colors duration-500" id="main-content">
 
         {/* Botón Dark Mode */}
         <button
           className="fixed top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group"
-          onClick={toggleDarkMode}
+          onClick={toggleTheme}
         >
-          {isDarkMode ? (
+          {isDark ? (
             <span className="material-symbols-outlined block">light_mode</span>
           ) : (
             <span className="material-symbols-outlined block">dark_mode</span>
@@ -43,30 +33,30 @@ const Home = () => {
             <div className="absolute inset-0 hero-gradient"></div>
           </div>
           <div className="relative z-10 space-y-6">
-            <h1 className="serif-font text-7xl md:text-9xl font-bold text-rose-fog tracking-tighter flex items-center justify-center gap-4">
+            <h1 className="serif-font text-7xl md:text-9xl font-bold tracking-tighter flex items-center justify-center gap-4 text-white dark:text-rose-fog">
               VINYL HORIZON
             </h1>
-            <div className="h-1 w-24 bg-rose-fog mx-auto rounded-full"></div>
-            <p className="text-rose-fog uppercase tracking-[0.4em] text-sm md:text-base font-light">
+            <div className="h-1 w-24 mx-auto rounded-full bg-white dark:bg-rose-fog"></div>
+            <p className="uppercase tracking-[0.4em] text-sm md:text-base font-light text-white dark:text-rose-fog">
               The pinnacle of analog sound curation
             </p>
           </div>
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 opacity-70">
-            <span className="text-xs uppercase tracking-widest text-rose-fog">Scroll to explore</span>
-            <span className="material-symbols-outlined text-rose-fog animate-bounce">expand_more</span>
+            <span className="text-xs uppercase tracking-widest text-white dark:text-rose-fog">Scroll to explore</span>
+            <span className="material-symbols-outlined text-white dark:text-rose-fog animate-bounce">expand_more</span>
           </div>
         </section>
 
         {/* Header Content */}
         <header className="px-8 lg:px-12 pt-12 pb-4 relative flex justify-start">
           <div className="flex gap-4 lg:hidden mb-8">
-            <span className="material-symbols-outlined text-rose-fog">search</span>
-            <span className="material-symbols-outlined text-rose-fog">shopping_cart</span>
+            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog">search</span>
+            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog">shopping_cart</span>
           </div>
           <div className="max-w-4xl relative w-full mt-10">
-            <span className="material-symbols-outlined absolute -top-20 -left-12 text-rose-fog/10 text-[150px] leading-none pointer-events-none select-none">graphic_eq</span>
-            <h2 className="display-font text-5xl lg:text-7xl text-rose-fog leading-tight">Curated Classics</h2>
-            <p className="mt-6 text-rose-fog/80 text-lg max-w-xl font-light">
+            <span className="material-symbols-outlined absolute -top-20 -left-12 text-black-pearl/5 dark:text-rose-fog/10 text-[150px] leading-none pointer-events-none select-none">graphic_eq</span>
+            <h2 className="display-font text-5xl lg:text-7xl text-black-pearl dark:text-rose-fog leading-tight">Curated Classics</h2>
+            <p className="mt-6 text-black-pearl/80 dark:text-rose-fog/80 text-lg max-w-xl font-light">
               Discover a handpicked selection of vinyl records, from timeless jazz to the pulse of modern underground.
             </p>
           </div>
@@ -75,10 +65,10 @@ const Home = () => {
         {/* Featured Record Section */}
         <section className="px-8 lg:px-12 pt-8 pb-20">
           <div className="flex items-center gap-4 mb-8">
-            <h3 className="text-xs font-bold tracking-[0.3em] text-rose-fog/60 uppercase">Recommended for you</h3>
-            <span className="material-symbols-outlined text-rose-fog/40 text-sm">stars</span>
+            <h3 className="text-xs font-bold tracking-[0.3em] text-black-pearl/60 dark:text-rose-fog/60 uppercase">Recommended for you</h3>
+            <span className="material-symbols-outlined text-black-pearl/40 dark:text-rose-fog/40 text-sm">stars</span>
           </div>
-          <div className="bg-white-berry rounded-friendly p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-16 border border-white-berry/10 text-black-pearl overflow-hidden">
+          <div className="bg-white rounded-friendly p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-16 border border-black-pearl/10 dark:border-white-berry/10 text-black-pearl overflow-hidden shadow-2xl">
             <div className="flex-1 z-10 w-full">
               <div className="space-y-8 max-w-md">
                 <div className="space-y-2">
@@ -121,13 +111,13 @@ const Home = () => {
         </section>
 
         {/* New Arrivals Section */}
-        <section className="px-8 lg:px-12 py-20 bg-black-pearl/30">
+        <section className="px-8 lg:px-12 py-20 bg-timberwolf/50 dark:bg-black-pearl/30 transition-colors">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div className="flex items-center gap-6">
-              <h3 className="display-font text-5xl text-rose-fog uppercase">The New Ones</h3>
-              <span className="material-symbols-outlined text-rose-fog text-4xl opacity-50">auto_awesome</span>
+              <h3 className="display-font text-5xl text-black-pearl dark:text-rose-fog uppercase">The New Ones</h3>
+              <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog text-4xl opacity-50">auto_awesome</span>
             </div>
-            <p className="text-rose-fog/60 uppercase tracking-widest text-xs border-b border-rose-fog/60 pb-2">Updated weekly</p>
+            <p className="text-black-pearl/60 dark:text-rose-fog/60 uppercase tracking-widest text-xs border-b border-black-pearl/60 dark:border-rose-fog/60 pb-2">Updated weekly</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -217,17 +207,17 @@ const Home = () => {
         <section className="px-8 lg:px-12 py-32">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 relative">
-              <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>
-              <h2 className="display-font text-6xl text-rose-fog leading-tight">About Our Craft</h2>
-              <div className="w-20 h-2 bg-rose-fog rounded-full"></div>
-              <p className="text-rose-fog text-lg leading-relaxed font-light italic">
+              <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-black-pearl/5 dark:text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>
+              <h2 className="display-font text-6xl text-black-pearl dark:text-rose-fog leading-tight">About Our Craft</h2>
+              <div className="w-20 h-2 bg-black-pearl dark:bg-rose-fog rounded-full"></div>
+              <p className="text-black-pearl dark:text-rose-fog text-lg leading-relaxed font-light italic">
                 "We believe in the pure sound of analog souls. In an age of digital transience, the needle on wax remains the most honest bridge between artist and listener."
               </p>
-              <p className="text-rose-fog/70 leading-relaxed font-light">
+              <p className="text-black-pearl/70 dark:text-rose-fog/70 leading-relaxed font-light">
                 Vinyl Horizon was founded on a simple obsession: the pursuit of sonic warmth. Every record in our vault is inspected for quality and curated for its cultural significance.
               </p>
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-friendly border border-walnut group">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-friendly border border-black-pearl/20 dark:border-walnut group shadow-2xl">
               <img alt="Atmospheric Record Player" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp" />
               <div className="absolute inset-0 bg-black-pearl/30 flex items-center justify-center group-hover:bg-black-pearl/10 transition-all">
                 <div className="w-24 h-24 rounded-full border border-rose-fog/30 flex items-center justify-center bg-black-pearl/20 backdrop-blur-sm group-hover:scale-110 transition-all">
