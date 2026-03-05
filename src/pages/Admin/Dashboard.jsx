@@ -37,10 +37,10 @@ export default function Dashboard() {
               aria-label="Toggle dark mode"
             >
               <span className="material-symbols-outlined block dark:hidden">
-                dark_mode
+                light_mode
               </span>
               <span className="material-symbols-outlined hidden dark:block">
-                light_mode
+                dark_mode
               </span>
             </button>
 
@@ -276,13 +276,6 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-
-            <button
-              className="w-full mt-10 py-4 border border-black/15 dark:border-rose-fog/20 rounded-xl text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog hover:bg-[#0B1B2A] hover:text-[#F3F0EC] dark:hover:bg-rose-fog dark:hover:text-black-pearl transition-all"
-              type="button"
-            >
-              Generate Report
-            </button>
           </div>
         </div>
 

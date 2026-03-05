@@ -114,7 +114,7 @@ export default function Register() {
                         <div>
                             <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="full-name">{t('auth.full_name')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
+                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
                                 id="full-name"
                                 placeholder="John Doe"
                                 type="text"
@@ -126,7 +126,7 @@ export default function Register() {
                         <div>
                             <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="nickname">{t('auth.nickname')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
+                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
                                 id="nickname"
                                 placeholder="VinylLover99"
                                 type="text"
@@ -137,7 +137,7 @@ export default function Register() {
                         <div>
                             <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="email">{t('auth.email')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
+                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
                                 id="email"
                                 placeholder="hello@example.com"
                                 type="email"
@@ -149,7 +149,7 @@ export default function Register() {
                         <div>
                             <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="password">{t('auth.password')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
+                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
                                 id="password"
                                 placeholder="••••••••"
                                 type="password"

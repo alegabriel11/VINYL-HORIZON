@@ -1,12 +1,224 @@
-import React from "react";
+import React, { useRef } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Reports() {
+  const { isDark, toggleTheme } = useTheme();
+  const printRef = useRef();
+
+  const handleDownloadPDF = () => {
+    // We use a CSS class on the body to control print styles
+    document.body.classList.add("printing-monthly-growth");
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove("printing-monthly-growth");
+    }, 500);
+  };
+
   return (
-    <div className="min-h-screen bg-[#091C2A]">
+    <div className="min-h-screen selection:bg-rose-fog selection:text-black-pearl bg-[#E1E5F0] dark:bg-[#091C2A] text-[#0B1B2A] dark:text-[#E1C2B3] transition-colors font-['Montserrat']">
+      <style>{`
+        @media print {
+          body.printing-monthly-growth * {
+            visibility: hidden;
+          }
+          body.printing-monthly-growth .pdf-export-container, 
+          body.printing-monthly-growth .pdf-export-container * {
+            visibility: visible;
+          }
+          body.printing-monthly-growth .pdf-export-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            box-shadow: none;
+            border: none;
+            background: ${isDark ? '#3A2E29' : '#D9D9D9'} !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          body.printing-monthly-growth .pdf-hide-on-print {
+            display: none !important;
+          }
+        }
+      `}</style>
       <AdminSidebar />
-      <main className="ml-72 p-10 text-[#E1C2B3]">
-        <h1 className="text-3xl font-bold">Reports</h1>
+
+      <main className="ml-64 min-h-screen p-8 lg:p-12 relative" id="main-content">
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="font-['Cormorant_Garamond'] text-5xl font-bold">Reports</h1>
+            <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-[0.3em] mt-1 font-semibold">ADMIN TERMINAL</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <button
+              className="px-6 py-3 bg-[#0B1B2A] dark:bg-rose-fog text-[#F3F0EC] dark:text-black-pearl text-[10px] font-bold uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-xl"
+              type="button"
+            >
+              Generate Full Report
+            </button>
+            <div className="relative group">
+              <span className="material-symbols-outlined cursor-pointer hover:text-[#5E1914] transition-colors">notifications</span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
+            </div>
+
+            <div className="flex items-center gap-3 border-l border-[#3A2E29]/30 pl-6">
+              <div className="text-right">
+                <p className="text-sm font-bold">Alex Rivers</p>
+                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-tighter">Store Manager</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-[#3A2E29] overflow-hidden border border-[#E1C2B3]/20 shadow-inner">
+                <img alt="Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsOXf4G5EF-_AEWxdF6yLcmKT8OrzGI9t2NuUxuh_3pLDF8eeCGTNpE6Ago8OErxhEn7GqbVuQec-I3R8xW-rWDjvLP_n_9pUgazdY8DtjuYLTRqXdn5TndwJpLtNBQW3LvZk4IskVZNc2t399Ph5aoq9zmLnuYLSXyXUOC4Z2CPwpffSf-ERoI8CHx-yqKlWcYMpRlWxdgyHQnjeHHjZi6hECsrfCH43llb67qAt19LvNOslPAbevGUxVKESPQe1Ap4XTcOa1fXuN" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                <span className="material-symbols-outlined text-[#5E1914]">payments</span>
+              </div>
+              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+14.2%</span>
+            </div>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Total Revenue</p>
+            <h3 className="font-['Playfair_Display'] text-3xl mt-1">$48,295.50</h3>
+          </div>
+          <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                <span className="material-symbols-outlined text-[#5E1914]">shopping_cart</span>
+              </div>
+              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+5.7%</span>
+            </div>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Avg. Order Value</p>
+            <h3 className="font-['Playfair_Display'] text-3xl mt-1">$42.80</h3>
+          </div>
+          <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                <span className="material-symbols-outlined text-[#5E1914]">group_add</span>
+              </div>
+              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+22.1%</span>
+            </div>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Customer Growth</p>
+            <h3 className="font-['Playfair_Display'] text-3xl mt-1">1,204</h3>
+          </div>
+        </div>
+
+        <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl mb-8 transition-all">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Sales by Genre</h4>
+              <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">Distribution of monthly volume</p>
+            </div>
+          </div>
+          <div className="flex items-end justify-between h-64 gap-8 px-4">
+            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "85%" }}></div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Jazz</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "65%" }}></div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Rock</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "45%" }}></div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Electronica</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "30%" }}></div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Classical</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+            <div className="flex justify-between items-center mb-8">
+              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Top Selling Vinyls</h4>
+              <span className="material-symbols-outlined text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 cursor-pointer">more_horiz</span>
+            </div>
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs" />
+                </div>
+                <div className="flex-1">
+                  <h5 className="text-sm font-bold">Midnight Melodies</h5>
+                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Jazz • 84 Units</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold">$2,856.00</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i" />
+                </div>
+                <div className="flex-1">
+                  <h5 className="text-sm font-bold">Urban Echoes</h5>
+                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Rock • 72 Units</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold">$2,052.00</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT" />
+                </div>
+                <div className="flex-1">
+                  <h5 className="text-sm font-bold">Blue Jazz Nights</h5>
+                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Jazz • 65 Units</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold">$2,730.00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all h-full pdf-export-container" style={{ background: isDark ? '#3A2E29' : '#D9D9D9' }}>
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Monthly Growth</h4>
+                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">6 month trajectory</p>
+              </div>
+              <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 bg-[#5E1914] hover:bg-[#5E1914]/90 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-lg pdf-hide-on-print">
+                <span className="material-symbols-outlined text-sm">print</span> Print Chart PDF
+              </button>
+            </div>
+            <div className="h-48 w-full relative pt-4">
+              <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
+                <defs>
+                  <linearGradient id="growthGradient" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#5E1914" stopOpacity="0.3"></stop>
+                    <stop offset="100%" stopColor="#5E1914" stopOpacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <path d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40" fill="none" stroke="#5E1914" strokeWidth="3"></path>
+                <path d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40 L800,200 L0,200 Z" fill="url(#growthGradient)"></path>
+                <circle cx="150" cy="140" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+                <circle cx="250" cy="110" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+                <circle cx="400" cy="130" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+                <circle cx="550" cy="80" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+                <circle cx="700" cy="100" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+              </svg>
+              <div className="flex justify-between mt-6 text-[9px] uppercase font-bold tracking-[0.2em] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 px-2">
+                <span>Jan</span>
+                <span>Feb</span>
+                <span>Mar</span>
+                <span>Apr</span>
+                <span>May</span>
+                <span>Jun</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

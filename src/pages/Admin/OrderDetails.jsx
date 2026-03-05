@@ -5,13 +5,6 @@ import AdminSidebar from "./cart/AdminSidebar";
 //
 export default function OrderDetails() {
     const { id } = useParams();
-    const [isDark, setIsDark] = useState(false);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        if (isDark) root.classList.add("dark");
-        else root.classList.remove("dark");
-    }, [isDark]);
 
     return (
         <div className="min-h-screen bg-[#f5f5f5] text-[#E1C2B3] dark:bg-[#091C2A] dark:text-[#E1C2B3]">
@@ -38,13 +31,7 @@ export default function OrderDetails() {
                         >
                             <span className="material-symbols-outlined text-sm">print</span> Print Invoice
                         </button>
-                        <button
-                            className="p-2.5 bg-[#0B1B2A]/10 dark:bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#0B1B2A]/20 dark:hover:bg-[#3A2E29]/50 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full transition-all border border-[#0B1B2A]/10 dark:border-[#E1C2B3]/10 shadow-lg flex items-center justify-center"
-                            onClick={() => setIsDark((v) => !v)}
-                        >
-                            <span className="material-symbols-outlined block dark:hidden">dark_mode</span>
-                            <span className="material-symbols-outlined hidden dark:block">light_mode</span>
-                        </button>
+
 
                         <div className="flex items-center gap-3 border-l border-[#0B1B2A]/10 dark:border-[#3A2E29]/30 pl-6">
                             <div className="text-right hidden sm:block">

@@ -88,11 +88,11 @@ export default function Login() {
 
                     <div className="text-center mb-10">
                         <Link to="/" className="inline-block relative mb-2 group">
-                            <span className="material-symbols-outlined text-[#E1C2B3]/40 absolute -left-10 -top-2 scale-125 group-hover:text-[#E1C2B3]/60 transition-colors">album</span>
-                            <h1 className="font-['Cormorant_Garamond'] text-4xl font-bold tracking-[0.2em] text-[#E1C2B3] uppercase">Vinyl</h1>
-                            <h2 className="font-['Cormorant_Garamond'] text-3xl tracking-[0.3em] text-[#E1C2B3] uppercase -mt-2 block">Horizon</h2>
+                            <span className={`material-symbols-outlined absolute -left-10 -top-2 scale-125 transition-colors ${isDark ? 'text-[#E1C2B3]/40 group-hover:text-[#E1C2B3]/60' : 'text-[#0B1B2A]/40 group-hover:text-[#0B1B2A]/60'}`}>album</span>
+                            <h1 className={`font-['Cormorant_Garamond'] text-4xl font-bold tracking-[0.2em] uppercase ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>Vinyl</h1>
+                            <h2 className={`font-['Cormorant_Garamond'] text-3xl tracking-[0.3em] uppercase -mt-2 block ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>Horizon</h2>
                         </Link>
-                        <div className="h-px w-16 bg-[#E1C2B3]/30 mx-auto mt-6"></div>
+                        <div className={`h-px w-16 mx-auto mt-6 ${isDark ? 'bg-[#E1C2B3]/30' : 'bg-[#0B1B2A]/30'}`}></div>
                     </div>
 
                     {error && (
@@ -103,9 +103,9 @@ export default function Login() {
 
                     <form className="space-y-6" onSubmit={handleLogin}>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-[#E1C2B3] font-semibold ml-1" htmlFor="email">{t('auth.email')}</label>
+                            <label className={`text-xs uppercase tracking-widest font-semibold ml-1 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`} htmlFor="email">{t('auth.email')}</label>
                             <input
-                                className="w-full bg-transparent border-[#E1C2B3]/40 border-2 rounded-2xl px-5 py-4 text-[#E1C2B3] focus:ring-[#E1C2B3] focus:border-[#E1C2B3] focus:outline-none transition-all placeholder:text-[#E1C2B3]/30"
+                                className={`w-full bg-transparent border-2 rounded-2xl px-5 py-4 focus:outline-none transition-all ${isDark ? 'text-[#E1C2B3] border-[#E1C2B3]/40 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'text-[#0B1B2A] border-[#0B1B2A]/40 focus:ring-[#0B1B2A] focus:border-[#0B1B2A] placeholder-[#E97272] font-medium bg-white/30 backdrop-blur-sm'}`}
                                 id="email"
                                 placeholder="collector@vinylhorizon.com"
                                 type="email"
@@ -115,9 +115,9 @@ export default function Login() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-[#E1C2B3] font-semibold ml-1" htmlFor="password">{t('auth.password')}</label>
+                            <label className={`text-xs uppercase tracking-widest font-semibold ml-1 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`} htmlFor="password">{t('auth.password')}</label>
                             <input
-                                className="w-full bg-transparent border-[#E1C2B3]/40 border-2 rounded-2xl px-5 py-4 text-[#E1C2B3] focus:ring-[#E1C2B3] focus:border-[#E1C2B3] focus:outline-none transition-all placeholder:text-[#E1C2B3]/30"
+                                className={`w-full bg-transparent border-2 rounded-2xl px-5 py-4 focus:outline-none transition-all ${isDark ? 'text-[#E1C2B3] border-[#E1C2B3]/40 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'text-[#0B1B2A] border-[#0B1B2A]/40 focus:ring-[#0B1B2A] focus:border-[#0B1B2A] placeholder-[#E97272] font-medium bg-white/30 backdrop-blur-sm'}`}
                                 id="password"
                                 placeholder="••••••••"
                                 type="password"
@@ -130,7 +130,7 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full block text-center bg-[#5E1914] text-[#E1C2B3] py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] disabled:opacity-50"
+                                className={`w-full block text-center py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 ${isDark ? 'bg-[#5E1914] text-[#E1C2B3]' : 'bg-[#5E1914] text-[#F3F0EC]'}`}
                             >
                                 {isLoading ? 'Processing...' : t('auth.login_btn')}
                             </button>
@@ -138,25 +138,25 @@ export default function Login() {
                     </form>
 
                     <div className="mt-10 flex flex-col items-center gap-4">
-                        <Link className="text-xs uppercase tracking-widest text-[#E1C2B3]/80 hover:text-[#E1C2B3] transition-colors font-medium" to="/forgot-password">
+                        <Link className={`text-xs uppercase tracking-widest transition-colors font-medium ${isDark ? 'text-[#E1C2B3]/80 hover:text-[#E1C2B3]' : 'text-[#0B1B2A]/80 hover:text-[#0B1B2A]'}`} to="/forgot-password">
                             {t('auth.forgot_pwd')}
                         </Link>
                         <div className="flex items-center gap-4 w-full opacity-20">
-                            <div className="h-px flex-1 bg-[#E1C2B3]"></div>
-                            <span className="text-[10px] uppercase tracking-widest text-[#E1C2B3]">{t('auth.or')}</span>
-                            <div className="h-px flex-1 bg-[#E1C2B3]"></div>
+                            <div className={`h-px flex-1 ${isDark ? 'bg-[#E1C2B3]' : 'bg-[#0B1B2A]'}`}></div>
+                            <span className={`text-[10px] uppercase tracking-widest ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>{t('auth.or')}</span>
+                            <div className={`h-px flex-1 ${isDark ? 'bg-[#E1C2B3]' : 'bg-[#0B1B2A]'}`}></div>
                         </div>
-                        <Link className="text-xs uppercase tracking-widest text-[#E1C2B3]/80 hover:text-[#E1C2B3] transition-colors font-medium" to="/register">
+                        <Link className={`text-xs uppercase tracking-widest transition-colors font-medium ${isDark ? 'text-[#E1C2B3]/80 hover:text-[#E1C2B3]' : 'text-[#0B1B2A]/80 hover:text-[#0B1B2A]'}`} to="/register">
                             {t('auth.create_account')}
                         </Link>
                     </div>
                 </div>
                 <Link to="/admin/dashboard"
-                    className="w-full block text-center bg-[#233326] text-[#E1C2B3] py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] mt-3"
+                    className={`w-full block text-center py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] mt-3 ${isDark ? 'bg-[#233326] text-[#E1C2B3]' : 'bg-[#233326] text-[#F3F0EC]'}`}
                 >
                     Admin Panel
                 </Link>
-                <p className="mt-8 text-center text-[10px] uppercase tracking-[0.3em] text-[#E1C2B3]/40">
+                <p className={`mt-8 text-center text-[10px] uppercase tracking-[0.3em] ${isDark ? 'text-[#E1C2B3]/40' : 'text-[#0B1B2A]/60 font-bold'}`}>
                     {t('auth.curated_since')}
                 </p>
             </main>

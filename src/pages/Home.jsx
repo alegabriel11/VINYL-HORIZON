@@ -22,7 +22,7 @@ const Home = () => {
           onClick={toggleTheme}
           aria-label="Toggle Dark Mode"
         >
-          <span className="material-symbols-outlined block">{isDark ? 'light_mode' : 'dark_mode'}</span>
+          <span className="material-symbols-outlined block">{isDark ? 'dark_mode' : 'light_mode'}</span>
         </button>
         {/* Hero Section */}
         <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center px-4">
