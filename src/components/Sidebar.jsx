@@ -1,32 +1,69 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ isLoggedIn = false }) => {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
+  const linkStyle = "flex items-center gap-3 px-5 py-3 rounded-[2rem] transition-all duration-300 group";
+  const activeStyle = "bg-black-pearl/10 dark:bg-walnut text-black-pearl dark:text-rose-fog font-semibold shadow-lg";
+  const inactiveStyle = "text-black-pearl/60 dark:text-pale-taupe hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/5 dark:hover:bg-walnut";
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-black-pearl border-r border-walnut z-50 flex flex-col">
-      <div className="p-8">
-        <span className="serif-font text-2xl font-bold text-rose-fog uppercase">Vinyl Horizon</span>
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white-berry dark:bg-black-pearl border-r border-black-pearl/10 dark:border-walnut z-50 flex flex-col transition-colors duration-500">
+      {/* LOGO SECTION */}
+      <div className="p-8 flex items-center justify-between">
+        <div className="flex flex-col relative">
+          <span className="material-symbols-outlined absolute -left-6 -top-2 text-black-pearl/10 dark:text-rose-fog/30 scale-75">album</span>
+          <span className="font-['Cormorant_Garamond'] text-2xl font-bold tracking-widest text-black-pearl dark:text-rose-fog uppercase">Vinyl</span>
+          <span className="font-['Cormorant_Garamond'] text-xl tracking-[0.2em] text-black-pearl dark:text-rose-fog uppercase">Horizon</span>
+        </div>
       </div>
+
+      {/* NAVIGATION LINKS */}
       <nav className="flex-1 px-4 py-4 space-y-2">
-  {/* HOME */}
-  <a className="flex items-center gap-3 px-5 py-3 rounded-friendly bg-white-berry text-black-pearl font-semibold transition-all" href="#">
-    <span className="material-symbols-outlined">home</span> Home
-  </a>
+        <Link to="/" className={`${linkStyle} ${isActive('/') ? activeStyle : inactiveStyle}`}>
+          <span className="material-symbols-outlined">home</span>
+          <span className="text-sm">Home</span>
+        </Link>
 
-  {/* PROFILE */}
-  <a className="flex items-center gap-3 px-5 py-3 rounded-friendly text-pale-taupe hover:text-black-pearl hover:bg-white-berry transition-all group" href="#">
-    <span className="material-symbols-outlined">person</span> Profile
-  </a>
+        <Link to="/profile" className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}>
+          <span className="material-symbols-outlined">person</span>
+          <span className="text-sm">Profile</span>
+        </Link>
 
-  {/* CATALOG (Añadido) */}
-  <a className="flex items-center gap-3 px-5 py-3 rounded-friendly text-pale-taupe hover:text-black-pearl hover:bg-white-berry transition-all group" href="#">
-    <span className="material-symbols-outlined">grid_view</span> Catalog
-  </a>
+        <Link to="/catalog" className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}>
+          <span className="material-symbols-outlined">grid_view</span>
+          <span className="text-sm">Catalog</span>
+        </Link>
 
-  {/* CART (Añadido) */}
-  <a className="flex items-center gap-3 px-5 py-3 rounded-friendly text-pale-taupe hover:text-black-pearl hover:bg-white-berry transition-all group" href="#">
-    <span className="material-symbols-outlined">shopping_bag</span> Cart
-  </a>
-</nav>
+        <Link to="/cart" className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}>
+          <span className="material-symbols-outlined">shopping_bag</span>
+          <span className="text-sm">Cart</span>
+        </Link>
+      </nav>
+
+      {/* BOTTOM SECTION - Solo se renderiza si isLoggedIn es true */}
+      {isLoggedIn && (
+        <div className="px-4 py-8 border-t border-black-pearl/10 dark:border-walnut space-y-2">
+          <Link
+            to="/settings"
+            className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
+          >
+            <span className="material-symbols-outlined">settings</span>
+            <span className="text-sm">Settings</span>
+          </Link>
+
+          <button
+            className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
+            onClick={() => console.log("Cerrando sesión...")}
+          >
+            <span className="material-symbols-outlined">logout</span>
+            <span className="text-sm font-medium">Log Out</span>
+          </button>
+        </div>
+      )}
     </aside>
   );
 };
