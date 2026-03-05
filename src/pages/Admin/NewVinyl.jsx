@@ -1,0 +1,209 @@
+import React, { useRef, useState } from "react";
+
+export default function AddNewVinyl() {
+  const fileRef = useRef(null);
+  const [preview, setPreview] = useState("");
+
+  const onPickFile = () => fileRef.current?.click();
+
+  const onFileChange = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    setPreview(url);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    // TODO: conecta con tu API / estado
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 selection:bg-[#E1C2B3] selection:text-[#091C2A] bg-[#F5F5F5] dark:bg-[#091C2A] text-[#0B1B2A] dark:text-[#E1C2B3]">
+      {/* Toggle (usa tu ThemeProvider; aquí solo dispara el toggle global por class) */}
+      <div className="fixed top-8 right-8 z-50">
+        <button
+          type="button"
+          className="p-3 bg-[#3A2E29]/10 dark:bg-[#3A2E29]/30 backdrop-blur-md hover:bg-[#3A2E29]/40 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full transition-all border border-[#E1C2B3]/20 shadow-xl flex items-center justify-center"
+          onClick={() => document.documentElement.classList.toggle("dark")}
+          aria-label="Toggle theme"
+        >
+          <span className="material-symbols-outlined block dark:hidden">
+            dark_mode
+          </span>
+          <span className="material-symbols-outlined hidden dark:block">
+            light_mode
+          </span>
+        </button>
+      </div>
+
+      <div className="w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden border border-[#E1C2B3]/10 bg-[#D1D1D1] dark:bg-[#3A2E29] transition-colors">
+        <div className="p-10 md:p-16">
+          <header className="mb-12 flex flex-col items-center">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-[#E1C2B3] text-3xl">
+                album
+              </span>
+              <span className="font-['Cormorant_Garamond'] text-[#E1C2B3] text-sm tracking-[0.4em] uppercase">
+                Vinyl Horizon
+              </span>
+            </div>
+
+            <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl text-[#E1C2B3] font-bold tracking-tight uppercase">
+              Add New Vinyl
+            </h1>
+
+            <div className="h-px w-24 bg-[#E1C2B3]/30 mt-6" />
+          </header>
+
+          <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-12">
+            {/* Cover */}
+            <div className="md:col-span-5">
+              <label className="block font-['Cormorant_Garamond'] text-xl text-[#E1C2B3] mb-4 uppercase tracking-wider">
+                Album Cover
+              </label>
+
+              <div
+                onClick={onPickFile}
+                className="aspect-square w-full rounded-2xl border-2 border-dashed border-[#E1C2B3]/40 flex items-center justify-center group hover:border-[#E1C2B3]/70 transition-colors cursor-pointer bg-[#091C2A]/5 dark:bg-[#091C2A]/20 overflow-hidden relative"
+              >
+                {!preview ? (
+                  <div className="flex flex-col items-center text-[#E1C2B3]/60 group-hover:text-[#E1C2B3] transition-colors">
+                    <span className="material-symbols-outlined text-6xl mb-4">
+                      add_a_photo
+                    </span>
+                    <p className="text-sm font-medium tracking-wide">
+                      Upload Album Cover
+                    </p>
+                    <p className="text-[10px] mt-2 opacity-60 uppercase">
+                      High resolution JPG or PNG
+                    </p>
+                  </div>
+                ) : (
+                  <img
+                    src={preview}
+                    alt="Album cover preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+
+                <input
+                  ref={fileRef}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  type="file"
+                  accept="image/*"
+                  onChange={onFileChange}
+                />
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div className="md:col-span-7 space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="relative">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    Album Title
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Midnight Melodies"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    Artist Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Elias Thorne"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    SKU
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="VH-XXXXX"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    Release Year
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="2024"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1">
+                <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  Genre
+                </label>
+                <select className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent">
+                  <option value="jazz">Jazz</option>
+                  <option value="rock">Rock</option>
+                  <option value="electronica">Electronica</option>
+                  <option value="classical">Classical</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    Stock Quantity
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                    Price ($)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="0.00"
+                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="md:col-span-12 flex flex-col sm:flex-row items-center justify-end gap-6 pt-8 border-t border-[#E1C2B3]/10">
+              <button
+                type="button"
+                className="order-2 sm:order-1 px-8 py-3 text-sm font-bold tracking-widest text-[#E1C2B3] uppercase border border-[#E1C2B3]/40 rounded-xl hover:bg-[#E1C2B3]/10 transition-all w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="order-1 sm:order-2 px-12 py-4 text-sm font-bold tracking-[0.2em] text-[#E1C2B3] bg-[#5E1914] rounded-xl shadow-xl hover:brightness-125 transition-all w-full sm:w-auto flex items-center justify-center gap-2 active:scale-[0.99]"
+              >
+                <span className="material-symbols-outlined text-lg">save</span>
+                SAVE TO INVENTORY
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

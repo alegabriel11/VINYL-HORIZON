@@ -11,7 +11,7 @@ export default function Dashboard() {
   }, [isDark]);
 
   return (
-    <div className="min-h-screen bg-[#F3F0EC] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog selection:bg-rose-fog selection:text-black-pearl">
+    <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
       <AdminSidebar />
 
       <main className="ml-64 transition-all duration-300 min-h-screen p-8 lg:p-12 relative">

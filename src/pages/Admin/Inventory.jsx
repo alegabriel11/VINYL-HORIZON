@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
+import { useNavigate } from "react-router-dom";
 
 export default function Inventory() {
   const [isDark, setIsDark] = useState(false);
@@ -50,7 +51,7 @@ export default function Inventory() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F3F0EC] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog selection:bg-rose-fog selection:text-black-pearl">
+    <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
       <AdminSidebar />
 
       <main className="ml-64 transition-all duration-300 min-h-screen p-8 lg:p-12">
@@ -121,7 +122,7 @@ export default function Inventory() {
             />
           </div>
 
-          <button className="bg-whine-berry text-rose-fog px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95">
+          <button className="bg-whine-berry text-[#E97272] px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95">
             <span className="material-symbols-outlined text-lg">add</span>
             ADD NEW VINYL
           </button>
