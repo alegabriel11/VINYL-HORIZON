@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ isLoggedIn = false }) => {
+  const { t } = useTranslation();
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
@@ -25,22 +27,22 @@ const Sidebar = ({ isLoggedIn = false }) => {
       <nav className="flex-1 px-4 py-4 space-y-2">
         <Link to="/" className={`${linkStyle} ${isActive('/') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">home</span>
-          <span className="text-sm">Home</span>
+          <span className="text-sm">{t('sidebar.home')}</span>
         </Link>
 
         <Link to="/profile" className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">person</span>
-          <span className="text-sm">Profile</span>
+          <span className="text-sm">{t('sidebar.profile')}</span>
         </Link>
 
         <Link to="/catalog" className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">grid_view</span>
-          <span className="text-sm">Catalog</span>
+          <span className="text-sm">{t('sidebar.catalog')}</span>
         </Link>
 
         <Link to="/cart" className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">shopping_bag</span>
-          <span className="text-sm">Cart</span>
+          <span className="text-sm">{t('sidebar.cart')}</span>
         </Link>
       </nav>
 
@@ -52,7 +54,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
             className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
           >
             <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm">Settings</span>
+            <span className="text-sm">{t('sidebar.settings')}</span>
           </Link>
 
           <button
@@ -60,7 +62,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
             onClick={() => console.log("Cerrando sesión...")}
           >
             <span className="material-symbols-outlined">logout</span>
-            <span className="text-sm font-medium">Log Out</span>
+            <span className="text-sm font-medium">{t('sidebar.logout')}</span>
           </button>
         </div>
       )}

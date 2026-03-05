@@ -1,9 +1,58 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Register() {
     const { isDark, toggleTheme } = useTheme();
+    const { language, toggleLanguage } = useLanguage();
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    // Form states
+    const [fullName, setFullName] = useState('');
+    const [nickname, setNickname] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        // Dividimos el nombre completo en Nombre y Apellido para la API
+        const nameParts = fullName.trim().split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || 'User';
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firstName, lastName, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Autenticado: Guardar JWT en LocalStorage y redirigir
+                localStorage.setItem('vinyl_token', data.token);
+                // Opcional: Podríamos guardar detalles del usuario
+                localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+                navigate('/profile');
+            } else {
+                setError(data.message || 'Error occurred during registration.');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Could not connect to the server.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A] text-[#E1C2B3]' : 'bg-[#D1D1D1] text-[#091C2A]'}`}>
@@ -31,12 +80,22 @@ export default function Register() {
                 <div className="absolute inset-0 hero-overlay transition-colors duration-500"></div>
             </div>
 
-            <button
-                className={`fixed top-8 right-8 z-[60] p-3 backdrop-blur-md rounded-full transition-all border shadow-lg ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#091C2A]/20 hover:bg-[#091C2A]/10'}`}
-                onClick={toggleTheme}
-            >
-                <span className={`material-symbols-outlined ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>{isDark ? 'light_mode' : 'dark_mode'}</span>
-            </button>
+            <div className="fixed top-8 right-8 z-[60] flex items-center gap-4">
+                <button
+                    onClick={toggleLanguage}
+                    className={`px-4 py-2 backdrop-blur-md rounded-full transition-all border shadow-lg font-bold text-sm tracking-widest focus:outline-none ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20 text-[#E1C2B3]' : 'bg-[#3A2E29]/20 border-[#091C2A]/20 hover:bg-[#091C2A]/10 text-[#091C2A]'}`}
+                    aria-label="Toggle Language"
+                >
+                    {language === 'ES' ? 'EN' : 'ES'}
+                </button>
+                <button
+                    className={`flex items-center justify-center p-3 backdrop-blur-md rounded-full transition-all border shadow-lg focus:outline-none group ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#091C2A]/20 hover:bg-[#091C2A]/10'}`}
+                    onClick={toggleTheme}
+                    aria-label="Toggle Dark Mode"
+                >
+                    <span className={`material-symbols-outlined block ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>{isDark ? 'light_mode' : 'dark_mode'}</span>
+                </button>
+            </div>
 
             <div className="relative z-10 w-full max-w-md px-4 py-12">
                 <div className={`p-10 md:p-12 rounded-[2rem] shadow-2xl transition-colors duration-500 border ${isDark ? 'bg-[#3A2E29] border-white/5' : 'bg-[#EFEFEF] border-black/5'}`}>
@@ -47,69 +106,88 @@ export default function Register() {
                                 VINYL HORIZON
                             </h1>
                         </Link>
-                        <h2 className={`font-['Playfair_Display'] text-2xl italic ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>Create Account</h2>
+                        <h2 className={`font-['Playfair_Display'] text-2xl italic ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>{t('auth.create_account')}</h2>
                         <div className={`h-px w-12 mx-auto mt-4 ${isDark ? 'bg-[#E1C2B3]/30' : 'bg-[#091C2A]/30'}`}></div>
                     </div>
 
-                    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                    {error && (
+                        <div className="mb-6 p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-center">
+                            <p className="text-red-500 text-sm font-semibold">{error}</p>
+                        </div>
+                    )}
+
+                    <form className="space-y-6" onSubmit={handleRegister}>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="full-name">Full Name</label>
+                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="full-name">{t('auth.full_name')}</label>
                             <input
                                 className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
                                 id="full-name"
                                 placeholder="John Doe"
                                 type="text"
+                                required
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="nickname">Nickname (Apodo)</label>
+                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="nickname">{t('auth.nickname')}</label>
                             <input
                                 className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
                                 id="nickname"
                                 placeholder="VinylLover99"
                                 type="text"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="email">Email Address</label>
+                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="email">{t('auth.email')}</label>
                             <input
                                 className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
                                 id="email"
                                 placeholder="hello@example.com"
                                 type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="password">Password</label>
+                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="password">{t('auth.password')}</label>
                             <input
                                 className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#091C2A]/40'}`}
                                 id="password"
                                 placeholder="••••••••"
                                 type="password"
+                                required
+                                minLength={6}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
                         <div className="pt-4">
-                            <Link
-                                to="/profile"
-                                className="w-full block text-center bg-[#5E1914] text-[#E1C2B3] py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all shadow-xl active:scale-95"
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full block text-center bg-[#5E1914] text-[#E1C2B3] py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all shadow-xl active:scale-95 disabled:opacity-50"
                             >
-                                Create Account
-                            </Link>
+                                {isLoading ? 'Processing...' : t('auth.create_account')}
+                            </button>
                         </div>
                     </form>
 
                     <div className="mt-10 text-center">
                         <p className="text-sm font-medium tracking-wide">
-                            <span className={`${isDark ? 'text-[#E1C2B3] opacity-60' : 'text-[#091C2A] opacity-80'}`}>Already have an account?</span>
+                            <span className={`${isDark ? 'text-[#E1C2B3] opacity-60' : 'text-[#091C2A] opacity-80'}`}>{t('auth.already_have_account')}</span>
                             <Link className={`ml-2 hover:underline underline-offset-4 transition-all ${isDark ? 'text-[#E1C2B3] decoration-[#E1C2B3]' : 'text-[#091C2A] decoration-[#091C2A] font-bold'}`} to="/login">
-                                Log In
+                                {t('auth.login_btn')}
                             </Link>
                         </p>
                     </div>
                 </div>
 
                 <div className="mt-8 text-center pb-8">
-                    <p className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? 'text-[#E1C2B3]/40' : 'text-[#091C2A]/50'}`}>© 2024 VINYL HORIZON. The Art of Analog.</p>
+                    <p className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? 'text-[#E1C2B3]/40' : 'text-[#091C2A]/50'}`}>{t('auth.rights_analog')}</p>
                 </div>
             </div>
         </div>
