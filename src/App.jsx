@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MusicCursor from "./components/MusicCursor";
 import { Toaster } from 'react-hot-toast';
 
 import Home from "./pages/Home";
@@ -28,6 +29,7 @@ function App() {
       <InventoryProvider>
         <ThemeProvider>
           <Router>
+            <MusicCursor />
             <Toaster
               position="bottom-right"
               toastOptions={{
