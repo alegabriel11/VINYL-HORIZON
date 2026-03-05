@@ -16,6 +16,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import AdminInventory from "./pages/Admin/Inventory";
 import AdminOrders from "./pages/Admin/Orders";
+import AdminOrderDetails from "./pages/Admin/OrderDetails";
 import AdminReports from "./pages/Admin/Reports";
 import AddNewVinyl from "./pages/Admin/NewVinyl";
 
@@ -40,6 +41,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/inventory" element={<AdminInventory />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
             <Route path="/admin/reports" element={<AdminReports />} />
             <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
           </Routes>

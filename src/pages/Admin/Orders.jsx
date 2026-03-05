@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import AdminSidebar from "./cart/AdminSidebar";
 
 const ORDERS_DATA = [
@@ -109,9 +110,9 @@ export default function Orders() {
                       </span>
                     </td>
                     <td className="px-8 py-5">
-                      <button className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
+                      <Link to={`/admin/orders/${order.id.replace('#', '')}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
                         View Details
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
