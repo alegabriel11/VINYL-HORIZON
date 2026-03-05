@@ -3,23 +3,16 @@ import AdminSidebar from "./cart/AdminSidebar";
 import { useTheme } from "../../context/ThemeContext";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 import toast from 'react-hot-toast';
 
 export default function Reports() {
   const { isDark, toggleTheme } = useTheme();
   const printRef = useRef();
 
-  const handleDownloadPDF = () => {
-    // We use a CSS class on the body to control print styles
-    document.body.classList.add("printing-monthly-growth");
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove("printing-monthly-growth");
-    }, 500);
-  };
-
-  const handleGenerateFullReport = () => {
+  const handleGenerateFullReport = async () => {
     try {
+      toast.loading('Capturing data & generating report...', { id: 'report-gen' });
       const doc = new jsPDF();
 
       // Styling and Headers
@@ -92,6 +85,28 @@ export default function Reports() {
         headStyles: { fillColor: [94, 25, 20], textColor: [255, 255, 255] }
       });
 
+      // --- Visual Monthly Growth ---
+      if (doc.lastAutoTable.finalY > 200) {
+        doc.addPage();
+        doc.text("4. Monthly Growth Chart", 14, 20);
+      } else {
+        doc.text("4. Monthly Growth Chart", 14, doc.lastAutoTable.finalY + 15);
+      }
+
+      const chartElement = document.getElementById('monthly-growth-chart');
+      if (chartElement) {
+        const canvas = await html2canvas(chartElement, {
+          scale: 2,
+          backgroundColor: isDark ? '#3A2E29' : '#D9D9D9'
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 180;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        const currentY = doc.lastAutoTable.finalY > 200 ? 25 : doc.lastAutoTable.finalY + 20;
+        doc.addImage(imgData, 'PNG', 14, currentY, imgWidth, imgHeight);
+      }
+
       // Footer
       const totalPages = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
@@ -103,11 +118,11 @@ export default function Reports() {
 
       // Download
       doc.save(`VinylHorizon_Report_${new Date().getTime()}.pdf`);
-      toast.success('Executive Report downloaded securely!', { icon: '📉' });
+      toast.success('Executive Report downloaded securely!', { id: 'report-gen', icon: '📉' });
 
     } catch (error) {
       console.error(error);
-      toast.error('Failed to generate report module');
+      toast.error('Failed to generate report module', { id: 'report-gen' });
     }
   };
 
@@ -286,11 +301,8 @@ export default function Reports() {
                 <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Monthly Growth</h4>
                 <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">6 month trajectory</p>
               </div>
-              <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 bg-[#5E1914] hover:bg-[#5E1914]/90 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-lg pdf-hide-on-print">
-                <span className="material-symbols-outlined text-sm">print</span> Print Chart PDF
-              </button>
             </div>
-            <div className="h-48 w-full relative pt-4">
+            <div id="monthly-growth-chart" className="h-48 w-full relative pt-4 px-4 pb-4">
               <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
                 <defs>
                   <linearGradient id="growthGradient" x1="0" x2="0" y1="0" y2="1">
