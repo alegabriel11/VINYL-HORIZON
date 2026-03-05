@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ForgotPassword() {
-    const [isDark, setIsDark] = useState(true);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        if (isDark) {
-            root.classList.add('dark');
-            root.classList.remove('light');
-        } else {
-            root.classList.add('light');
-            root.classList.remove('dark');
-        }
-    }, [isDark]);
+    const { isDark, toggleTheme } = useTheme();
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A]' : 'bg-[#D1D1D1]'}`}>
@@ -39,7 +29,7 @@ export default function ForgotPassword() {
             {/* Dark Mode Toggle */}
             <button
                 className={`fixed top-8 right-8 z-[60] p-3 backdrop-blur-md rounded-full transition-all border shadow-lg ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20'}`}
-                onClick={() => setIsDark(!isDark)}
+                onClick={toggleTheme}
             >
                 <span className="material-symbols-outlined text-[#E1C2B3]">{isDark ? 'light_mode' : 'dark_mode'}</span>
             </button>

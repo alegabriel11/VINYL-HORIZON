@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar"; // Importamos el sidebar que ya tienes
+import { useTheme } from "../context/ThemeContext";
 
 export default function Profile({ isLoggedIn = false }) {
-  const [isDark, setIsDark] = useState(true);
+  const { isDark, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [isDark]);
 
   useEffect(() => {
     const handle = () => {
@@ -25,7 +20,7 @@ export default function Profile({ isLoggedIn = false }) {
   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
 
   return (
-    <div className="bg-[#091C2A] text-[#E1C2B3] selection:bg-[#E1C2B3] selection:text-[#091C2A] min-h-screen font-['Montserrat']">
+    <div className="bg-white-berry dark:bg-black-pearl text-black-pearl dark:text-rose-fog selection:bg-black-pearl dark:selection:bg-rose-fog selection:text-white-berry dark:selection:text-black-pearl min-h-screen font-['Montserrat'] transition-colors duration-500">
       {/* Inyección de estilos de animación específicos para esta página */}
       <style>{`
         @keyframes floating {
@@ -45,11 +40,11 @@ export default function Profile({ isLoggedIn = false }) {
       {/* Reemplazamos el aside manual por tu componente Sidebar */}
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isLoggedIn={isLoggedIn} />
 
-      <main className={`${mainMl} transition-all duration-300 min-h-screen relative bg-[#091C2A]`}>
+      <main className={`${mainMl} transition-all duration-300 min-h-screen relative bg-[#EFEFEF] dark:bg-[#091C2A]`}>
         {/* Toggle Dark Mode */}
         <button
-          className="fixed top-8 right-8 z-[60] p-3 bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#3A2E29]/60 text-[#E1C2B3] rounded-full transition-all border border-[#E1C2B3]/10 shadow-lg"
-          onClick={() => setIsDark(!isDark)}
+          className="fixed top-8 right-8 z-[60] p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg"
+          onClick={toggleTheme}
         >
           <span className="material-symbols-outlined">{isDark ? 'light_mode' : 'dark_mode'}</span>
         </button>
@@ -74,27 +69,27 @@ export default function Profile({ isLoggedIn = false }) {
             </div>
 
             {/* Placa MUSA */}
-            <div className="absolute right-[15%] w-64 h-64 rounded-full bg-[#3A2E29] flex flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-[#122838] text-[#E1C2B3] text-center p-8">
+            <div className="absolute right-[15%] w-64 h-64 rounded-full bg-timberwolf dark:bg-walnut flex flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-white dark:border-black-pearl-light text-black-pearl dark:text-rose-fog text-center p-8">
               <h2 className="font-['Cormorant_Garamond'] text-5xl font-bold tracking-widest uppercase">MUSA</h2>
-              <div className="h-px w-12 bg-[#E1C2B3]/40 mt-2" />
+              <div className="h-px w-12 bg-black-pearl/20 dark:bg-rose-fog/40 mt-2" />
             </div>
           </div>
 
           <div className="mt-12 text-center space-y-2">
             {isLoggedIn ? (
               <>
-                <h1 className="font-['Playfair_Display'] text-5xl font-bold text-[#E1C2B3]">Alex Rivera</h1>
-                <p className="font-['Cormorant_Garamond'] text-2xl opacity-80 italic text-[#E1C2B3]">alex@vinylhorizon.com</p>
+                <h1 className="font-['Playfair_Display'] text-5xl font-bold text-black-pearl dark:text-rose-fog">Alex Rivera</h1>
+                <p className="font-['Cormorant_Garamond'] text-2xl opacity-80 italic text-black-pearl dark:text-rose-fog">alex@vinylhorizon.com</p>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 pt-4">
-                <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#E1C2B3]">Welcome to Vinyl Horizon</h1>
-                <p className="font-['Montserrat'] text-lg text-[#E1C2B3]/80 max-w-md">Join us to manage your collection and explore new music.</p>
+                <h1 className="font-['Playfair_Display'] text-4xl font-bold text-black-pearl dark:text-rose-fog">Welcome to Vinyl Horizon</h1>
+                <p className="font-['Montserrat'] text-lg text-black-pearl/80 dark:text-rose-fog/80 max-w-md">Join us to manage your collection and explore new music.</p>
                 <div className="flex gap-4 pt-2">
-                  <Link to="/login" className="px-8 py-3 bg-[#E1C2B3] text-[#091C2A] font-bold rounded-full hover:bg-white transition-all shadow-lg">
+                  <Link to="/login" className="px-8 py-3 bg-rose-fog text-black-pearl font-bold rounded-full hover:bg-black-pearl hover:text-white transition-all shadow-lg">
                     Log In
                   </Link>
-                  <Link to="/register" className="px-8 py-3 border border-[#E1C2B3] text-[#E1C2B3] font-bold rounded-full hover:bg-[#E1C2B3] hover:text-[#091C2A] transition-all">
+                  <Link to="/register" className="px-8 py-3 border border-rose-fog text-black-pearl dark:text-rose-fog font-bold rounded-full hover:bg-rose-fog hover:text-black-pearl transition-all">
                     Register
                   </Link>
                 </div>
@@ -104,16 +99,16 @@ export default function Profile({ isLoggedIn = false }) {
         </section>
 
         {/* COLLECTION */}
-        <section className="px-8 lg:px-20 py-16 bg-[#122838]/30">
+        <section className="px-8 lg:px-20 py-16 bg-black-pearl/5 dark:bg-black-pearl-light/30 transition-colors">
           <div className="flex items-center gap-6 mb-12">
-            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-[#E1C2B3]">My Collection</h3>
-            <div className="h-px flex-1 bg-[#3A2E29]/50" />
-            <span className="material-symbols-outlined opacity-40 text-[#E1C2B3]">library_music</span>
+            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">My Collection</h3>
+            <div className="h-px flex-1 bg-black-pearl/10 dark:bg-walnut/50" />
+            <span className="material-symbols-outlined opacity-40 text-black-pearl dark:text-rose-fog">library_music</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {[1, 2].map((i) => (
-              <div key={i} className="group bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-[#E1C2B3]/5 transition-all duration-500 animate-card">
+              <div key={i} className="group bg-timberwolf dark:bg-walnut rounded-[2rem] overflow-hidden border border-black-pearl/10 dark:border-rose-fog/5 transition-colors duration-500 animate-card">
                 <div className="relative p-8 aspect-square flex items-center justify-center">
                   <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
                     <img
@@ -122,13 +117,13 @@ export default function Profile({ isLoggedIn = false }) {
                       src={`https://picsum.photos/seed/${i + 20}/400`}
                     />
                     <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                      <div className="w-16 h-16 bg-[#3A2E29] rounded-full border-8 border-black" />
+                      <div className="w-16 h-16 bg-white dark:bg-walnut rounded-full border-8 border-black" />
                     </div>
                   </div>
                 </div>
                 <div className="p-8">
-                  <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase text-[#E1C2B3]">Album Artist {i}</h4>
-                  <p className="text-[#E1C2B3]/70 font-light italic">Limited Edition</p>
+                  <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase text-black-pearl dark:text-rose-fog">Album Artist {i}</h4>
+                  <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light italic">Limited Edition</p>
                 </div>
               </div>
             ))}
@@ -136,33 +131,33 @@ export default function Profile({ isLoggedIn = false }) {
         </section>
 
         {/* WISHLIST SECTION */}
-        <section className="px-8 lg:px-20 py-16 bg-[#091C2A]">
+        <section className="px-8 lg:px-20 py-16 bg-white dark:bg-black-pearl transition-colors">
           <div className="flex items-center gap-6 mb-12">
-            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-[#E1C2B3]">Wishlist</h3>
-            <div className="h-px flex-1 bg-[#3A2E29]/50" />
-            <span className="material-symbols-outlined opacity-40 text-[#E1C2B3]">favorite</span>
+            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">Wishlist</h3>
+            <div className="h-px flex-1 bg-black-pearl/10 dark:bg-walnut/50" />
+            <span className="material-symbols-outlined opacity-40 text-black-pearl dark:text-rose-fog">favorite</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-[#3A2E29] rounded-[2rem] p-6 flex flex-col items-center justify-between border border-[#E1C2B3]/5 shadow-xl transition-transform hover:-translate-y-2 relative overflow-hidden">
+            <div className="bg-timberwolf dark:bg-walnut rounded-[2rem] p-6 flex flex-col items-center justify-between border border-black-pearl/10 dark:border-rose-fog/5 shadow-xl transition-transform hover:-translate-y-2 relative overflow-hidden">
               <div className="relative w-full aspect-square flex items-center justify-center mb-6 mt-4">
-                <div className="absolute w-[85%] h-[85%] bg-[#122838] rounded-md shadow-2xl z-10 flex items-center justify-center border border-[#E1C2B3]/10">
-                  <div className="w-8 h-8 rounded-full border-4 border-[#3A2E29] flex items-center justify-center bg-[#122838]">
-                    <div className="w-2 h-2 rounded-full bg-[#E1C2B3]/20"></div>
+                <div className="absolute w-[85%] h-[85%] bg-white-berry dark:bg-black-pearl-light rounded-md shadow-2xl z-10 flex items-center justify-center border border-black-pearl/10 dark:border-rose-fog/10">
+                  <div className="w-8 h-8 rounded-full border-4 border-timberwolf dark:border-walnut flex items-center justify-center bg-white-berry dark:bg-black-pearl-light">
+                    <div className="w-2 h-2 rounded-full bg-black-pearl/10 dark:bg-rose-fog/20"></div>
                   </div>
                 </div>
                 <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[70%] h-[80%] bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                  <div className="w-10 h-10 bg-[#3A2E29] rounded-full border-4 border-black" />
+                  <div className="w-10 h-10 bg-white dark:bg-walnut rounded-full border-4 border-black" />
                 </div>
               </div>
               <div className="w-full text-left space-y-1 z-10">
                 <div className="flex justify-between items-end">
-                  <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase text-[#E1C2B3] tracking-widest">Joe Mean</h4>
-                  <span className="font-['Playfair_Display'] text-lg font-bold text-[#E1C2B3]">$42</span>
+                  <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase text-black-pearl dark:text-rose-fog tracking-widest">Joe Mean</h4>
+                  <span className="font-['Playfair_Display'] text-lg font-bold text-black-pearl dark:text-rose-fog">$42</span>
                 </div>
-                <p className="text-[#E1C2B3]/60 font-light italic text-sm">Selena / 2021</p>
+                <p className="text-black-pearl/60 dark:text-rose-fog/60 font-light italic text-sm">Selena / 2021</p>
               </div>
-              <button className="w-full mt-6 bg-[#E1C2B3] text-[#091C2A] py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white transition-all shadow-md">
+              <button className="w-full mt-6 bg-rose-fog text-black-pearl py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white transition-all shadow-md">
                 Purchase
               </button>
             </div>
