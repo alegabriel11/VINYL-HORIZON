@@ -1,9 +1,10 @@
-import React, { useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useState, useContext, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { InventoryContext } from "../../context/InventoryContext";
 
-export default function NewVinyl() {
-  const { addVinyl, fetchVinyls } = useContext(InventoryContext);
+export default function EditVinyl() {
+  const { inventory, updateVinyl } = useContext(InventoryContext);
+  const { sku } = useParams();
   const fileRef = useRef(null);
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
@@ -11,12 +12,28 @@ export default function NewVinyl() {
   const [formData, setFormData] = useState({
     album: "",
     artist: "",
-    sku: "",
+    sku: sku || "",
     year: "",
     genre: "jazz",
     stock: "",
     price: "",
   });
+
+  useEffect(() => {
+    const existingVinyl = inventory.find((v) => v.sku === sku);
+    if (existingVinyl) {
+      setFormData({
+        album: existingVinyl.album || "",
+        artist: existingVinyl.artist || "",
+        sku: existingVinyl.sku || "",
+        year: existingVinyl.release_year || "",
+        genre: existingVinyl.genre ? existingVinyl.genre.toLowerCase() : "jazz",
+        stock: existingVinyl.stock?.value || 0,
+        price: existingVinyl.price ? existingVinyl.price.replace("$", "") : "",
+      });
+      setPreview(existingVinyl.img || "");
+    }
+  }, [sku, inventory]);
 
   const onFileChange = (e) => {
     const f = e.target.files?.[0];
@@ -37,9 +54,6 @@ export default function NewVinyl() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // The database expects:
-    // title (album), artist, price (numeric), description (genre), cover_image_url (img), sku is not in db right now, nor is stock, but we will save what we can to DB and the full to local context for now
-
     const dbPayload = {
       title: formData.album || "Untitled Album",
       artist: formData.artist || "Unknown Artist",
@@ -53,25 +67,10 @@ export default function NewVinyl() {
     };
 
     try {
-      const response = await fetch('/api/vinyls', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dbPayload)
-      });
-
-      if (response.ok) {
-        // We successfully saved to DB.
-        // The InventoryContext already fetches the full list on mount.  
-        // To show it immediately, we call fetchVinyls from context.
-        await fetchVinyls();
-        navigate("/admin/inventory");
-      } else {
-        const errData = await response.json();
-        console.error("Failed to save to database:", errData);
-        alert("Error saving to database");
-      }
+      await updateVinyl(sku, dbPayload);
+      navigate("/admin/inventory");
     } catch (err) {
-      console.error("Network error:", err);
+      console.error("Error updating:", err);
       alert("Could not connect to the server.");
     }
   };
@@ -93,7 +92,7 @@ export default function NewVinyl() {
             </div>
 
             <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl text-[#0B1B2A] dark:text-[#E1C2B3] font-bold tracking-tight uppercase">
-              Add New Vinyl
+              Edit Vinyl
             </h1>
 
             <div className="h-px w-24 bg-[#0B1B2A]/30 dark:bg-[#E1C2B3]/30 mt-6" />
@@ -184,8 +183,8 @@ export default function NewVinyl() {
                     value={formData.sku}
                     onChange={handleChange}
                     placeholder="VH-XXXXX"
-                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
-                    required
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 bg-black/5 dark:bg-white/5 cursor-not-allowed outline-none transition-all"
+                    disabled
                   />
                 </div>
 
@@ -269,7 +268,7 @@ export default function NewVinyl() {
                 className="order-1 sm:order-2 px-12 py-4 text-sm font-bold tracking-[0.2em] text-[#EFEFEF] dark:text-[#E1C2B3] bg-[#5E1914] rounded-xl shadow-xl hover:brightness-125 transition-all w-full sm:w-auto flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 <span className="material-symbols-outlined text-lg">save</span>
-                SAVE TO INVENTORY
+                UPDATE INVENTORY
               </button>
             </div>
           </form>

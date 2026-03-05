@@ -6,7 +6,52 @@ import { useNavigate } from "react-router-dom";
 export default function Inventory() {
   const navigate = useNavigate();
 
-  const { inventory: rows } = useContext(InventoryContext);
+  const { inventory: rows, deleteVinyl } = useContext(InventoryContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeMenuSku, setActiveMenuSku] = useState(null);
+  const rowsPerPage = 5; // You can adjust this when you have more albums
+
+  const filteredRows = rows.filter(
+    (r) =>
+      r.album.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.sku.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Restart to page 1 if the user searches
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+  // Guard against out-of-bounds pages
+  const safeCurrentPage = Math.min(currentPage, totalPages > 0 ? totalPages : 1);
+
+  const paginatedRows = filteredRows.slice(
+    (safeCurrentPage - 1) * rowsPerPage,
+    safeCurrentPage * rowsPerPage
+  );
+
+  const handleEdit = (sku) => {
+    navigate(`/admin/inventory/edit/${sku}`);
+  };
+
+  const toggleOptions = (sku) => {
+    if (activeMenuSku === sku) {
+      setActiveMenuSku(null);
+    } else {
+      setActiveMenuSku(sku);
+    }
+  };
+
+  const handleDelete = (sku) => {
+    if (window.confirm("Are you sure you want to delete this album?")) {
+      deleteVinyl(sku);
+      setActiveMenuSku(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
@@ -65,6 +110,8 @@ export default function Inventory() {
               className="w-full pl-12 pr-4 py-3 rounded-friendly bg-[#D9D9D9]/70 dark:bg-walnut/30 border border-black/10 dark:border-rose-fog/10 text-[#0B1B2A] dark:text-rose-fog placeholder:text-[#0B1B2A]/35 dark:placeholder:text-rose-fog/30 focus:outline-none focus:ring-1 focus:ring-pale-taupe"
               placeholder="Search by Album, Artist, or SKU..."
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -99,7 +146,7 @@ export default function Inventory() {
               </thead>
 
               <tbody className="divide-y divide-black/5 dark:divide-rose-fog/5">
-                {rows.map((r) => (
+                {paginatedRows.map((r) => (
                   <tr
                     key={r.sku}
                     className="group transition-colors hover:bg-black/5 dark:hover:bg-black-pearl/20"
@@ -169,17 +216,38 @@ export default function Inventory() {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-8 py-5 text-right">
-                      <button className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors">
+                    <td className="px-8 py-5 text-right relative">
+                      <button
+                        onClick={() => handleEdit(r.sku)}
+                        className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors"
+                      >
                         <span className="material-symbols-outlined text-xl">
                           edit
                         </span>
                       </button>
-                      <button className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors">
-                        <span className="material-symbols-outlined text-xl">
-                          more_vert
-                        </span>
-                      </button>
+
+                      <div className="inline-block relative">
+                        <button
+                          onClick={() => toggleOptions(r.sku)}
+                          className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-xl">
+                            more_vert
+                          </span>
+                        </button>
+
+                        {activeMenuSku === r.sku && (
+                          <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-black-pearl rounded shadow-lg border border-black/10 dark:border-rose-fog/20 z-10 overflow-hidden">
+                            <button
+                              onClick={() => handleDelete(r.sku)}
+                              className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-semibold flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                              Delete Album
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -189,25 +257,40 @@ export default function Inventory() {
 
           {/* Footer / Pagination */}
           <div className="px-8 py-5 border-t border-black/10 dark:border-rose-fog/10 flex justify-between items-center text-xs text-[#0B1B2A]/45 dark:text-rose-fog/40">
-            <p>Showing 4 of 248 products</p>
+            <p>Showing {Math.min(filteredRows.length, safeCurrentPage * rowsPerPage)} of {filteredRows.length} products</p>
 
-            <div className="flex gap-2">
-              <button className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors">
-                Previous
-              </button>
-              <button className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 bg-walnut text-rose-fog">
-                1
-              </button>
-              <button className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors">
-                2
-              </button>
-              <button className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors">
-                3
-              </button>
-              <button className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors">
-                Next
-              </button>
-            </div>
+            {totalPages > 1 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 transition-colors ${safeCurrentPage === page
+                      ? 'bg-walnut text-rose-fog'
+                      : 'hover:text-[#0B1B2A] dark:hover:text-rose-fog'
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={safeCurrentPage === totalPages}
+                  className="px-3 py-1 rounded border border-black/20 dark:border-rose-fog/20 hover:text-[#0B1B2A] dark:hover:text-rose-fog transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>
