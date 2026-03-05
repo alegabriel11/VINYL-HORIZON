@@ -4,7 +4,7 @@ const client = new Client({ connectionString: 'postgresql://neondb_owner:npg_ne2
 async function run() {
     try {
         await client.connect();
-        await client.query('ALTER TABLE vinyls ALTER COLUMN cover_image_url TYPE TEXT;');
+        await client.query('ALTER TABLE vinyls ADD COLUMN IF NOT EXISTS sku VARCHAR(50) UNIQUE;');
         console.log('ALTER success');
     } catch (e) {
         console.error(e);
