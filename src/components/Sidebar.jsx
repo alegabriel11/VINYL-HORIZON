@@ -8,6 +8,12 @@ const Sidebar = ({ isLoggedIn = false }) => {
   const location = useLocation();
 
   const handleLogout = () => {
+    let wasAdmin = false;
+    try {
+      const user = JSON.parse(localStorage.getItem('vinyl_user') || '{}');
+      if (user.role === 'admin') wasAdmin = true;
+    } catch (e) { }
+
     localStorage.removeItem('vinyl_token');
     localStorage.removeItem('vinyl_user');
     toast.success(t('sidebar.logout') + ' 👋', {
@@ -16,8 +22,8 @@ const Sidebar = ({ isLoggedIn = false }) => {
         color: '#E1C2B3',
       }
     });
-    // Force a reload to root to clear all prop-based auth states
-    window.location.href = '/';
+    // Force a reload to clear all prop-based auth states, navigating to login if admin
+    window.location.href = wasAdmin ? '/login' : '/';
   };
 
   const isActive = (path) => location.pathname === path;

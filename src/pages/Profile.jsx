@@ -17,6 +17,7 @@ export default function Profile() {
   // Auth State
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
 
   useEffect(() => {
     // Hydrate state from localStorage
@@ -42,18 +43,36 @@ export default function Profile() {
   }, []);
 
   const handleLogout = () => {
+    const wasAdmin = user?.role === 'admin';
     localStorage.removeItem('vinyl_token');
     localStorage.removeItem('vinyl_user');
     setIsLoggedIn(false);
     setUser(null);
     toast.success('Sesión cerrada / Logged out', { icon: '👋' });
-    navigate('/');
+    navigate(wasAdmin ? '/login' : '/');
+  };
+
+  const handleAvatarSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image too large (max 2MB)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+        localStorage.setItem('vinyl_avatar', reader.result);
+        toast.success("Avatar updated!");
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
 
   return (
-    <div className={`text-[#0B1B2A] dark:text-[#E1C2B3] selection:bg-[#0B1B2A] dark:selection:bg-[#E1C2B3] selection:text-[#EFEFEF] dark:selection:text-[#0B1B2A] min-h-screen font-['Montserrat'] transition-colors duration-500 ${isLoggedIn && !isDark ? 'bg-[#EFEFEF]' : 'bg-[#091C2A]'}`}>
+    <div className={`text-[#0B1B2A] dark:text-[#E1C2B3] selection:bg-[#0B1B2A] dark:selection:bg-[#E1C2B3] selection:text-[#EFEFEF] dark:selection:text-[#0B1B2A] min-h-screen font-['Montserrat'] transition-colors duration-500 ${!isDark ? 'bg-[#EFEFEF]' : 'bg-[#091C2A]'}`}>
       <style>{`
         @keyframes floating {
           0%, 100% { transform: translateY(0px); }
@@ -110,7 +129,7 @@ export default function Profile() {
               </div>
 
               {/* Center Main Vinyl */}
-              <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full bg-black flex items-center justify-center vinyl-shadow z-30 border-8 border-[#091C2A] overflow-hidden">
+              <div className={`relative w-56 h-56 md:w-72 md:h-72 rounded-full bg-black flex items-center justify-center vinyl-shadow z-30 border-8 ${isDark ? 'border-[#091C2A]' : 'border-[#EFEFEF]'} overflow-hidden transition-colors duration-500`}>
                 <div className="w-24 h-24 md:w-32 md:h-32 bg-[#5E1914] rounded-full border-[8px] md:border-[10px] border-black flex flex-col items-center justify-center text-center p-2">
                   <span className="font-['Cormorant_Garamond'] text-[10px] font-bold text-[#E1C2B3] leading-none uppercase tracking-widest">Horizon</span>
                   <div className="w-1 h-1 bg-[#E1C2B3]/50 rounded-full my-1"></div>
@@ -131,10 +150,10 @@ export default function Profile() {
             </div>
 
             <div className="mt-12 text-center max-w-2xl space-y-4 px-4 relative z-40">
-              <h1 className="font-['Playfair_Display'] text-4xl sm:text-5xl md:text-6xl text-[#E1C2B3] font-bold tracking-tight">
+              <h1 className={`font-['Playfair_Display'] text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>
                 JOIN THE HORIZON
               </h1>
-              <p className="text-lg md:text-xl text-[#E1C2B3] font-light opacity-90 max-w-lg mx-auto">
+              <p className={`text-lg md:text-xl font-light opacity-90 max-w-lg mx-auto transition-colors duration-500 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>
                 Start your collection and share your passion for vinyl with the world.
               </p>
             </div>
@@ -143,7 +162,7 @@ export default function Profile() {
               <Link to="/register" className="bg-[#5E1914] text-[#E1C2B3] px-10 py-4 text-center rounded-friendly font-bold uppercase tracking-widest text-sm hover:brightness-125 transition-all shadow-xl block">
                 CREATE ACCOUNT
               </Link>
-              <Link to="/login" className="bg-[#091C2A] text-[#E1C2B3] px-10 py-4 text-center rounded-friendly font-bold uppercase tracking-widest text-sm hover:brightness-125 transition-all shadow-xl block border border-[#E1C2B3]/20">
+              <Link to="/login" className={`${isDark ? 'bg-[#091C2A] text-[#E1C2B3] border border-[#E1C2B3]/20' : 'bg-[#D1D1D1] text-[#091C2A] border border-[#091C2A]/20'} px-10 py-4 text-center rounded-friendly font-bold uppercase tracking-widest text-sm hover:brightness-125 transition-all shadow-xl block`}>
                 LOG IN
               </Link>
             </div>
@@ -156,7 +175,7 @@ export default function Profile() {
             <section className="pt-24 md:pt-20 pb-16 px-4 md:px-8 flex flex-col items-center">
               <div className="flex items-center justify-center relative w-full max-w-5xl py-4 sm:py-8">
                 {/* Decorative Element Left */}
-                <div className="hidden lg:flex w-56 h-56 xl:w-64 xl:h-64 rounded-full bg-black items-center justify-center vinyl-shadow animate-floating z-10 border-4 border-[#122838] overflow-hidden -mr-20 xl:-mr-24 shrink-0">
+                <div className="hidden lg:flex w-56 h-56 xl:w-64 xl:h-64 rounded-full bg-black items-center justify-center vinyl-shadow animate-floating z-10 border-4 border-[#122838] overflow-hidden -mr-8 xl:-mr-12 shrink-0">
                   <div className="w-16 h-16 xl:w-24 xl:h-24 bg-[#3A2E29] rounded-full border-[6px] xl:border-[8px] border-black flex items-center justify-center">
                     <div className="w-2 h-2 bg-[#E1C2B3]/30 rounded-full" />
                   </div>
@@ -168,14 +187,15 @@ export default function Profile() {
                     <img
                       alt={user?.firstName || "User"}
                       className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-70"
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.nickname || user?.firstName || 'Collector'}`}
+                      src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.nickname || user?.firstName || 'Collector'}`}
                     />
                   </div>
 
                   {/* Edit overlay */}
-                  <button className="absolute inset-0 m-auto w-16 h-16 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-xl cursor-pointer">
+                  <label className="absolute inset-0 m-auto w-16 h-16 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-xl cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
                     <span className="material-symbols-outlined text-white">add_a_photo</span>
-                  </button>
+                  </label>
 
                   {/* Status Badge */}
                   <div className="absolute bottom-4 right-4 md:bottom-8 md:right-4 w-12 h-12 md:w-16 md:h-16 bg-[#5E1914] rounded-full border-4 border-white dark:border-[#091C2A] flex items-center justify-center shadow-lg" title="Premium Collector">
@@ -184,8 +204,8 @@ export default function Profile() {
                 </div>
 
                 {/* Decorative Element Right */}
-                <div className="hidden lg:flex w-56 h-56 xl:w-64 xl:h-64 rounded-full bg-[#D1D1D1] dark:bg-[#3A2E29] flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-white dark:border-[#122838] p-4 xl:p-8 shrink-0 -ml-20 xl:-ml-24">
-                  <h2 className="font-['Cormorant_Garamond'] text-4xl xl:text-5xl font-bold tracking-widest uppercase">{t('profile.level') || 'MUSA'}</h2>
+                <div className="hidden lg:flex w-56 h-56 xl:w-64 xl:h-64 rounded-full bg-[#D1D1D1] dark:bg-[#3A2E29] flex-col items-center justify-center shadow-2xl animate-floating-delayed z-20 border-4 border-white dark:border-[#122838] p-4 xl:p-8 shrink-0 -ml-8 xl:-ml-12">
+                  <h2 className="font-['Cormorant_Garamond'] text-3xl xl:text-4xl font-bold tracking-widest uppercase text-center break-words max-w-[80%]">{user?.nickname || user?.firstName || t('profile.level') || 'MUSA'}</h2>
                   <div className="h-px w-10 xl:w-12 bg-black/20 dark:bg-[#E1C2B3]/40 mt-2" />
                 </div>
               </div>

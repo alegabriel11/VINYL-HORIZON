@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 export default function AdminSidebar() {
   const { pathname } = useLocation();
@@ -14,6 +15,19 @@ export default function AdminSidebar() {
   ];
 
   const isActive = (to) => pathname === to;
+
+  const handleAdminLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('vinyl_token');
+    localStorage.removeItem('vinyl_user');
+    toast.success(t('sidebar.logout') + ' 👋', {
+      style: {
+        background: '#091C2A',
+        color: '#E1C2B3',
+      }
+    });
+    window.location.href = '/login';
+  };
 
   const base =
     "group flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 select-none";
@@ -59,8 +73,8 @@ export default function AdminSidebar() {
               {/* Active dot */}
               <span
                 className={`ml-auto h-2 w-2 rounded-full transition-all ${a
-                    ? "bg-[#5E1914] opacity-100"
-                    : "bg-transparent opacity-0 group-hover:bg-[#5E1914]/60 group-hover:opacity-100"
+                  ? "bg-[#5E1914] opacity-100"
+                  : "bg-transparent opacity-0 group-hover:bg-[#5E1914]/60 group-hover:opacity-100"
                   }`}
               />
             </Link>
@@ -70,10 +84,10 @@ export default function AdminSidebar() {
 
       {/* Footer */}
       <div className="mt-auto p-6 border-t border-[#0B1B2A]/15 dark:border-[#3A2E29]/50">
-        <Link to="/" className={`${base} ${inactive}`}>
+        <button onClick={handleAdminLogout} className={`${base} ${inactive} w-full text-left`}>
           <span className="material-symbols-outlined text-[20px]">logout</span>
           <span className="text-[15px]">{t('sidebar.exit_admin')}</span>
-        </Link>
+        </button>
 
         <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-[#0B1B2A]/45 dark:text-[#E1C2B3]/35">
           {t('admin.admin_footer').replace('© 2024 ', '').replace(' v1.2', '').split('•')[0] + ' • ADMIN'}
