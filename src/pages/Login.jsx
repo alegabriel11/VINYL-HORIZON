@@ -40,7 +40,11 @@ export default function Login() {
                     icon: '🎵',
                 });
 
-                navigate('/profile');
+                if (data.user.role === 'admin') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/profile');
+                }
             } else {
                 setError(data.message || 'Credenciales inválidas.');
             }
@@ -157,12 +161,7 @@ export default function Login() {
                         </Link>
                     </div>
                 </div>
-                <Link to="/admin/dashboard"
-                    className={`w-full block text-center py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] mt-3 ${isDark ? 'bg-[#233326] text-[#E1C2B3]' : 'bg-[#233326] text-[#F3F0EC]'}`}
-                >
-                    Admin Panel
-                </Link>
-                <p className={`mt-8 text-center text-[10px] uppercase tracking-[0.3em] ${isDark ? 'text-[#E1C2B3]/40' : 'text-[#0B1B2A]/60 font-bold'}`}>
+                <p className="mt-8 text-center text-[10px] uppercase tracking-[0.3em] text-[#E1C2B3]/40">
                     {t('auth.curated_since')}
                 </p>
             </main>
