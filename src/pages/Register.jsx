@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 export default function Register() {
     const { isDark, toggleTheme } = useTheme();
@@ -32,7 +33,7 @@ export default function Register() {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ firstName, lastName, email, password })
+                body: JSON.stringify({ firstName, lastName, nickname, email, password })
             });
 
             const data = await response.json();
@@ -42,6 +43,11 @@ export default function Register() {
                 localStorage.setItem('vinyl_token', data.token);
                 // Opcional: Podríamos guardar detalles del usuario
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+
+                toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, que vamos a comprar hoy?`, {
+                    icon: '🎵',
+                });
+
                 navigate('/profile');
             } else {
                 setError(data.message || 'Error occurred during registration.');
