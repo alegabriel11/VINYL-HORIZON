@@ -22,6 +22,7 @@ import AdminOrders from "./pages/Admin/Orders";
 import AdminOrderDetails from "./pages/Admin/OrderDetails";
 import AdminReports from "./pages/Admin/Reports";
 import AddNewVinyl from "./pages/Admin/NewVinyl";
+import AdminEditVinyl from "./pages/Admin/EditVinyl";
 
 function App() {
   return (
@@ -54,6 +55,15 @@ function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
 
+              {/* Admin */}
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/inventory" element={<AdminInventory />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+              <Route path="/admin/inventory/edit/:sku" element={<AdminEditVinyl />} />
               {/* Admin - Protected Routes */}
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

@@ -7,11 +7,15 @@ const app = express();
 
 // Configurar Middlewares
 app.use(cors()); // Permite peticiones desde el Frontend (React)
-app.use(express.json()); // Permite que el servidor entienda JSON en el body de las peticiones
+app.use(express.json({ limit: '10mb' })); // Permite que el servidor entienda JSON de hasta 10mb (para imágenes en base64)
 
 // Rutas
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
+
+const vinylRoutes = require('./routes/vinylRoutes');
+app.use('/api/vinyls', vinylRoutes);
+
 
 // Ruta base de prueba
 app.get('/', (req, res) => {
