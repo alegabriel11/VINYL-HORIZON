@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Inventory() {
   const [isDark, setIsDark] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const root = document.documentElement;
     if (isDark) root.classList.add("dark");
@@ -122,10 +122,14 @@ export default function Inventory() {
             />
           </div>
 
-          <button className="bg-whine-berry text-[#E97272] px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95">
+           <button
+            type="button"
+            onClick={() => navigate("/admin/inventory/new")}
+            className="bg-[#5E1914] text-[#E1C2B3] px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95"
+            >
             <span className="material-symbols-outlined text-lg">add</span>
             ADD NEW VINYL
-          </button>
+            </button>
         </div>
 
         {/* Table Card */}

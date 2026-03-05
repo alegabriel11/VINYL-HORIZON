@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import AdminInventory from "./pages/Admin/Inventory";
 import AdminOrders from "./pages/Admin/Orders";
 import AdminReports from "./pages/Admin/Reports";
+import AddNewVinyl from "./pages/Admin/NewVinyl";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/admin/inventory" element={<AdminInventory />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
           </Routes>
         </Router>
       </ThemeProvider>
