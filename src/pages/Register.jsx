@@ -88,13 +88,7 @@ export default function Register() {
                 >
                     {language === 'ES' ? 'EN' : 'ES'}
                 </button>
-                <button
-                    className={`flex items-center justify-center p-3 backdrop-blur-md rounded-full transition-all border shadow-lg focus:outline-none group ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#091C2A]/20 hover:bg-[#091C2A]/10'}`}
-                    onClick={toggleTheme}
-                    aria-label="Toggle Dark Mode"
-                >
-                    <span className={`material-symbols-outlined block ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>{isDark ? 'light_mode' : 'dark_mode'}</span>
-                </button>
+
             </div>
 
             <div className="relative z-10 w-full max-w-md px-4 py-12">

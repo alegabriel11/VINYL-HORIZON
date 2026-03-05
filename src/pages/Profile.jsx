@@ -53,13 +53,7 @@ export default function Profile({ isLoggedIn = false }) {
           >
             {language === 'ES' ? 'EN' : 'ES'}
           </button>
-          <button
-            className="flex items-center justify-center p-2 md:p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
-            onClick={toggleTheme}
-            aria-label="Toggle Dark Mode"
-          >
-            <span className="material-symbols-outlined block">{isDark ? 'light_mode' : 'dark_mode'}</span>
-          </button>
+
         </div>
 
         {/* HERO SECTION */}

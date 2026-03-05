@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
 
-export default function Dashboard() {
-  const [isDark, setIsDark] = useState(false);
+import { useTheme } from "../../context/ThemeContext";
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [isDark]);
+export default function Dashboard() {
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
@@ -36,7 +32,7 @@ export default function Dashboard() {
 
             <button
               className="p-2.5 bg-black/5 dark:bg-walnut/20 backdrop-blur-md hover:bg-black/10 dark:hover:bg-walnut/40 text-[#0B1B2A] dark:text-rose-fog rounded-full transition-all border border-black/10 dark:border-rose-fog/10 shadow-lg flex items-center justify-center"
-              onClick={() => setIsDark((v) => !v)}
+              onClick={toggleTheme}
               type="button"
               aria-label="Toggle dark mode"
             >

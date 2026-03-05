@@ -4,13 +4,7 @@ import AdminSidebar from "./cart/AdminSidebar";
 import { useNavigate } from "react-router-dom";
 
 export default function Inventory() {
-  const [isDark, setIsDark] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [isDark]);
 
   const { inventory: rows } = useContext(InventoryContext);
 
@@ -38,19 +32,7 @@ export default function Inventory() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-whine-berry rounded-full" />
             </div>
 
-            <button
-              className="p-2.5 bg-black/5 dark:bg-walnut/30 backdrop-blur-md hover:bg-black/10 dark:hover:bg-walnut/40 text-[#0B1B2A] dark:text-rose-fog rounded-full transition-all border border-black/10 dark:border-rose-fog/20 shadow-md flex items-center justify-center"
-              onClick={() => setIsDark((v) => !v)}
-              type="button"
-              aria-label="Toggle dark mode"
-            >
-              <span className="material-symbols-outlined block dark:hidden">
-                dark_mode
-              </span>
-              <span className="material-symbols-outlined hidden dark:block">
-                light_mode
-              </span>
-            </button>
+
 
             <div className="flex items-center gap-3 border-l border-black/10 dark:border-walnut pl-6">
               <div className="text-right">
@@ -160,14 +142,14 @@ export default function Inventory() {
                       <div className="flex items-center gap-2">
                         <span
                           className={`w-2 h-2 rounded-full ${r.stock.status === "low"
-                              ? "bg-whine-berry"
-                              : "bg-green-500"
+                            ? "bg-whine-berry"
+                            : "bg-green-500"
                             }`}
                         />
                         <span
                           className={`text-sm font-semibold ${r.stock.status === "low"
-                              ? "text-whine-berry"
-                              : "text-[#0B1B2A] dark:text-rose-fog"
+                            ? "text-whine-berry"
+                            : "text-[#0B1B2A] dark:text-rose-fog"
                             }`}
                         >
                           {r.stock.value} Units
