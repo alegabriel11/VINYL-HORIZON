@@ -1,10 +1,24 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 const Sidebar = ({ isLoggedIn = false }) => {
   const { t } = useTranslation();
   const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem('vinyl_token');
+    localStorage.removeItem('vinyl_user');
+    toast.success(t('sidebar.logout') + ' 👋', {
+      style: {
+        background: '#091C2A',
+        color: '#E1C2B3',
+      }
+    });
+    // Force a reload to root to clear all prop-based auth states
+    window.location.href = '/';
+  };
 
   const isActive = (path) => location.pathname === path;
 
@@ -59,7 +73,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
 
           <button
             className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
-            onClick={() => console.log("Cerrando sesión...")}
+            onClick={handleLogout}
           >
             <span className="material-symbols-outlined">logout</span>
             <span className="text-sm font-medium">{t('sidebar.logout')}</span>
