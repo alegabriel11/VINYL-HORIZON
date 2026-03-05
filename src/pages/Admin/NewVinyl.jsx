@@ -1,9 +1,10 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function AddNewVinyl() {
+export default function NewVinyl() {
   const fileRef = useRef(null);
   const [preview, setPreview] = useState("");
-
+  const navigate = useNavigate();
   const onPickFile = () => fileRef.current?.click();
 
   const onFileChange = (e) => {
@@ -188,10 +189,11 @@ export default function AddNewVinyl() {
             <div className="md:col-span-12 flex flex-col sm:flex-row items-center justify-end gap-6 pt-8 border-t border-[#E1C2B3]/10">
               <button
                 type="button"
+                onClick={() => navigate("/admin/inventory")}
                 className="order-2 sm:order-1 px-8 py-3 text-sm font-bold tracking-widest text-[#E1C2B3] uppercase border border-[#E1C2B3]/40 rounded-xl hover:bg-[#E1C2B3]/10 transition-all w-full sm:w-auto"
-              >
+                >
                 Cancel
-              </button>
+            </button>
 
               <button
                 type="submit"
