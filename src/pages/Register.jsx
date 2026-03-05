@@ -62,28 +62,13 @@ export default function Register() {
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A] text-[#E1C2B3]' : 'bg-[#D1D1D1] text-[#091C2A]'}`}>
-            <style>{`
-        .hero-overlay {
-            background: linear-gradient(to bottom, rgba(9, 28, 42, 0.8), rgba(9, 28, 42, 0.95));
-        }
-        .light .hero-overlay {
-            background: linear-gradient(rgba(209, 201, 209, 0.7), rgba(209, 201, 209, 0.9));
-        }
-        .input-luxe {
-            @apply bg-transparent focus:outline-none focus:ring-1 rounded-xl py-3 px-4 w-full transition-colors;
-        }
-        .label-luxe {
-            @apply block text-xs font-bold uppercase tracking-widest mb-2;
-        }
-      `}</style>
-
             <div className="absolute inset-0 z-0">
                 <img
                     alt="Vintage Vinyl Background"
                     className="w-full h-full object-cover opacity-30 grayscale"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp"
                 />
-                <div className="absolute inset-0 hero-overlay transition-colors duration-500"></div>
+                <div className={`absolute inset-0 transition-colors duration-500 ${isDark ? 'bg-gradient-to-b from-[#091C2A]/80 to-[#091C2A]/95' : 'bg-gradient-to-b from-[#D1D1D1]/70 to-[#D1D1D1]/90'}`}></div>
             </div>
 
             <div className="fixed top-8 right-8 z-[60] flex items-center gap-4">
@@ -116,34 +101,36 @@ export default function Register() {
                         </div>
                     )}
 
-                    <form className="space-y-6" onSubmit={handleRegister}>
-                        <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="full-name">{t('auth.full_name')}</label>
-                            <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
-                                id="full-name"
-                                placeholder="John Doe"
-                                type="text"
-                                required
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                            />
+                    <form className="space-y-5" onSubmit={handleRegister}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label className={`block text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${isDark ? 'text-[#E1C2B3]/80' : 'text-[#091C2A]/80'}`} htmlFor="full-name">{t('auth.full_name')}</label>
+                                <input
+                                    className={`w-full bg-transparent px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium text-sm ${isDark ? 'border-[#E1C2B3]/30 text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3]/20 placeholder-[#E1C2B3]/30' : 'border-[#091C2A]/30 text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A]/20 placeholder-[#091C2A]/40'}`}
+                                    id="full-name"
+                                    placeholder="John Doe"
+                                    type="text"
+                                    required
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className={`block text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${isDark ? 'text-[#E1C2B3]/80' : 'text-[#091C2A]/80'}`} htmlFor="nickname">{t('auth.nickname')}</label>
+                                <input
+                                    className={`w-full bg-transparent px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium text-sm ${isDark ? 'border-[#E1C2B3]/30 text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3]/20 placeholder-[#E1C2B3]/30' : 'border-[#091C2A]/30 text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A]/20 placeholder-[#091C2A]/40'}`}
+                                    id="nickname"
+                                    placeholder="VinylLover99"
+                                    type="text"
+                                    value={nickname}
+                                    onChange={(e) => setNickname(e.target.value)}
+                                />
+                            </div>
                         </div>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="nickname">{t('auth.nickname')}</label>
+                            <label className={`block text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${isDark ? 'text-[#E1C2B3]/80' : 'text-[#091C2A]/80'}`} htmlFor="email">{t('auth.email')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
-                                id="nickname"
-                                placeholder="VinylLover99"
-                                type="text"
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="email">{t('auth.email')}</label>
-                            <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
+                                className={`w-full bg-transparent px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium text-sm ${isDark ? 'border-[#E1C2B3]/30 text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3]/20 placeholder-[#E1C2B3]/30' : 'border-[#091C2A]/30 text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A]/20 placeholder-[#091C2A]/40'}`}
                                 id="email"
                                 placeholder="hello@example.com"
                                 type="email"
@@ -153,9 +140,9 @@ export default function Register() {
                             />
                         </div>
                         <div>
-                            <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="password">{t('auth.password')}</label>
+                            <label className={`block text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${isDark ? 'text-[#E1C2B3]/80' : 'text-[#091C2A]/80'}`} htmlFor="password">{t('auth.password')}</label>
                             <input
-                                className={`input-luxe border-2 ${isDark ? 'border-[#E1C2B3] text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3] placeholder-[#E1C2B3]/30' : 'border-[#091C2A] text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A] placeholder-[#E97272] font-medium'}`}
+                                className={`w-full bg-transparent px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium text-sm tracking-widest ${isDark ? 'border-[#E1C2B3]/30 text-[#E1C2B3] focus:border-[#E1C2B3] focus:ring-[#E1C2B3]/20 placeholder-[#E1C2B3]/30' : 'border-[#091C2A]/30 text-[#091C2A] focus:border-[#091C2A] focus:ring-[#091C2A]/20 placeholder-[#091C2A]/40'}`}
                                 id="password"
                                 placeholder="••••••••"
                                 type="password"
