@@ -1,0 +1,12 @@
+
+> vinyl-horizon@0.0.0 dev
+> vite
+
+Port 5173 is in use, trying another one...
+Port 5174 is in use, trying another one...
+
+  VITE v7.3.1  ready in 165 ms
+
+  ➜  Local:   http://localhost:5175/
+  ➜  Network: http://192.168.1.115:5175/
+  ➜  press h + enter to show help
