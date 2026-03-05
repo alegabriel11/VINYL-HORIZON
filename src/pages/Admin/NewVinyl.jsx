@@ -1,10 +1,23 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { InventoryContext } from "../../context/InventoryContext";
 
 export default function NewVinyl() {
+  const { addVinyl } = useContext(InventoryContext);
   const fileRef = useRef(null);
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    album: "",
+    artist: "",
+    sku: "",
+    year: "",
+    genre: "jazz",
+    stock: "",
+    price: "",
+  });
+
   const onPickFile = () => fileRef.current?.click();
 
   const onFileChange = (e) => {
@@ -14,14 +27,31 @@ export default function NewVinyl() {
     setPreview(url);
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
-    // TODO: conecta con tu API / estado
+    const newVinyl = {
+      album: formData.album || "Untitled Album",
+      sku: formData.sku || "VH-00000",
+      artist: formData.artist || "Unknown Artist",
+      genre: formData.genre.charAt(0).toUpperCase() + formData.genre.slice(1),
+      stock: {
+        value: parseInt(formData.stock) || 0,
+        status: parseInt(formData.stock) < 10 ? "low" : "ok",
+      },
+      price: formData.price ? `$${formData.price}` : "$0.00",
+      img: preview || "https://images.unsplash.com/photo-1603048588665-791ca8aea617?fit=crop&q=80&w=200&h=200",
+    };
+    addVinyl(newVinyl);
+    navigate("/admin/inventory");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 selection:bg-[#E1C2B3] selection:text-[#091C2A] bg-[#F5F5F5] dark:bg-[#091C2A] text-[#0B1B2A] dark:text-[#E1C2B3]">
-      {/* Toggle (usa tu ThemeProvider; aquí solo dispara el toggle global por class) */}
+      {/* Toggle */}
       <div className="fixed top-8 right-8 z-50">
         <button
           type="button"
@@ -107,8 +137,12 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="text"
+                    name="album"
+                    value={formData.album}
+                    onChange={handleChange}
                     placeholder="e.g. Midnight Melodies"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    required
                   />
                 </div>
 
@@ -118,8 +152,12 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="text"
+                    name="artist"
+                    value={formData.artist}
+                    onChange={handleChange}
                     placeholder="e.g. Elias Thorne"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    required
                   />
                 </div>
               </div>
@@ -131,8 +169,12 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="text"
+                    name="sku"
+                    value={formData.sku}
+                    onChange={handleChange}
                     placeholder="VH-XXXXX"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    required
                   />
                 </div>
 
@@ -142,6 +184,9 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="number"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
                     placeholder="2024"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                   />
@@ -152,7 +197,12 @@ export default function NewVinyl() {
                 <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
                   Genre
                 </label>
-                <select className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent">
+                <select
+                  name="genre"
+                  value={formData.genre}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent"
+                >
                   <option value="jazz">Jazz</option>
                   <option value="rock">Rock</option>
                   <option value="electronica">Electronica</option>
@@ -167,8 +217,12 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="number"
+                    name="stock"
+                    value={formData.stock}
+                    onChange={handleChange}
                     placeholder="0"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    required
                   />
                 </div>
 
@@ -178,8 +232,12 @@ export default function NewVinyl() {
                   </label>
                   <input
                     type="text"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
                     placeholder="0.00"
                     className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    required
                   />
                 </div>
               </div>
@@ -191,9 +249,9 @@ export default function NewVinyl() {
                 type="button"
                 onClick={() => navigate("/admin/inventory")}
                 className="order-2 sm:order-1 px-8 py-3 text-sm font-bold tracking-widest text-[#E1C2B3] uppercase border border-[#E1C2B3]/40 rounded-xl hover:bg-[#E1C2B3]/10 transition-all w-full sm:w-auto"
-                >
+              >
                 Cancel
-            </button>
+              </button>
 
               <button
                 type="submit"

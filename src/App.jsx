@@ -12,6 +12,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 
 import { LanguageProvider } from "./context/LanguageContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { InventoryProvider } from "./context/InventoryContext";
 
 import AdminDashboard from "./pages/Admin/Dashboard";
 import AdminInventory from "./pages/Admin/Inventory";
@@ -22,29 +23,31 @@ import AddNewVinyl from "./pages/Admin/NewVinyl";
 function App() {
   return (
     <LanguageProvider>
-      <ThemeProvider>
-        <Router>
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Home />} />
-            <Route path="/catalog" element={<Catalog />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
+      <InventoryProvider>
+        <ThemeProvider>
+          <Router>
+            <Routes>
+              {/* Public */}
+              <Route path="/" element={<Home />} />
+              <Route path="/catalog" element={<Catalog />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
 
-            {/* Admin */}
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/inventory" element={<AdminInventory />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/reports" element={<AdminReports />} />
-            <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
-          </Routes>
-        </Router>
-      </ThemeProvider>
+              {/* Admin */}
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/inventory" element={<AdminInventory />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+            </Routes>
+          </Router>
+        </ThemeProvider>
+      </InventoryProvider>
     </LanguageProvider>
   );
 }
