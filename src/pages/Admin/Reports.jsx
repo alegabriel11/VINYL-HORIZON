@@ -3,7 +3,7 @@ import AdminSidebar from "./cart/AdminSidebar";
 import { useTheme } from "../../context/ThemeContext";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import toast from 'react-hot-toast';
 
 export default function Reports() {
@@ -95,16 +95,17 @@ export default function Reports() {
 
       const chartElement = document.getElementById('monthly-growth-chart');
       if (chartElement) {
-        const canvas = await html2canvas(chartElement, {
-          scale: 2,
-          backgroundColor: isDark ? '#3A2E29' : '#D9D9D9'
+        const dataUrl = await toPng(chartElement, {
+          backgroundColor: isDark ? '#3A2E29' : '#D9D9D9',
+          pixelRatio: 2
         });
-        const imgData = canvas.toDataURL('image/png');
+
         const imgWidth = 180;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Approximation or measure image dimensions if needed
+        const imgHeight = (chartElement.offsetHeight * imgWidth) / chartElement.offsetWidth;
 
         const currentY = doc.lastAutoTable.finalY > 200 ? 25 : doc.lastAutoTable.finalY + 20;
-        doc.addImage(imgData, 'PNG', 14, currentY, imgWidth, imgHeight);
+        doc.addImage(dataUrl, 'PNG', 14, currentY, imgWidth, imgHeight);
       }
 
       // Footer
