@@ -5,9 +5,11 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toPng } from 'html-to-image';
 import toast from 'react-hot-toast';
+import { useTranslation } from "react-i18next";
 
 export default function Reports() {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const printRef = useRef();
 
   const handleGenerateFullReport = async () => {
@@ -161,8 +163,8 @@ export default function Reports() {
       <main className="ml-64 min-h-screen p-8 lg:p-12 relative" id="main-content">
         <div className="flex justify-between items-center mb-12">
           <div>
-            <h1 className="font-['Cormorant_Garamond'] text-5xl font-bold">Reports</h1>
-            <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-[0.3em] mt-1 font-semibold">ADMIN TERMINAL</p>
+            <h1 className="font-['Cormorant_Garamond'] text-5xl font-bold">{t('admin.reports')}</h1>
+            <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-[0.3em] mt-1 font-semibold">{t('admin.terminal')}</p>
           </div>
           <div className="flex items-center gap-6">
             <button
@@ -171,7 +173,7 @@ export default function Reports() {
               type="button"
             >
               <span className="material-symbols-outlined text-sm">download</span>
-              Generate Full Report
+              {t('admin.generate_full')}
             </button>
             <div className="relative group">
               <span className="material-symbols-outlined cursor-pointer hover:text-[#5E1914] transition-colors">notifications</span>
@@ -181,7 +183,7 @@ export default function Reports() {
             <div className="flex items-center gap-3 border-l border-[#3A2E29]/30 pl-6">
               <div className="text-right">
                 <p className="text-sm font-bold">Alex Rivers</p>
-                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-tighter">Store Manager</p>
+                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-tighter">{t('admin.manager')}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-[#3A2E29] overflow-hidden border border-[#E1C2B3]/20 shadow-inner">
                 <img alt="Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsOXf4G5EF-_AEWxdF6yLcmKT8OrzGI9t2NuUxuh_3pLDF8eeCGTNpE6Ago8OErxhEn7GqbVuQec-I3R8xW-rWDjvLP_n_9pUgazdY8DtjuYLTRqXdn5TndwJpLtNBQW3LvZk4IskVZNc2t399Ph5aoq9zmLnuYLSXyXUOC4Z2CPwpffSf-ERoI8CHx-yqKlWcYMpRlWxdgyHQnjeHHjZi6hECsrfCH43llb67qAt19LvNOslPAbevGUxVKESPQe1Ap4XTcOa1fXuN" />
@@ -226,7 +228,7 @@ export default function Reports() {
         <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl mb-8 transition-all">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Sales by Genre</h4>
+              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.sales_by_genre')}</h4>
               <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">Distribution of monthly volume</p>
             </div>
           </div>
@@ -253,7 +255,7 @@ export default function Reports() {
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-center mb-8">
-              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Top Selling Vinyls</h4>
+              <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.top_selling')}</h4>
               <span className="material-symbols-outlined text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 cursor-pointer">more_horiz</span>
             </div>
             <div className="space-y-6">
@@ -299,7 +301,7 @@ export default function Reports() {
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all h-full pdf-export-container" style={{ background: isDark ? '#3A2E29' : '#D9D9D9' }}>
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">Monthly Growth</h4>
+                <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.monthly_growth')}</h4>
                 <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">6 month trajectory</p>
               </div>
             </div>

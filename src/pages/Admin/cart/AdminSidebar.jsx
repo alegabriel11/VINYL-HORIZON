@@ -1,15 +1,17 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-
-const NAV = [
-  { to: "/admin/dashboard", icon: "dashboard", label: "Dashboard" },
-  { to: "/admin/inventory", icon: "inventory_2", label: "Inventory" },
-  { to: "/admin/orders", icon: "receipt_long", label: "Orders" },
-  { to: "/admin/reports", icon: "bar_chart", label: "Reports" },
-];
+import { useTranslation } from "react-i18next";
 
 export default function AdminSidebar() {
   const { pathname } = useLocation();
+  const { t } = useTranslation();
+
+  const NAV = [
+    { to: "/admin/dashboard", icon: "dashboard", label: t('sidebar.admin_dashboard') },
+    { to: "/admin/inventory", icon: "inventory_2", label: t('sidebar.admin_inventory') },
+    { to: "/admin/orders", icon: "receipt_long", label: t('sidebar.admin_orders') },
+    { to: "/admin/reports", icon: "bar_chart", label: t('sidebar.admin_reports') },
+  ];
 
   const isActive = (to) => pathname === to;
 
@@ -24,7 +26,7 @@ export default function AdminSidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-72 bg-[#E6E9F2] dark:bg-[#091C2A] border-r border-[#0B1B2A]/15 dark:border-[#3A2E29]/50 z-50 flex flex-col">
-      
+
       {/* Logo */}
       <div className="p-10">
         <div className="flex flex-col gap-1 leading-none">
@@ -56,11 +58,10 @@ export default function AdminSidebar() {
 
               {/* Active dot */}
               <span
-                className={`ml-auto h-2 w-2 rounded-full transition-all ${
-                  a
+                className={`ml-auto h-2 w-2 rounded-full transition-all ${a
                     ? "bg-[#5E1914] opacity-100"
                     : "bg-transparent opacity-0 group-hover:bg-[#5E1914]/60 group-hover:opacity-100"
-                }`}
+                  }`}
               />
             </Link>
           );
@@ -71,11 +72,11 @@ export default function AdminSidebar() {
       <div className="mt-auto p-6 border-t border-[#0B1B2A]/15 dark:border-[#3A2E29]/50">
         <Link to="/" className={`${base} ${inactive}`}>
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-[15px]">Exit Admin</span>
+          <span className="text-[15px]">{t('sidebar.exit_admin')}</span>
         </Link>
 
         <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-[#0B1B2A]/45 dark:text-[#E1C2B3]/35">
-          VINYL HORIZON • ADMIN
+          {t('admin.admin_footer').replace('© 2024 ', '').replace(' v1.2', '').split('•')[0] + ' • ADMIN'}
         </p>
       </div>
     </aside>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
 import toast from 'react-hot-toast';
-
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContext";
 
 export default function Dashboard() {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
 
   const [adminForm, setAdminForm] = useState({
     firstName: '',
@@ -54,10 +55,10 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-12">
           <div>
             <h1 className="serif-font text-4xl font-bold text-[#0B1B2A] dark:text-rose-fog">
-              Overview
+              {t('admin.overview')}
             </h1>
             <p className="text-sm tracking-widest uppercase mt-1 text-[#0B1B2A]/60 dark:text-rose-fog/60">
-              Admin Terminal
+              {t('admin.terminal')}
             </p>
           </div>
 
@@ -89,7 +90,7 @@ export default function Dashboard() {
                   Alex Rivers
                 </p>
                 <p className="text-[10px] text-[#0B1B2A]/40 dark:text-rose-fog/40 uppercase tracking-tighter">
-                  Store Manager
+                  {t('admin.manager')}
                 </p>
               </div>
 
@@ -122,7 +123,7 @@ export default function Dashboard() {
               </span>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-rose-fog/60">
-              Total Sales
+              {t('admin.total_sales')}
             </p>
             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
               $12,840.00
@@ -145,7 +146,7 @@ export default function Dashboard() {
               </span>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-rose-fog/60">
-              Total Orders
+              {t('admin.total_orders')}
             </p>
             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
               154
@@ -161,11 +162,11 @@ export default function Dashboard() {
                 </span>
               </div>
               <span className="text-xs font-bold uppercase tracking-tighter text-[#0B1B2A]/80 dark:text-rose-fog">
-                4 critical items
+                4 {t('admin.critical_items')}
               </span>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-rose-fog/60">
-              Low Stock
+              {t('admin.low_stock')}
             </p>
             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
               12
@@ -180,26 +181,8 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-10">
               <div>
                 <h4 className="serif-font text-2xl font-bold text-[#0B1B2A] dark:text-rose-fog">
-                  Revenue Analytics
+                  {t('admin.revenue_analytics')}
                 </h4>
-                <p className="text-xs uppercase tracking-widest text-[#0B1B2A]/55 dark:text-rose-fog/50">
-                  Weekly sales performance comparison
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  className="px-4 py-1.5 bg-[#5E1914] text-white text-[10px] font-bold uppercase rounded-lg"
-                  type="button"
-                >
-                  Weekly
-                </button>
-                <button
-                  className="px-4 py-1.5 bg-black/5 text-[#0B1B2A]/70 hover:bg-black/10 dark:bg-black-pearl/20 dark:text-rose-fog/60 dark:hover:bg-black-pearl/40 text-[10px] font-bold uppercase rounded-lg"
-                  type="button"
-                >
-                  Monthly
-                </button>
               </div>
             </div>
 
@@ -231,8 +214,8 @@ export default function Dashboard() {
               </svg>
 
               <div className="flex justify-between mt-4 text-[10px] uppercase tracking-widest text-[#0B1B2A]/45 dark:text-rose-fog/40">
-                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
-                <span>Fri</span><span>Sat</span><span>Sun</span>
+                <span>1</span><span>5</span><span>10</span><span>15</span>
+                <span>20</span><span>25</span><span>30</span>
               </div>
             </div>
           </div>
@@ -241,13 +224,13 @@ export default function Dashboard() {
           <div className="admin-card p-8 rounded-friendly border border-black/5 dark:border-rose-fog/5 shadow-xl bg-[#D9D9D9] dark:bg-walnut">
             <div className="flex justify-between items-center mb-8">
               <h4 className="serif-font text-2xl font-bold text-[#0B1B2A] dark:text-rose-fog">
-                Recent Orders
+                {t('admin.recent_orders')}
               </h4>
               <button
                 className="text-[10px] font-bold uppercase text-[#0B1B2A]/45 hover:text-[#0B1B2A] dark:text-rose-fog/40 dark:hover:text-rose-fog transition-colors"
                 type="button"
               >
-                View All
+                {t('admin.view_all')}
               </button>
             </div>
 
@@ -324,16 +307,16 @@ export default function Dashboard() {
           <div className="mb-6">
             <h4 className="serif-font text-2xl font-bold text-[#0B1B2A] dark:text-rose-fog flex items-center gap-2">
               <span className="material-symbols-outlined">shield_person</span>
-              Create Administrator
+              {t('admin.create_admin')}
             </h4>
             <p className="text-xs uppercase tracking-widest text-[#0B1B2A]/55 dark:text-rose-fog/50 mt-1">
-              Grant system access to a new team member
+              {t('admin.create_admin_desc')}
             </p>
           </div>
 
           <form onSubmit={handleAdminRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">First Name</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">{t('admin.first_name')}</label>
               <input
                 required
                 type="text"
@@ -344,7 +327,7 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Last Name</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">{t('admin.last_name')}</label>
               <input
                 required
                 type="text"
@@ -355,7 +338,7 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Nickname / Role Label</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">{t('admin.role_label')}</label>
               <input
                 required
                 type="text"
@@ -366,7 +349,7 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Email Address</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">{t('admin.email')}</label>
               <input
                 required
                 type="email"
@@ -377,7 +360,7 @@ export default function Dashboard() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Secure Password</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">{t('admin.secure_pwd')}</label>
               <input
                 required
                 type="password"
@@ -395,7 +378,7 @@ export default function Dashboard() {
                 className="w-full py-4 bg-[#5E1914] rounded-xl text-[12px] font-bold uppercase tracking-widest text-white hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50"
                 type="submit"
               >
-                {isAdminLoading ? 'Provisioning...' : 'Provision Secure Admin Account'}
+                {isAdminLoading ? t('admin.provisioning') : t('admin.provision_btn')}
               </button>
             </div>
           </form>
@@ -403,7 +386,7 @@ export default function Dashboard() {
 
         <footer className="mt-12 text-center">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#0B1B2A]/35 dark:text-rose-fog/30">
-            © 2024 VINYL HORIZON • ADMIN TERMINAL LUXE v1.2
+            {t('admin.admin_footer')}
           </p>
         </footer>
       </main>

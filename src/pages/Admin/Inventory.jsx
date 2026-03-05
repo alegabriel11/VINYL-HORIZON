@@ -2,9 +2,11 @@ import React, { useEffect, useState, useContext } from "react";
 import { InventoryContext } from "../../context/InventoryContext";
 import AdminSidebar from "./cart/AdminSidebar";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Inventory() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { inventory: rows } = useContext(InventoryContext);
 
@@ -17,10 +19,10 @@ export default function Inventory() {
         <header className="flex justify-between items-center mb-10">
           <div>
             <h1 className="serif-font text-5xl font-bold text-[#0B1B2A] dark:text-rose-fog">
-              Inventory
+              {t('admin.inventory')}
             </h1>
             <p className="text-sm small-caps mt-1 text-[#0B1B2A]/60 dark:text-rose-fog/60">
-              Admin Terminal
+              {t('admin.terminal')}
             </p>
           </div>
 
@@ -40,7 +42,7 @@ export default function Inventory() {
                   Alex Rivers
                 </p>
                 <p className="text-[10px] text-[#0B1B2A]/40 dark:text-rose-fog/40 uppercase tracking-tighter">
-                  Inventory Lead
+                  {t('admin.inventory_lead')}
                 </p>
               </div>
 
@@ -63,7 +65,7 @@ export default function Inventory() {
             </span>
             <input
               className="w-full pl-12 pr-4 py-3 rounded-friendly bg-[#D9D9D9]/70 dark:bg-walnut/30 border border-black/10 dark:border-rose-fog/10 text-[#0B1B2A] dark:text-rose-fog placeholder:text-[#0B1B2A]/35 dark:placeholder:text-rose-fog/30 focus:outline-none focus:ring-1 focus:ring-pale-taupe"
-              placeholder="Search by Album, Artist, or SKU..."
+              placeholder={t('admin.search_placeholder')}
               type="text"
             />
           </div>
@@ -71,10 +73,10 @@ export default function Inventory() {
           <button
             type="button"
             onClick={() => navigate("/admin/inventory/new")}
-            className="bg-[#5E1914] text-[#E1C2B3] px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95"
+            className="bg-[#5E1914] text-[#E1C2B3] px-8 py-3 rounded-friendly font-bold text-sm tracking-widest flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95 whitespace-nowrap"
           >
             <span className="material-symbols-outlined text-lg">add</span>
-            ADD NEW VINYL
+            {t('admin.add_vinyl')}
           </button>
         </div>
 
@@ -84,7 +86,7 @@ export default function Inventory() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-black-pearl/10 dark:bg-black-pearl/40">
-                  {["Album", "Artist", "Genre", "Stock", "Price"].map((h) => (
+                  {[t('admin.table_album'), t('admin.table_artist'), t('admin.table_genre'), t('admin.table_stock'), t('admin.table_price')].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50"
@@ -93,7 +95,7 @@ export default function Inventory() {
                     </th>
                   ))}
                   <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50 text-right">
-                    Actions
+                    {t('admin.table_actions')}
                   </th>
                 </tr>
               </thead>
@@ -152,12 +154,12 @@ export default function Inventory() {
                             : "text-[#0B1B2A] dark:text-rose-fog"
                             }`}
                         >
-                          {r.stock.value} Units
+                          {r.stock.value} {t('admin.units')}
                         </span>
 
                         {r.stock.status === "low" && (
                           <span className="text-[9px] font-bold uppercase bg-whine-berry text-rose-fog px-1.5 rounded">
-                            Low
+                            {t('admin.low_stock').split(' ')[0]}
                           </span>
                         )}
                       </div>
