@@ -43,11 +43,13 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/inventory" element={<AdminInventory />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
               <Route path="/admin/reports" element={<AdminReports />} />
               <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
             </Routes>
           </Router>
         </ThemeProvider>
+      </InventoryProvider>
     </LanguageProvider>
   );
 }
