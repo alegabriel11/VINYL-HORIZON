@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 export default function Login() {
     const { isDark, toggleTheme } = useTheme();
@@ -34,6 +35,11 @@ export default function Login() {
                 // Autenticado: Guardar JWT en LocalStorage y redirigir
                 localStorage.setItem('vinyl_token', data.token);
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+
+                toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, vamos a comprar hoy?`, {
+                    icon: '🎵',
+                });
+
                 navigate('/profile');
             } else {
                 setError(data.message || 'Credenciales inválidas.');
