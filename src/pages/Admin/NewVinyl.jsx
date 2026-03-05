@@ -51,55 +51,40 @@ export default function NewVinyl() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 selection:bg-[#E1C2B3] selection:text-[#091C2A] bg-[#F5F5F5] dark:bg-[#091C2A] text-[#0B1B2A] dark:text-[#E1C2B3]">
-      {/* Toggle */}
-      <div className="fixed top-8 right-8 z-50">
-        <button
-          type="button"
-          className="p-3 bg-[#3A2E29]/10 dark:bg-[#3A2E29]/30 backdrop-blur-md hover:bg-[#3A2E29]/40 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full transition-all border border-[#E1C2B3]/20 shadow-xl flex items-center justify-center"
-          onClick={() => document.documentElement.classList.toggle("dark")}
-          aria-label="Toggle theme"
-        >
-          <span className="material-symbols-outlined block dark:hidden">
-            dark_mode
-          </span>
-          <span className="material-symbols-outlined hidden dark:block">
-            light_mode
-          </span>
-        </button>
-      </div>
+
 
       <div className="w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden border border-[#E1C2B3]/10 bg-[#D1D1D1] dark:bg-[#3A2E29] transition-colors">
         <div className="p-10 md:p-16">
           <header className="mb-12 flex flex-col items-center">
             <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-[#E1C2B3] text-3xl">
+              <span className="material-symbols-outlined text-[#0B1B2A] dark:text-[#E1C2B3] text-3xl">
                 album
               </span>
-              <span className="font-['Cormorant_Garamond'] text-[#E1C2B3] text-sm tracking-[0.4em] uppercase">
+              <span className="font-['Cormorant_Garamond'] text-[#0B1B2A] dark:text-[#E1C2B3] text-sm tracking-[0.4em] uppercase">
                 Vinyl Horizon
               </span>
             </div>
 
-            <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl text-[#E1C2B3] font-bold tracking-tight uppercase">
+            <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl text-[#0B1B2A] dark:text-[#E1C2B3] font-bold tracking-tight uppercase">
               Add New Vinyl
             </h1>
 
-            <div className="h-px w-24 bg-[#E1C2B3]/30 mt-6" />
+            <div className="h-px w-24 bg-[#0B1B2A]/30 dark:bg-[#E1C2B3]/30 mt-6" />
           </header>
 
           <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-12">
             {/* Cover */}
             <div className="md:col-span-5">
-              <label className="block font-['Cormorant_Garamond'] text-xl text-[#E1C2B3] mb-4 uppercase tracking-wider">
+              <label className="block font-['Cormorant_Garamond'] text-xl text-[#0B1B2A] dark:text-[#E1C2B3] mb-4 uppercase tracking-wider">
                 Album Cover
               </label>
 
               <div
                 onClick={onPickFile}
-                className="aspect-square w-full rounded-2xl border-2 border-dashed border-[#E1C2B3]/40 flex items-center justify-center group hover:border-[#E1C2B3]/70 transition-colors cursor-pointer bg-[#091C2A]/5 dark:bg-[#091C2A]/20 overflow-hidden relative"
+                className="aspect-square w-full rounded-2xl border-2 border-dashed border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 flex items-center justify-center group hover:border-[#0B1B2A]/70 dark:hover:border-[#E1C2B3]/70 transition-colors cursor-pointer bg-[#091C2A]/5 dark:bg-[#091C2A]/20 overflow-hidden relative"
               >
                 {!preview ? (
-                  <div className="flex flex-col items-center text-[#E1C2B3]/60 group-hover:text-[#E1C2B3] transition-colors">
+                  <div className="flex flex-col items-center text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 group-hover:text-[#0B1B2A] dark:group-hover:text-[#E1C2B3] transition-colors">
                     <span className="material-symbols-outlined text-6xl mb-4">
                       add_a_photo
                     </span>
@@ -132,7 +117,7 @@ export default function NewVinyl() {
             <div className="md:col-span-7 space-y-6">
               <div className="grid grid-cols-1 gap-6">
                 <div className="relative">
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     Album Title
                   </label>
                   <input
@@ -141,13 +126,13 @@ export default function NewVinyl() {
                     value={formData.album}
                     onChange={handleChange}
                     placeholder="e.g. Midnight Melodies"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                     required
                   />
                 </div>
 
                 <div className="relative">
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     Artist Name
                   </label>
                   <input
@@ -156,7 +141,7 @@ export default function NewVinyl() {
                     value={formData.artist}
                     onChange={handleChange}
                     placeholder="e.g. Elias Thorne"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                     required
                   />
                 </div>
@@ -164,7 +149,7 @@ export default function NewVinyl() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     SKU
                   </label>
                   <input
@@ -173,13 +158,13 @@ export default function NewVinyl() {
                     value={formData.sku}
                     onChange={handleChange}
                     placeholder="VH-XXXXX"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     Release Year
                   </label>
                   <input
@@ -188,7 +173,7 @@ export default function NewVinyl() {
                     value={formData.year}
                     onChange={handleChange}
                     placeholder="2024"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                   />
                 </div>
               </div>
@@ -201,7 +186,7 @@ export default function NewVinyl() {
                   name="genre"
                   value={formData.genre}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent"
+                  className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent"
                 >
                   <option value="jazz">Jazz</option>
                   <option value="rock">Rock</option>
@@ -212,7 +197,7 @@ export default function NewVinyl() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     Stock Quantity
                   </label>
                   <input
@@ -221,13 +206,13 @@ export default function NewVinyl() {
                     value={formData.stock}
                     onChange={handleChange}
                     placeholder="0"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                     Price ($)
                   </label>
                   <input
@@ -236,7 +221,7 @@ export default function NewVinyl() {
                     value={formData.price}
                     onChange={handleChange}
                     placeholder="0.00"
-                    className="w-full px-4 py-3 rounded-lg border border-[#E1C2B3]/40 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#E1C2B3] focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
                     required
                   />
                 </div>
@@ -244,18 +229,18 @@ export default function NewVinyl() {
             </div>
 
             {/* Actions */}
-            <div className="md:col-span-12 flex flex-col sm:flex-row items-center justify-end gap-6 pt-8 border-t border-[#E1C2B3]/10">
+            <div className="md:col-span-12 flex flex-col sm:flex-row items-center justify-end gap-6 pt-8 border-t border-[#0B1B2A]/10 dark:border-[#E1C2B3]/10">
               <button
                 type="button"
                 onClick={() => navigate("/admin/inventory")}
-                className="order-2 sm:order-1 px-8 py-3 text-sm font-bold tracking-widest text-[#E1C2B3] uppercase border border-[#E1C2B3]/40 rounded-xl hover:bg-[#E1C2B3]/10 transition-all w-full sm:w-auto"
+                className="order-2 sm:order-1 px-8 py-3 text-sm font-bold tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3] uppercase border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 rounded-xl hover:bg-[#0B1B2A]/10 dark:hover:bg-[#E1C2B3]/10 transition-all w-full sm:w-auto"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="order-1 sm:order-2 px-12 py-4 text-sm font-bold tracking-[0.2em] text-[#E1C2B3] bg-[#5E1914] rounded-xl shadow-xl hover:brightness-125 transition-all w-full sm:w-auto flex items-center justify-center gap-2 active:scale-[0.99]"
+                className="order-1 sm:order-2 px-12 py-4 text-sm font-bold tracking-[0.2em] text-[#EFEFEF] dark:text-[#E1C2B3] bg-[#5E1914] rounded-xl shadow-xl hover:brightness-125 transition-all w-full sm:w-auto flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 <span className="material-symbols-outlined text-lg">save</span>
                 SAVE TO INVENTORY

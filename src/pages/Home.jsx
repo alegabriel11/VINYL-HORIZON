@@ -18,16 +18,12 @@ const Home = () => {
 
         {/* Botón Dark Mode */}
         <button
-          className="fixed top-8 right-8 z-[60] p-3 bg-walnut/40 backdrop-blur-md hover:bg-walnut/60 text-rose-fog rounded-full transition-all border border-rose-fog/10 shadow-lg group"
+          className="fixed top-8 right-8 z-[60] flex items-center justify-center p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
           onClick={toggleTheme}
+          aria-label="Toggle Dark Mode"
         >
-          {isDark ? (
-            <span className="material-symbols-outlined block">light_mode</span>
-          ) : (
-            <span className="material-symbols-outlined block">dark_mode</span>
-          )}
+          <span className="material-symbols-outlined block">{isDark ? 'light_mode' : 'dark_mode'}</span>
         </button>
-
         {/* Hero Section */}
         <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center px-4">
           <div className="absolute inset-0 z-0">

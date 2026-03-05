@@ -69,17 +69,7 @@ const CartPage = () => {
                     >
                         {language === 'ES' ? 'EN' : 'ES'}
                     </button>
-                    <button
-                        onClick={toggleTheme}
-                        className="flex items-center justify-center p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
-                        aria-label="Toggle Dark Mode"
-                    >
-                        {isDark ? (
-                            <span className="material-symbols-outlined block">light_mode</span>
-                        ) : (
-                            <span className="material-symbols-outlined block">dark_mode</span>
-                        )}
-                    </button>
+
                 </div>
                 <div className="max-w-6xl mx-auto w-full">
                     <header className="mb-12">
