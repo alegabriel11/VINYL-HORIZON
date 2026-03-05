@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,51 @@ export default function Register() {
     const { isDark, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useLanguage();
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    // Form states
+    const [fullName, setFullName] = useState('');
+    const [nickname, setNickname] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        // Dividimos el nombre completo en Nombre y Apellido para la API
+        const nameParts = fullName.trim().split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || 'User';
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firstName, lastName, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Autenticado: Guardar JWT en LocalStorage y redirigir
+                localStorage.setItem('vinyl_token', data.token);
+                // Opcional: Podríamos guardar detalles del usuario
+                localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+                navigate('/profile');
+            } else {
+                setError(data.message || 'Error occurred during registration.');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Could not connect to the server.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A] text-[#E1C2B3]' : 'bg-[#D1D1D1] text-[#091C2A]'}`}>
@@ -65,7 +110,13 @@ export default function Register() {
                         <div className={`h-px w-12 mx-auto mt-4 ${isDark ? 'bg-[#E1C2B3]/30' : 'bg-[#091C2A]/30'}`}></div>
                     </div>
 
-                    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                    {error && (
+                        <div className="mb-6 p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-center">
+                            <p className="text-red-500 text-sm font-semibold">{error}</p>
+                        </div>
+                    )}
+
+                    <form className="space-y-6" onSubmit={handleRegister}>
                         <div>
                             <label className={`label-luxe ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`} htmlFor="full-name">{t('auth.full_name')}</label>
                             <input
@@ -73,6 +124,9 @@ export default function Register() {
                                 id="full-name"
                                 placeholder="John Doe"
                                 type="text"
+                                required
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
                             />
                         </div>
                         <div>
@@ -82,6 +136,8 @@ export default function Register() {
                                 id="nickname"
                                 placeholder="VinylLover99"
                                 type="text"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
                             />
                         </div>
                         <div>
@@ -91,6 +147,9 @@ export default function Register() {
                                 id="email"
                                 placeholder="hello@example.com"
                                 type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
                         <div>
@@ -100,15 +159,20 @@ export default function Register() {
                                 id="password"
                                 placeholder="••••••••"
                                 type="password"
+                                required
+                                minLength={6}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
                         <div className="pt-4">
-                            <Link
-                                to="/profile"
-                                className="w-full block text-center bg-[#5E1914] text-[#E1C2B3] py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all shadow-xl active:scale-95"
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full block text-center bg-[#5E1914] text-[#E1C2B3] py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all shadow-xl active:scale-95 disabled:opacity-50"
                             >
-                                {t('auth.create_account')}
-                            </Link>
+                                {isLoading ? 'Processing...' : t('auth.create_account')}
+                            </button>
                         </div>
                     </form>
 
