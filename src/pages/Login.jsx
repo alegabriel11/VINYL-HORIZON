@@ -93,7 +93,11 @@ export default function Login() {
                         </Link>
                     </div>
                 </div>
-
+                <Link to="/admin/dashboard"
+                    className="w-full block text-center bg-[#233326] text-[#E1C2B3] py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-sm hover:brightness-125 transition-all shadow-xl active:scale-[0.98] mt-3"
+                >
+                    Admin Panel
+                </Link>
                 <p className="mt-8 text-center text-[10px] uppercase tracking-[0.3em] text-[#E1C2B3]/40">
                     Curated for the Discerning Ear since 1996
                 </p>
