@@ -1,0 +1,4 @@
+[dotenv@17.3.1] injecting env (8) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+🚀 Servidor corriendo en el puerto 5000
+✅ Base de Datos PostgreSQL conectada con éxito.
