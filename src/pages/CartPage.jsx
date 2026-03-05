@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
@@ -36,6 +38,8 @@ const initialCartItems = [
 
 const CartPage = () => {
     const { isDark, toggleTheme } = useTheme();
+    const { language, toggleLanguage } = useLanguage();
+    const { t } = useTranslation();
     const [items, setItems] = useState(initialCartItems);
 
     const handleUpdateQuantity = (id, newQuantity) => {
@@ -57,26 +61,35 @@ const CartPage = () => {
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
             <Sidebar />
             <main className="relative ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light p-8 lg:p-16">
-                <button
-                    onClick={toggleTheme}
-                    className="absolute top-8 right-8 z-[60] p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
-                    aria-label="Toggle Dark Mode"
-                >
-                    {isDark ? (
-                        <span className="material-symbols-outlined block">light_mode</span>
-                    ) : (
-                        <span className="material-symbols-outlined block">dark_mode</span>
-                    )}
-                </button>
+                <div className="absolute top-8 right-8 z-[60] flex items-center gap-4">
+                    <button
+                        onClick={toggleLanguage}
+                        className="px-4 py-2 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg font-bold text-sm tracking-widest focus:outline-none"
+                        aria-label="Toggle Language"
+                    >
+                        {language === 'ES' ? 'EN' : 'ES'}
+                    </button>
+                    <button
+                        onClick={toggleTheme}
+                        className="flex items-center justify-center p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
+                        aria-label="Toggle Dark Mode"
+                    >
+                        {isDark ? (
+                            <span className="material-symbols-outlined block">light_mode</span>
+                        ) : (
+                            <span className="material-symbols-outlined block">dark_mode</span>
+                        )}
+                    </button>
+                </div>
                 <div className="max-w-6xl mx-auto w-full">
                     <header className="mb-12">
                         <h1 className="serif-font text-5xl lg:text-6xl font-bold dark:text-rose-fog text-black-pearl uppercase tracking-tight">
-                            Your Collection Bag
+                            {t('cart.title')}
                         </h1>
                         <p className="mt-4 serif-font italic text-xl dark:text-rose-fog/60 text-black-pearl/60">
                             {items.length === 0
-                                ? "Your collection is currently empty"
-                                : `${items.length} items curated and ready for delivery`}
+                                ? t('cart.empty_collection')
+                                : t('cart.items_ready', { count: items.length })}
                         </p>
                     </header>
 
@@ -97,9 +110,9 @@ const CartPage = () => {
                     ) : (
                         <div className="flex flex-col items-center justify-center py-32 text-center">
                             <span className="material-symbols-outlined text-9xl text-black-pearl/10 dark:text-rose-fog/10 mb-8">album</span>
-                            <h2 className="serif-font text-4xl text-black-pearl dark:text-rose-fog mb-4">Your collection is empty</h2>
+                            <h2 className="serif-font text-4xl text-black-pearl dark:text-rose-fog mb-4">{t('cart.empty_collection')}</h2>
                             <button className="px-12 py-4 bg-rose-fog text-black-pearl rounded-friendly font-bold uppercase tracking-widest hover:bg-black-pearl hover:text-white-berry transition-all">
-                                Start Exploring
+                                {t('cart.start_exploring')}
                             </button>
                         </div>
                     )}
