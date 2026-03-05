@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPassword() {
     const { isDark, toggleTheme } = useTheme();
+    const { language, toggleLanguage } = useLanguage();
+    const { t } = useTranslation();
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A]' : 'bg-[#D1D1D1]'}`}>
@@ -26,13 +30,22 @@ export default function ForgotPassword() {
                 <div className="absolute inset-0 hero-overlay transition-colors duration-500"></div>
             </div>
 
-            {/* Dark Mode Toggle */}
-            <button
-                className={`fixed top-8 right-8 z-[60] p-3 backdrop-blur-md rounded-full transition-all border shadow-lg ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20'}`}
-                onClick={toggleTheme}
-            >
-                <span className="material-symbols-outlined text-[#E1C2B3]">{isDark ? 'light_mode' : 'dark_mode'}</span>
-            </button>
+            <div className="fixed top-8 right-8 z-[60] flex items-center gap-4">
+                <button
+                    onClick={toggleLanguage}
+                    className={`px-4 py-2 backdrop-blur-md rounded-full transition-all border shadow-lg font-bold text-sm tracking-widest focus:outline-none ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20 text-[#E1C2B3]' : 'bg-[#3A2E29]/20 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20 text-[#091C2A]'}`}
+                    aria-label="Toggle Language"
+                >
+                    {language === 'ES' ? 'EN' : 'ES'}
+                </button>
+                <button
+                    className={`flex items-center justify-center p-3 backdrop-blur-md rounded-full transition-all border shadow-lg focus:outline-none group ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20' : 'bg-[#3A2E29]/20 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20'}`}
+                    onClick={toggleTheme}
+                    aria-label="Toggle Dark Mode"
+                >
+                    <span className={`material-symbols-outlined block ${isDark ? 'text-[#E1C2B3]' : 'text-[#091C2A]'}`}>{isDark ? 'light_mode' : 'dark_mode'}</span>
+                </button>
+            </div>
 
             <main className="relative z-10 min-h-screen flex items-center justify-center p-6 w-full">
                 <div className={`w-full max-w-md p-10 md:p-14 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[#E1C2B3]/10 transition-colors duration-500 ${isDark ? 'bg-[#3A2E29]' : 'bg-[#D1D1D1]'}`}>
@@ -45,13 +58,13 @@ export default function ForgotPassword() {
                             <h2 className="font-['Cormorant_Garamond'] text-2xl tracking-[0.3em] text-[#E1C2B3] uppercase -mt-1">Horizon</h2>
                         </Link>
                         <div className="h-px w-12 bg-[#E1C2B3]/30 mx-auto mt-6"></div>
-                        <p className="text-[10px] uppercase tracking-[0.4em] text-[#E1C2B3]/60 mt-4">Password Recovery</p>
+                        <p className="text-[10px] uppercase tracking-[0.4em] text-[#E1C2B3]/60 mt-4">{t('forgot_password.recovery')}</p>
                     </div>
 
                     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
                         <div className="space-y-6">
                             <div className="relative group">
-                                <label className="block text-xs font-semibold uppercase tracking-widest text-[#E1C2B3] mb-2 ml-1" htmlFor="email">Email Address</label>
+                                <label className="block text-xs font-semibold uppercase tracking-widest text-[#E1C2B3] mb-2 ml-1" htmlFor="email">{t('forgot_password.email')}</label>
                                 <input
                                     className="w-full bg-transparent border-b border-[#E1C2B3]/30 border-t-0 border-l-0 border-r-0 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:outline-none focus:ring-0 focus:border-[#E1C2B3] transition-all px-1 py-3"
                                     id="email"
@@ -61,7 +74,7 @@ export default function ForgotPassword() {
                                 />
                             </div>
                             <div className="relative group">
-                                <label className="block text-xs font-semibold uppercase tracking-widest text-[#E1C2B3] mb-2 ml-1" htmlFor="password">New Password</label>
+                                <label className="block text-xs font-semibold uppercase tracking-widest text-[#E1C2B3] mb-2 ml-1" htmlFor="password">{t('forgot_password.new_password')}</label>
                                 <input
                                     className="w-full bg-transparent border-b border-[#E1C2B3]/30 border-t-0 border-l-0 border-r-0 text-[#E1C2B3] placeholder:text-[#E1C2B3]/20 focus:outline-none focus:ring-0 focus:border-[#E1C2B3] transition-all px-1 py-3"
                                     id="password"
@@ -76,7 +89,7 @@ export default function ForgotPassword() {
                                 className="w-full bg-[#5E1914] text-[#E1C2B3] py-5 rounded-[2rem] font-bold uppercase tracking-[0.2em] text-xs hover:brightness-125 transition-all shadow-xl active:scale-[0.98]"
                                 type="submit"
                             >
-                                Reset Password
+                                {t('forgot_password.reset')}
                             </button>
                         </div>
                     </form>
@@ -87,14 +100,14 @@ export default function ForgotPassword() {
                             to="/login"
                         >
                             <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                            Back to Login
+                            {t('forgot_password.back_to_login')}
                         </Link>
                     </div>
                 </div>
             </main>
 
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:block">
-                <p className="text-[#E1C2B3]/30 text-[9px] uppercase tracking-[0.5em]">Curated for the discerning ear since 1996</p>
+                <p className="text-[#E1C2B3]/30 text-[9px] uppercase tracking-[0.5em]">{t('forgot_password.footer')}</p>
             </div>
         </div>
     );

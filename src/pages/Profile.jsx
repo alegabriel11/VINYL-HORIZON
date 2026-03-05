@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar"; // Importamos el sidebar que ya tienes
 import { useTheme } from "../context/ThemeContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 export default function Profile({ isLoggedIn = false }) {
   const { isDark, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -41,13 +45,22 @@ export default function Profile({ isLoggedIn = false }) {
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isLoggedIn={isLoggedIn} />
 
       <main className={`${mainMl} transition-all duration-300 min-h-screen relative bg-[#EFEFEF] dark:bg-[#091C2A]`}>
-        {/* Toggle Dark Mode */}
-        <button
-          className="fixed top-8 right-8 z-[60] p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg"
-          onClick={toggleTheme}
-        >
-          <span className="material-symbols-outlined">{isDark ? 'light_mode' : 'dark_mode'}</span>
-        </button>
+        <div className="absolute top-8 right-8 z-[60] flex items-center gap-4">
+          <button
+            onClick={toggleLanguage}
+            className="px-4 py-2 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg font-bold text-sm tracking-widest focus:outline-none"
+            aria-label="Toggle Language"
+          >
+            {language === 'ES' ? 'EN' : 'ES'}
+          </button>
+          <button
+            className="flex items-center justify-center p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
+            onClick={toggleTheme}
+            aria-label="Toggle Dark Mode"
+          >
+            <span className="material-symbols-outlined block">{isDark ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+        </div>
 
         {/* HERO SECTION */}
         <section className="pt-20 pb-16 px-8 flex flex-col items-center">
@@ -83,14 +96,14 @@ export default function Profile({ isLoggedIn = false }) {
               </>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 pt-4">
-                <h1 className="font-['Playfair_Display'] text-4xl font-bold text-black-pearl dark:text-rose-fog">Welcome to Vinyl Horizon</h1>
-                <p className="font-['Montserrat'] text-lg text-black-pearl/80 dark:text-rose-fog/80 max-w-md">Join us to manage your collection and explore new music.</p>
+                <h1 className="font-['Playfair_Display'] text-4xl font-bold text-black-pearl dark:text-rose-fog">{t('profile.welcome')}</h1>
+                <p className="font-['Montserrat'] text-lg text-black-pearl/80 dark:text-rose-fog/80 max-w-md">{t('profile.join_us')}</p>
                 <div className="flex gap-4 pt-2">
                   <Link to="/login" className="px-8 py-3 bg-rose-fog text-black-pearl font-bold rounded-full hover:bg-black-pearl hover:text-white transition-all shadow-lg">
-                    Log In
+                    {t('profile.login')}
                   </Link>
                   <Link to="/register" className="px-8 py-3 border border-rose-fog text-black-pearl dark:text-rose-fog font-bold rounded-full hover:bg-rose-fog hover:text-black-pearl transition-all">
-                    Register
+                    {t('profile.register')}
                   </Link>
                 </div>
               </div>
@@ -101,7 +114,7 @@ export default function Profile({ isLoggedIn = false }) {
         {/* COLLECTION */}
         <section className="px-8 lg:px-20 py-16 bg-black-pearl/5 dark:bg-black-pearl-light/30 transition-colors">
           <div className="flex items-center gap-6 mb-12">
-            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">My Collection</h3>
+            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">{t('profile.my_collection')}</h3>
             <div className="h-px flex-1 bg-black-pearl/10 dark:bg-walnut/50" />
             <span className="material-symbols-outlined opacity-40 text-black-pearl dark:text-rose-fog">library_music</span>
           </div>
@@ -123,7 +136,7 @@ export default function Profile({ isLoggedIn = false }) {
                 </div>
                 <div className="p-8">
                   <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase text-black-pearl dark:text-rose-fog">Album Artist {i}</h4>
-                  <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light italic">Limited Edition</p>
+                  <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light italic">{t('profile.limited_edition')}</p>
                 </div>
               </div>
             ))}
@@ -133,7 +146,7 @@ export default function Profile({ isLoggedIn = false }) {
         {/* WISHLIST SECTION */}
         <section className="px-8 lg:px-20 py-16 bg-white dark:bg-black-pearl transition-colors">
           <div className="flex items-center gap-6 mb-12">
-            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">Wishlist</h3>
+            <h3 className="font-['Playfair_Display'] text-4xl uppercase tracking-tight text-black-pearl dark:text-rose-fog">{t('profile.wishlist')}</h3>
             <div className="h-px flex-1 bg-black-pearl/10 dark:bg-walnut/50" />
             <span className="material-symbols-outlined opacity-40 text-black-pearl dark:text-rose-fog">favorite</span>
           </div>
@@ -158,7 +171,7 @@ export default function Profile({ isLoggedIn = false }) {
                 <p className="text-black-pearl/60 dark:text-rose-fog/60 font-light italic text-sm">Selena / 2021</p>
               </div>
               <button className="w-full mt-6 bg-rose-fog text-black-pearl py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white transition-all shadow-md">
-                Purchase
+                {t('profile.purchase')}
               </button>
             </div>
           </div>

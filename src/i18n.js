@@ -1,0 +1,256 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const resources = {
+    EN: {
+        translation: {
+            sidebar: {
+                home: "Home",
+                profile: "Profile",
+                catalog: "Catalog",
+                cart: "Cart",
+                settings: "Settings",
+                logout: "Log Out"
+            },
+            cart: {
+                title: "Your Collection Bag",
+                empty_collection: "Your collection is currently empty",
+                items_ready: "{{count}} items curated and ready for delivery",
+                start_exploring: "Start Exploring",
+                summary: "Summary",
+                subtotal: "Subtotal",
+                shipping: "Shipping",
+                complimentary: "Complimentary",
+                taxes: "Taxes",
+                total: "Total",
+                proceed_to_checkout: "PROCEED TO CHECKOUT",
+                secure_payment: "Secure payment guaranteed",
+                express_delivery: "Express delivery in 2-3 business days"
+            },
+            home: {
+                subtitle: "The pinnacle of analog sound curation",
+                scroll_explore: "Scroll to explore",
+                curated_classics: "Curated Classics",
+                curated_desc: "Discover a handpicked selection of vinyl records, from timeless jazz to the pulse of modern underground.",
+                recommended: "Recommended for you",
+                add_to_collection: "Add to collection",
+                view_catalog: "View Catalog",
+                new_arrivals: "The New Ones",
+                updated_weekly: "Updated weekly",
+                purchase: "Purchase",
+                awaiting_restock: "Awaiting restock...",
+                explore_archive: "Explore Entire Archive",
+                about_title: "About Our Craft",
+                about_quote: "\"We believe in the pure sound of analog souls. In an age of digital transience, the needle on wax remains the most honest bridge between artist and listener.\"",
+                about_desc: "Vinyl Horizon was founded on a simple obsession: the pursuit of sonic warmth. Every record in our vault is inspected for quality and curated for its cultural significance.",
+                est: "Est. 1996",
+                nav_title: "Navigation",
+                archives: "Archives",
+                journal: "Journal",
+                service_title: "Service",
+                grading_guide: "Grading Guide",
+                returns: "Returns",
+                contact_title: "Contact",
+                rights: "© 2024 VINYL HORIZON. Curated for the Discerning Ear."
+            },
+            catalog: {
+                title: "Catalog",
+                genres: {
+                    jazz: "Jazz",
+                    rock: "Rock",
+                    electronica: "Electronica",
+                    classical: "Classical"
+                }
+            },
+            profile: {
+                welcome: "Welcome to Vinyl Horizon",
+                join_us: "Join us to manage your collection and explore new music.",
+                login: "Log In",
+                register: "Register",
+                my_collection: "My Collection",
+                limited_edition: "Limited Edition",
+                wishlist: "Wishlist",
+                purchase: "Purchase"
+            },
+            auth: {
+                email: "Email Address",
+                password: "Password",
+                login_btn: "Log In",
+                forgot_pwd: "Forgot Password?",
+                or: "or",
+                create_account: "Create Account",
+                curated_since: "Curated for the Discerning Ear since 1996",
+                full_name: "Full Name",
+                nickname: "Nickname",
+                already_have_account: "Already have an account?",
+                rights_analog: "© 2024 VINYL HORIZON. The Art of Analog."
+            },
+            forgot_password: {
+                recovery: "Password Recovery",
+                email: "Email Address",
+                new_password: "New Password",
+                reset: "Reset Password",
+                back_to_login: "Back to Login",
+                footer: "Curated for the discerning ear since 1996"
+            },
+            checkout: {
+                title: "Checkout",
+                subtitle: "Complete your curation by securing your selection.",
+                shipping_details: "Shipping Details",
+                full_name: "Full Name",
+                address: "Shipping Address",
+                city: "City",
+                postal_code: "Postal Code",
+                payment_method: "Payment Method",
+                credit_card: "Credit Card (Stripe)",
+                stripe_desc: "Pay with your credit card via Stripe.",
+                card_number: "Card Number",
+                exp_date: "Expiration Date",
+                cvc: "Verification Code",
+                paypal: "PayPal",
+                order_summary: "Order Summary",
+                subtotal: "Subtotal",
+                shipping: "Shipping",
+                complimentary: "Complimentary",
+                taxes: "Taxes",
+                total: "Total",
+                confirm: "Confirm Purchase",
+                encrypted: "Encrypted Checkout",
+                insurance: "Quality insurance & secure logistics provided by Vinyl Horizon partners."
+            }
+        }
+    },
+    ES: {
+        translation: {
+            sidebar: {
+                home: "Inicio",
+                profile: "Perfil",
+                catalog: "Catálogo",
+                cart: "Carrito",
+                settings: "Ajustes",
+                logout: "Cerrar Sesión"
+            },
+            cart: {
+                title: "Tu Colección",
+                empty_collection: "Tu colección está actualmente vacía",
+                items_ready: "{{count}} artículos seleccionados y listos para entrega",
+                start_exploring: "Comenzar a Explorar",
+                summary: "Resumen",
+                subtotal: "Subtotal",
+                shipping: "Envío",
+                complimentary: "Gratis",
+                taxes: "Impuestos",
+                total: "Total",
+                proceed_to_checkout: "PROCEDER AL PAGO",
+                secure_payment: "Pago seguro garantizado",
+                express_delivery: "Entrega exprés en 2-3 días hábiles"
+            },
+            home: {
+                subtitle: "La cima de la curaduría del sonido analógico",
+                scroll_explore: "Desliza para explorar",
+                curated_classics: "Clásicos Curados",
+                curated_desc: "Descubre una selección meticulosa de discos de vinilo, desde el jazz atemporal hasta el pulso del underground moderno.",
+                recommended: "Recomendado para ti",
+                add_to_collection: "Agregar a la colección",
+                view_catalog: "Ver Catálogo",
+                new_arrivals: "Los Nuevos",
+                updated_weekly: "Actualizado semanalmente",
+                purchase: "Comprar",
+                awaiting_restock: "Esperando reabastecimiento...",
+                explore_archive: "Explorar Archivo Completo",
+                about_title: "Sobre Nuestro Oficio",
+                about_quote: "\"Creemos en el sonido puro de las almas analógicas. En una era de fugacidad digital, la aguja sobre la cera sigue siendo el puente más honesto entre el artista y el oyente.\"",
+                about_desc: "Vinyl Horizon se fundó bajo una simple obsesión: la búsqueda de la calidez sonora. Cada disco en nuestra bóveda es inspeccionado por su calidad y curado por su significado cultural.",
+                est: "Est. 1996",
+                nav_title: "Navegación",
+                archives: "Archivos",
+                journal: "Revista",
+                service_title: "Servicio",
+                grading_guide: "Guía de Clasificación",
+                returns: "Devoluciones",
+                contact_title: "Contacto",
+                rights: "© 2024 VINYL HORIZON. Curado para el Oído Exigente."
+            },
+            catalog: {
+                title: "Catálogo",
+                genres: {
+                    jazz: "Jazz",
+                    rock: "Rock",
+                    electronica: "Electrónica",
+                    classical: "Clásica"
+                }
+            },
+            profile: {
+                welcome: "Bienvenido a Vinyl Horizon",
+                join_us: "Únete a nosotros para gestionar tu colección y explorar nueva música.",
+                login: "Iniciar Sesión",
+                register: "Registrarse",
+                my_collection: "Mi Colección",
+                limited_edition: "Edición Limitada",
+                wishlist: "Lista de Deseos",
+                purchase: "Comprar"
+            },
+            auth: {
+                email: "Correo Electrónico",
+                password: "Contraseña",
+                login_btn: "Iniciar Sesión",
+                forgot_pwd: "¿Olvidaste tu Contraseña?",
+                or: "o",
+                create_account: "Crear Cuenta",
+                curated_since: "Curado para el Oído Exigente desde 1996",
+                full_name: "Nombre Completo",
+                nickname: "Apodo (Nickname)",
+                already_have_account: "¿Ya tienes una cuenta?",
+                rights_analog: "© 2024 VINYL HORIZON. El Arte de lo Analógico."
+            },
+            forgot_password: {
+                recovery: "Recuperación de Contraseña",
+                email: "Correo Electrónico",
+                new_password: "Nueva Contraseña",
+                reset: "Restablecer Contraseña",
+                back_to_login: "Volver a Iniciar Sesión",
+                footer: "Curado para el oído exigente desde 1996"
+            },
+            checkout: {
+                title: "Pago",
+                subtitle: "Completa tu curaduría asegurando tu selección.",
+                shipping_details: "Detalles de Envío",
+                full_name: "Nombre Completo",
+                address: "Dirección de Envío",
+                city: "Ciudad",
+                postal_code: "Código Postal",
+                payment_method: "Método de Pago",
+                credit_card: "Tarjeta de Crédito (Stripe)",
+                stripe_desc: "Paga con tu tarjeta de crédito a través de Stripe.",
+                card_number: "Número de tarjeta",
+                exp_date: "Fecha de caducidad",
+                cvc: "Código de verificación",
+                paypal: "PayPal",
+                order_summary: "Resumen del Pedido",
+                subtotal: "Subtotal",
+                shipping: "Envío",
+                complimentary: "Gratis",
+                taxes: "Impuestos",
+                total: "Total",
+                confirm: "Confirmar Compra",
+                encrypted: "Pago Cifrado",
+                insurance: "Seguro de calidad y logística segura proporcionados por los socios de Vinyl Horizon."
+            }
+        }
+    }
+};
+
+const savedLanguage = localStorage.getItem('language') || 'ES';
+
+i18n
+    .use(initReactI18next)
+    .init({
+        resources,
+        lng: savedLanguage,
+        fallbackLng: "EN",
+        interpolation: {
+            escapeValue: false
+        }
+    });
+
+export default i18n;

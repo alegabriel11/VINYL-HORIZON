@@ -2,9 +2,11 @@ import React from 'react';
 import Sidebar from '../components/Sidebar';
 import '../Styles/Home.css';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const Home = () => {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div className="bg-timberwolf dark:bg-black-pearl text-black-pearl dark:text-rose-fog selection:bg-black-pearl selection:text-timberwolf dark:selection:bg-rose-fog dark:selection:text-black-pearl transition-colors duration-500">
@@ -38,11 +40,11 @@ const Home = () => {
             </h1>
             <div className="h-1 w-24 mx-auto rounded-full bg-white dark:bg-rose-fog"></div>
             <p className="uppercase tracking-[0.4em] text-sm md:text-base font-light text-white dark:text-rose-fog">
-              The pinnacle of analog sound curation
+              {t('home.subtitle')}
             </p>
           </div>
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 opacity-70">
-            <span className="text-xs uppercase tracking-widest text-white dark:text-rose-fog">Scroll to explore</span>
+            <span className="text-xs uppercase tracking-widest text-white dark:text-rose-fog">{t('home.scroll_explore')}</span>
             <span className="material-symbols-outlined text-white dark:text-rose-fog animate-bounce">expand_more</span>
           </div>
         </section>
@@ -55,9 +57,9 @@ const Home = () => {
           </div>
           <div className="max-w-4xl relative w-full mt-10">
             <span className="material-symbols-outlined absolute -top-20 -left-12 text-black-pearl/5 dark:text-rose-fog/10 text-[150px] leading-none pointer-events-none select-none">graphic_eq</span>
-            <h2 className="display-font text-5xl lg:text-7xl text-black-pearl dark:text-rose-fog leading-tight">Curated Classics</h2>
+            <h2 className="display-font text-5xl lg:text-7xl text-black-pearl dark:text-rose-fog leading-tight">{t('home.curated_classics')}</h2>
             <p className="mt-6 text-black-pearl/80 dark:text-rose-fog/80 text-lg max-w-xl font-light">
-              Discover a handpicked selection of vinyl records, from timeless jazz to the pulse of modern underground.
+              {t('home.curated_desc')}
             </p>
           </div>
         </header>
@@ -65,7 +67,7 @@ const Home = () => {
         {/* Featured Record Section */}
         <section className="px-8 lg:px-12 pt-8 pb-20">
           <div className="flex items-center gap-4 mb-8">
-            <h3 className="text-xs font-bold tracking-[0.3em] text-black-pearl/60 dark:text-rose-fog/60 uppercase">Recommended for you</h3>
+            <h3 className="text-xs font-bold tracking-[0.3em] text-black-pearl/60 dark:text-rose-fog/60 uppercase">{t('home.recommended')}</h3>
             <span className="material-symbols-outlined text-black-pearl/40 dark:text-rose-fog/40 text-sm">stars</span>
           </div>
           <div className="bg-white rounded-friendly p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-16 border border-black-pearl/10 dark:border-white-berry/10 text-black-pearl overflow-hidden shadow-2xl">
@@ -87,10 +89,10 @@ const Home = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button className="bg-rose-fog hover:bg-black-pearl hover:text-white-berry text-black-pearl px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly shadow-lg">
-                    Add to collection
+                    {t('home.add_to_collection')}
                   </button>
                   <button className="border border-black-pearl/20 text-black-pearl hover:bg-black-pearl hover:text-white-berry px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly">
-                    View Catalog
+                    {t('home.view_catalog')}
                   </button>
                 </div>
               </div>
@@ -114,10 +116,10 @@ const Home = () => {
         <section className="px-8 lg:px-12 py-20 bg-timberwolf/50 dark:bg-black-pearl/30 transition-colors">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div className="flex items-center gap-6">
-              <h3 className="display-font text-5xl text-black-pearl dark:text-rose-fog uppercase">The New Ones</h3>
+              <h3 className="display-font text-5xl text-black-pearl dark:text-rose-fog uppercase">{t('home.new_arrivals')}</h3>
               <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog text-4xl opacity-50">auto_awesome</span>
             </div>
-            <p className="text-black-pearl/60 dark:text-rose-fog/60 uppercase tracking-widest text-xs border-b border-black-pearl/60 dark:border-rose-fog/60 pb-2">Updated weekly</p>
+            <p className="text-black-pearl/60 dark:text-rose-fog/60 uppercase tracking-widest text-xs border-b border-black-pearl/60 dark:border-rose-fog/60 pb-2">{t('home.updated_weekly')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -140,7 +142,7 @@ const Home = () => {
                   <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$48</span>
                 </div>
                 <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  Purchase
+                  {t('home.purchase')}
                 </button>
               </div>
             </div>
@@ -164,7 +166,7 @@ const Home = () => {
                   <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$77</span>
                 </div>
                 <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  Purchase
+                  {t('home.purchase')}
                 </button>
               </div>
             </div>
@@ -174,7 +176,7 @@ const Home = () => {
               <div className="relative p-8 aspect-square flex items-center justify-center">
                 <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
                   <div className="w-4/5 h-full bg-black-pearl border border-walnut/50 shadow-2xl z-10 relative flex items-center justify-center p-8 text-center rounded-2xl">
-                    <p className="serif-font italic text-rose-fog text-xl">Awaiting restock...</p>
+                    <p className="serif-font italic text-rose-fog text-xl">{t('home.awaiting_restock')}</p>
                   </div>
                   <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
                     <div className="w-16 h-16 bg-black-pearl rounded-full border-8 border-black"></div>
@@ -190,7 +192,7 @@ const Home = () => {
                   <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$42</span>
                 </div>
                 <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  Purchase
+                  {t('home.purchase')}
                 </button>
               </div>
             </div>
@@ -198,7 +200,7 @@ const Home = () => {
 
           <div className="mt-20 flex justify-center">
             <button className="px-16 py-6 bg-rose-fog text-black-pearl font-bold hover:bg-white-berry transition-all uppercase tracking-[0.3em] text-sm rounded-friendly shadow-xl">
-              Explore Entire Archive
+              {t('home.explore_archive')}
             </button>
           </div>
         </section>
@@ -208,13 +210,13 @@ const Home = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 relative">
               <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-black-pearl/5 dark:text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>
-              <h2 className="display-font text-6xl text-black-pearl dark:text-rose-fog leading-tight">About Our Craft</h2>
+              <h2 className="display-font text-6xl text-black-pearl dark:text-rose-fog leading-tight">{t('home.about_title')}</h2>
               <div className="w-20 h-2 bg-black-pearl dark:bg-rose-fog rounded-full"></div>
               <p className="text-black-pearl dark:text-rose-fog text-lg leading-relaxed font-light italic">
-                "We believe in the pure sound of analog souls. In an age of digital transience, the needle on wax remains the most honest bridge between artist and listener."
+                {t('home.about_quote')}
               </p>
               <p className="text-black-pearl/70 dark:text-rose-fog/70 leading-relaxed font-light">
-                Vinyl Horizon was founded on a simple obsession: the pursuit of sonic warmth. Every record in our vault is inspected for quality and curated for its cultural significance.
+                {t('home.about_desc')}
               </p>
             </div>
             <div className="relative aspect-[4/5] overflow-hidden rounded-friendly border border-black-pearl/20 dark:border-walnut group shadow-2xl">
@@ -235,28 +237,28 @@ const Home = () => {
               <div className="flex flex-col relative">
                 <span className="material-symbols-outlined absolute -left-8 -top-4 text-black-pearl/10 text-5xl">album</span>
                 <span className="serif-font text-3xl font-bold text-black-pearl tracking-widest uppercase">Vinyl Horizon</span>
-                <span className="text-black-pearl/60 text-xs tracking-[0.5em] uppercase">Est. 1996</span>
+                <span className="text-black-pearl/60 text-xs tracking-[0.5em] uppercase">{t('home.est')}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-sm">
               <div className="space-y-4">
-                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">Navigation</h5>
+                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">{t('home.nav_title')}</h5>
                 <ul className="space-y-2 text-black-pearl/70 font-light">
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Catalog</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Archives</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Journal</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.catalog')}</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.archives')}</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.journal')}</a></li>
                 </ul>
               </div>
               <div className="space-y-4">
-                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">Service</h5>
+                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">{t('home.service_title')}</h5>
                 <ul className="space-y-2 text-black-pearl/70 font-light">
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Shipping</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Grading Guide</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">Returns</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.shipping')}</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.grading_guide')}</a></li>
+                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.returns')}</a></li>
                 </ul>
               </div>
               <div className="space-y-4">
-                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">Contact</h5>
+                <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">{t('home.contact_title')}</h5>
                 <ul className="space-y-2 text-black-pearl/70 font-light">
                   <li>Studio / London, UK</li>
                   <li>hello@vinylhorizon.com</li>
@@ -265,7 +267,7 @@ const Home = () => {
             </div>
           </div>
           <div className="mt-24 pt-8 border-t border-black-pearl/10 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-black-pearl/50 text-[10px] uppercase tracking-[0.2em]">© 2024 VINYL HORIZON. Curated for the Discerning Ear.</p>
+            <p className="text-black-pearl/50 text-[10px] uppercase tracking-[0.2em]">{t('home.rights')}</p>
             <div className="flex gap-6">
               <a className="text-black-pearl hover:opacity-70 transition-colors" href="#"><span className="material-symbols-outlined text-xl">share</span></a>
               <a className="text-black-pearl hover:opacity-70 transition-colors" href="#"><span className="material-symbols-outlined text-xl">camera_alt</span></a>
