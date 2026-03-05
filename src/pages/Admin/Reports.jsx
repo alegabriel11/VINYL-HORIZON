@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
 import { useTheme } from "../../context/ThemeContext";
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
 
 export default function Reports() {
@@ -45,7 +45,7 @@ export default function Reports() {
       doc.setTextColor(0);
       doc.text("1. Executive Summary", 14, 55);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: 60,
         head: [['Key Metric', 'Current Value', 'MoM Growth']],
         body: [
@@ -62,7 +62,7 @@ export default function Reports() {
       // --- Sales by Genre ---
       doc.text("2. Monthly Volume by Genre", 14, doc.lastAutoTable.finalY + 15);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
         head: [['Genre', 'Distribution %', 'Trend']],
         body: [
@@ -79,7 +79,7 @@ export default function Reports() {
       // --- Top Sellers ---
       doc.text("3. Top Performing Vinyls", 14, doc.lastAutoTable.finalY + 15);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
         head: [['Album Title', 'Genre', 'Units Sold', 'Gross Revenue']],
         body: [
