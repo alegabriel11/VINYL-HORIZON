@@ -1,10 +1,49 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "./cart/AdminSidebar";
+import toast from 'react-hot-toast';
 
 import { useTheme } from "../../context/ThemeContext";
 
 export default function Dashboard() {
   const { isDark, toggleTheme } = useTheme();
+
+  const [adminForm, setAdminForm] = useState({
+    firstName: '',
+    lastName: '',
+    nickname: '',
+    email: '',
+    password: ''
+  });
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+
+  const handleAdminRegister = async (e) => {
+    e.preventDefault();
+    setIsAdminLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/register-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminForm)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(`Administrador ${data.user.firstName} creado exitosamente`, {
+          icon: '🛡️',
+        });
+        setAdminForm({ firstName: '', lastName: '', nickname: '', email: '', password: '' });
+      } else {
+        toast.error(data.message || 'Error al crear el administrador');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Error de conexión al servidor');
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
@@ -37,10 +76,10 @@ export default function Dashboard() {
               aria-label="Toggle dark mode"
             >
               <span className="material-symbols-outlined block dark:hidden">
-                dark_mode
+                light_mode
               </span>
               <span className="material-symbols-outlined hidden dark:block">
-                light_mode
+                dark_mode
               </span>
             </button>
 
@@ -277,13 +316,89 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <button
-              className="w-full mt-10 py-4 border border-black/15 dark:border-rose-fog/20 rounded-xl text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog hover:bg-[#0B1B2A] hover:text-[#F3F0EC] dark:hover:bg-rose-fog dark:hover:text-black-pearl transition-all"
-              type="button"
-            >
-              Generate Report
-            </button>
           </div>
+        </div>
+
+        {/* Create New Admin Section */}
+        <div className="mt-8 admin-card p-8 rounded-friendly border border-black/5 dark:border-rose-fog/5 shadow-xl bg-[#D9D9D9] dark:bg-walnut">
+          <div className="mb-6">
+            <h4 className="serif-font text-2xl font-bold text-[#0B1B2A] dark:text-rose-fog flex items-center gap-2">
+              <span className="material-symbols-outlined">shield_person</span>
+              Create Administrator
+            </h4>
+            <p className="text-xs uppercase tracking-widest text-[#0B1B2A]/55 dark:text-rose-fog/50 mt-1">
+              Grant system access to a new team member
+            </p>
+          </div>
+
+          <form onSubmit={handleAdminRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">First Name</label>
+              <input
+                required
+                type="text"
+                value={adminForm.firstName}
+                onChange={(e) => setAdminForm({ ...adminForm, firstName: e.target.value })}
+                className="w-full bg-black/5 dark:bg-black-pearl/20 border border-black/10 dark:border-rose-fog/20 rounded-xl px-4 py-3 text-[#0B1B2A] dark:text-rose-fog focus:outline-none focus:border-[#5E1914] transition-colors text-sm"
+                placeholder="John"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Last Name</label>
+              <input
+                required
+                type="text"
+                value={adminForm.lastName}
+                onChange={(e) => setAdminForm({ ...adminForm, lastName: e.target.value })}
+                className="w-full bg-black/5 dark:bg-black-pearl/20 border border-black/10 dark:border-rose-fog/20 rounded-xl px-4 py-3 text-[#0B1B2A] dark:text-rose-fog focus:outline-none focus:border-[#5E1914] transition-colors text-sm"
+                placeholder="Doe"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Nickname / Role Label</label>
+              <input
+                required
+                type="text"
+                value={adminForm.nickname}
+                onChange={(e) => setAdminForm({ ...adminForm, nickname: e.target.value })}
+                className="w-full bg-black/5 dark:bg-black-pearl/20 border border-black/10 dark:border-rose-fog/20 rounded-xl px-4 py-3 text-[#0B1B2A] dark:text-rose-fog focus:outline-none focus:border-[#5E1914] transition-colors text-sm"
+                placeholder="MasterOfVinyl"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Email Address</label>
+              <input
+                required
+                type="email"
+                value={adminForm.email}
+                onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                className="w-full bg-black/5 dark:bg-black-pearl/20 border border-black/10 dark:border-rose-fog/20 rounded-xl px-4 py-3 text-[#0B1B2A] dark:text-rose-fog focus:outline-none focus:border-[#5E1914] transition-colors text-sm"
+                placeholder="admin@vinylhorizon.com"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/80 dark:text-rose-fog/80 mb-2">Secure Password</label>
+              <input
+                required
+                type="password"
+                minLength={6}
+                value={adminForm.password}
+                onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                className="w-full bg-black/5 dark:bg-black-pearl/20 border border-black/10 dark:border-rose-fog/20 rounded-xl px-4 py-3 text-[#0B1B2A] dark:text-rose-fog focus:outline-none focus:border-[#5E1914] transition-colors text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="md:col-span-2 pt-4">
+              <button
+                disabled={isAdminLoading}
+                className="w-full py-4 bg-[#5E1914] rounded-xl text-[12px] font-bold uppercase tracking-widest text-white hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50"
+                type="submit"
+              >
+                {isAdminLoading ? 'Provisioning...' : 'Provision Secure Admin Account'}
+              </button>
+            </div>
+          </form>
         </div>
 
         <footer className="mt-12 text-center">

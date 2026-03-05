@@ -13,14 +13,7 @@ const ORDERS_DATA = [
 
 //
 export default function Orders() {
-  const [isDark, setIsDark] = useState(false);
   const [filterStatus, setFilterStatus] = useState("All Orders");
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [isDark]);
 
   const filteredOrders = ORDERS_DATA.filter((order) => {
     if (filterStatus === "All Orders") return true;
@@ -44,19 +37,7 @@ export default function Orders() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
             </div>
 
-            <button
-              className="p-2.5 bg-black/5 dark:bg-walnut/20 backdrop-blur-md hover:bg-black/10 dark:hover:bg-walnut/40 text-[#0B1B2A] dark:text-rose-fog rounded-full transition-all border border-black/10 dark:border-rose-fog/10 shadow-lg flex items-center justify-center"
-              onClick={() => setIsDark((v) => !v)}
-              type="button"
-              aria-label="Toggle dark mode"
-            >
-              <span className="material-symbols-outlined block dark:hidden">
-                dark_mode
-              </span>
-              <span className="material-symbols-outlined hidden dark:block">
-                light_mode
-              </span>
-            </button>
+
 
             <div className="flex items-center gap-3 border-l border-black/10 dark:border-walnut pl-6">
               <div className="text-right hidden sm:block">

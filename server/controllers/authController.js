@@ -5,10 +5,10 @@ const pool = require('../config/db');
 // Registro de un nuevo usuario
 exports.register = async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, nickname, email, password } = req.body;
 
         // 1. Validar que vengan los datos
-        if (!firstName || !lastName || !email || !password) {
+        if (!firstName || !lastName || !nickname || !email || !password) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
         }
 
@@ -24,16 +24,16 @@ exports.register = async (req, res) => {
 
         // 4. Guardar el nuevo usuario en PostgreSQL
         const newUserQuery = `
-            INSERT INTO users (first_name, last_name, email, password_hash)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id, first_name, last_name, email, role, created_at
+            INSERT INTO users (first_name, last_name, nickname, email, password_hash)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, first_name, last_name, nickname, email, role, created_at
         `;
-        const result = await pool.query(newUserQuery, [firstName, lastName, email, passwordHash]);
+        const result = await pool.query(newUserQuery, [firstName, lastName, nickname, email, passwordHash]);
         const user = result.rows[0];
 
         // 5. Generar un JWT (Token de sesión) para que quede logueado automáticamente
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: user.id, email: user.email, role: user.role, nickname: user.nickname },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
@@ -46,14 +46,58 @@ exports.register = async (req, res) => {
                 id: user.id,
                 firstName: user.first_name,
                 lastName: user.last_name,
+                nickname: user.nickname,
                 email: user.email,
                 role: user.role
             }
         });
 
     } catch (error) {
-        console.error('Error registrando usuario:', error);
-        res.status(500).json({ message: 'Error en el servidor al registrar el usuario.' });
+        console.error("Error en register:", error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Registro de un nuevo administrador (Solo ejecutable por otro admin)
+exports.registerAdmin = async (req, res) => {
+    try {
+        const { firstName, lastName, nickname, email, password } = req.body;
+
+        if (!firstName || !lastName || !nickname || !email || !password) {
+            return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
+        }
+
+        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ message: 'El correo electrónico ya está en uso.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        const newUserQuery = `
+            INSERT INTO users (first_name, last_name, nickname, email, password_hash, role)
+            VALUES ($1, $2, $3, $4, $5, 'admin')
+            RETURNING id, first_name, last_name, nickname, email, role, created_at
+        `;
+        const result = await pool.query(newUserQuery, [firstName, lastName, nickname, email, passwordHash]);
+        const user = result.rows[0];
+
+        res.status(201).json({
+            message: 'Administrador registrado exitosamente',
+            user: {
+                id: user.id,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                nickname: user.nickname,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error("Error en registerAdmin:", error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
 
@@ -83,7 +127,7 @@ exports.login = async (req, res) => {
 
         // 4. Generar el JWT para la sesión
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: user.id, email: user.email, role: user.role, nickname: user.nickname },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
@@ -96,6 +140,7 @@ exports.login = async (req, res) => {
                 id: user.id,
                 firstName: user.first_name,
                 lastName: user.last_name,
+                nickname: user.nickname,
                 email: user.email,
                 role: user.role
             }
