@@ -1,5 +1,5 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from 'react-hot-toast';
 
 import Home from "./pages/Home";
@@ -52,14 +52,16 @@ function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
 
-              {/* Admin */}
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/inventory" element={<AdminInventory />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
-              <Route path="/admin/reports" element={<AdminReports />} />
-              <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+              {/* Admin - Protected Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/inventory" element={<AdminInventory />} />
+                <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+                <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+              </Route>
             </Routes>
           </Router>
         </ThemeProvider>

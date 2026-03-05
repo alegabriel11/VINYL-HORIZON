@@ -53,8 +53,51 @@ exports.register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error registrando usuario:', error);
-        res.status(500).json({ message: 'Error en el servidor al registrar el usuario.' });
+        console.error("Error en register:", error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Registro de un nuevo administrador (Solo ejecutable por otro admin)
+exports.registerAdmin = async (req, res) => {
+    try {
+        const { firstName, lastName, nickname, email, password } = req.body;
+
+        if (!firstName || !lastName || !nickname || !email || !password) {
+            return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
+        }
+
+        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ message: 'El correo electrónico ya está en uso.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        const newUserQuery = `
+            INSERT INTO users (first_name, last_name, nickname, email, password_hash, role)
+            VALUES ($1, $2, $3, $4, $5, 'admin')
+            RETURNING id, first_name, last_name, nickname, email, role, created_at
+        `;
+        const result = await pool.query(newUserQuery, [firstName, lastName, nickname, email, passwordHash]);
+        const user = result.rows[0];
+
+        res.status(201).json({
+            message: 'Administrador registrado exitosamente',
+            user: {
+                id: user.id,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                nickname: user.nickname,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error("Error en registerAdmin:", error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
 
