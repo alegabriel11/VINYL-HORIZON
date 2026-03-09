@@ -174,9 +174,7 @@ export default function NewVinyl() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // The database expects:
-    // title (album), artist, price (numeric), description (genre), cover_image_url (img), sku is not in db right now, nor is stock, but we will save what we can to DB and the full to local context for now
-
+    // The database expects specific fields:
     const dbPayload = {
       title: formData.album || "Untitled Album",
       artist: formData.artist || "Unknown Artist",

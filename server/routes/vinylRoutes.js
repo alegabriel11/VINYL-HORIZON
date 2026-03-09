@@ -10,6 +10,12 @@ const asyncHandler = fn => (req, res, next) => {
 // POST /api/vinyls/checkout
 router.post('/checkout', asyncHandler(vinylController.checkout));
 
+// GET /api/vinyls/orders
+router.get('/orders', asyncHandler(vinylController.getOrders));
+
+// PUT /api/vinyls/orders/:id/status
+router.put('/orders/:id/status', asyncHandler(vinylController.updateOrderStatus));
+
 // POST /api/vinyls
 router.post('/', asyncHandler(vinylController.createVinyl));
 

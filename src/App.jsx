@@ -59,15 +59,6 @@ function App() {
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
 
-                  {/* Admin */}
-                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                  <Route path="/admin/inventory" element={<AdminInventory />} />
-                  <Route path="/admin/orders" element={<AdminOrders />} />
-                  <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
-                  <Route path="/admin/reports" element={<AdminReports />} />
-                  <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
-                  <Route path="/admin/inventory/edit/:sku" element={<AdminEditVinyl />} />
                   {/* Admin - Protected Routes */}
                   <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                     <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -77,6 +68,7 @@ function App() {
                     <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
                     <Route path="/admin/reports" element={<AdminReports />} />
                     <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+                    <Route path="/admin/inventory/edit/:sku" element={<AdminEditVinyl />} />
                   </Route>
                 </Routes>
               </Router>

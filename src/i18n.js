@@ -4,6 +4,16 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
     EN: {
         translation: {
+            status: {
+                pending: "Pending",
+                paid: "Paid",
+                shipped: "Shipped",
+                cancelled: "Cancelled",
+                processed: "Order Processed",
+                in_preparation: "In Preparation",
+                in_transit: "In Transit",
+                was_cancelled: "Order was cancelled"
+            },
             sidebar: {
                 home: "Home",
                 profile: "Profile",
@@ -90,7 +100,12 @@ const resources = {
                 purchase: "Purchase",
                 level: "MUSA",
                 logout: "Log Out",
-                empty_purchases: "No purchases yet."
+                empty_purchases: "No purchases yet.",
+                cancel_order: "Cancel Order",
+                order_cancelled: "Order cancelled successfully.",
+                confirm_cancel: "Are you sure you want to cancel this order?",
+                cancel_hold: "Hold On",
+                cancel_yes: "Yes, Cancel"
             },
             auth: {
                 email: "Email Address",
@@ -191,6 +206,16 @@ const resources = {
     },
     ES: {
         translation: {
+            status: {
+                pending: "Pendiente",
+                paid: "Pagado",
+                shipped: "Enviado",
+                cancelled: "Cancelado",
+                processed: "Pedido Procesado",
+                in_preparation: "En Preparación",
+                in_transit: "En Tránsito",
+                was_cancelled: "El pedido fue cancelado"
+            },
             sidebar: {
                 home: "Inicio",
                 profile: "Perfil",
@@ -277,7 +302,12 @@ const resources = {
                 purchase: "Comprar",
                 level: "MUSA",
                 logout: "Cerrar Sesión",
-                empty_purchases: "No has realizado ninguna compra aún."
+                empty_purchases: "No has realizado ninguna compra aún.",
+                cancel_order: "Cancelar Pedido",
+                order_cancelled: "Pedido cancelado con éxito.",
+                confirm_cancel: "¿Estás seguro de que deseas cancelar este pedido?",
+                cancel_hold: "Esperar",
+                cancel_yes: "Sí, Cancelar"
             },
             auth: {
                 email: "Correo Electrónico",

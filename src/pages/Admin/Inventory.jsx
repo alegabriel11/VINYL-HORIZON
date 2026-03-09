@@ -4,6 +4,7 @@ import AdminSidebar from "./cart/AdminSidebar";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import TopBarUser from "../../components/TopBarUser";
+import AdminNotifications from "../../components/AdminNotifications";
 
 export default function Inventory() {
   const navigate = useNavigate();
@@ -73,12 +74,7 @@ export default function Inventory() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="relative group">
-              <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-whine-berry transition-colors">
-                notifications
-              </span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-whine-berry rounded-full" />
-            </div>
+            <AdminNotifications />
 
 
 

@@ -88,7 +88,7 @@ exports.deleteVinyl = async (req, res) => {
 exports.checkout = async (req, res) => {
     const client = await pool.connect();
     try {
-        const { items } = req.body; // array of { id, quantity }
+        const { items, userId, customerName, totalAmount, shippingAddress, paymentMethod } = req.body; // array of { id, quantity }
 
         await client.query('BEGIN');
 
@@ -113,12 +113,95 @@ exports.checkout = async (req, res) => {
             await client.query(updateQuery, [quantity, id]);
         }
 
+        // Create the order
+        const orderId = require('crypto').randomUUID();
+        const createOrderQuery = `
+            INSERT INTO orders (id, user_id, customer_name, total_amount, items, shipping_address, payment_method)
+            VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)
+            RETURNING *;
+        `;
+        const orderValues = [
+            orderId,
+            userId || 'guest',
+            customerName || 'Anonymous',
+            totalAmount || 0,
+            JSON.stringify(items),
+            shippingAddress || '',
+            paymentMethod || 'credit'
+        ];
+
+        await client.query(createOrderQuery, orderValues);
+
         await client.query('COMMIT');
         res.status(200).json({ message: 'Checkout successful.' });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error during checkout:', error);
         res.status(400).json({ message: 'Error during checkout.', error: error.message });
+    } finally {
+        client.release();
+    }
+};
+
+exports.getOrders = async (req, res) => {
+    try {
+        const query = 'SELECT * FROM orders ORDER BY created_at DESC;';
+        const result = await pool.query(query);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ message: 'Error fetching orders', error: error.message });
+    }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['paid', 'shipped', 'cancelled'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status provided.' });
+        }
+
+        await client.query('BEGIN');
+
+        // Check current status and items to see if we need to restock
+        const orderQuery = 'SELECT * FROM orders WHERE id = $1 FOR UPDATE;';
+        const orderResult = await client.query(orderQuery, [id]);
+
+        if (orderResult.rowCount === 0) {
+            throw new Error(`Order ${id} not found.`);
+        }
+
+        const order = orderResult.rows[0];
+
+        // If cancelling a previously paid or shipped order, we should restock
+        if (status === 'cancelled' && order.status !== 'cancelled') {
+            const items = order.items; // Assuming JSONB format array
+            for (const item of items) {
+                const { id: vinylId, quantity } = item;
+                const updateQuery = 'UPDATE vinyls SET stock = stock + $1 WHERE id = $2;';
+                await client.query(updateQuery, [quantity, vinylId]);
+            }
+        }
+
+        // If somehow changing from cancelled back to paid (e.g. undo cancel), you'd need to deduct stock.
+        // For simplicity, we just block un-cancelling.
+        if (order.status === 'cancelled' && status !== 'cancelled') {
+            throw new Error('Cannot change status of a cancelled order.');
+        }
+
+        // Update the order status
+        const updateOrderQuery = 'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *;';
+        const updatedOrderResult = await client.query(updateOrderQuery, [status, id]);
+
+        await client.query('COMMIT');
+        res.status(200).json({ message: 'Order status updated successfully.', order: updatedOrderResult.rows[0] });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Error updating order status:', error);
+        res.status(400).json({ message: 'Error updating order status.', error: error.message });
     } finally {
         client.release();
     }

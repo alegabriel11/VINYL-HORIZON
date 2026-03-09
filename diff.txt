@@ -1,0 +1,2137 @@
+diff --git a/server/add_col_and_clean.js b/server/add_col_and_clean.js
+new file mode 100644
+index 0000000..fce5368
+--- /dev/null
++++ b/server/add_col_and_clean.js
+@@ -0,0 +1,11 @@
++require('dotenv').config();
++const { Pool } = require('pg');
++
++const connString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`;
++const pool = new Pool({ connectionString: connString });
++
++pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT')
++    .then(() => pool.query(`DELETE FROM orders WHERE shipping_address IS NULL OR shipping_address = ''`))
++    .then(res => console.log(`SUCCESS: Deleted ${res.rowCount} old incomplete orders!`))
++    .catch(err => console.error("Error:", err))
++    .finally(() => pool.end());
+diff --git a/server/addcol.js b/server/addcol.js
+new file mode 100644
+index 0000000..4fcf3c4
+--- /dev/null
++++ b/server/addcol.js
+@@ -0,0 +1,12 @@
++require('dotenv').config();
++const { Pool } = require('pg');
++
++const connString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`;
++console.log("Connecting to:", connString.replace(process.env.DB_PASSWORD, '****'));
++
++const pool = new Pool({ connectionString: connString });
++
++pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address TEXT')
++    .then(() => console.log("SUCCESS: Column added to main database!"))
++    .catch(err => console.error("Error adding column:", err))
++    .finally(() => pool.end());
+diff --git a/server/alter_orders.js b/server/alter_orders.js
+new file mode 100644
+index 0000000..47643a2
+--- /dev/null
++++ b/server/alter_orders.js
+@@ -0,0 +1,24 @@
++const { Client } = require('pg');
++require('dotenv').config({ path: './.env' });
++
++const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ne2baMdHYW6G@ep-purple-shadow-aifiyie5-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require';
++
++const client = new Client({ connectionString });
++
++async function run() {
++    try {
++        await client.connect();
++
++        const alterTableQuery = `
++            ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_name VARCHAR(255);
++        `;
++
++        await client.query(alterTableQuery);
++        console.log('Orders table altered successfully! Added customer_name column.');
++    } catch (e) {
++        console.error('Error altering table:', e);
++    } finally {
++        await client.end();
++    }
++}
++run();
+diff --git a/server/alter_orders2.js b/server/alter_orders2.js
+new file mode 100644
+index 0000000..b6601e5
+--- /dev/null
++++ b/server/alter_orders2.js
+@@ -0,0 +1,24 @@
++const { Client } = require('pg');
++require('dotenv').config({ path: './.env' });
++
++const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ne2baMdHYW6G@ep-purple-shadow-aifiyie5-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require';
++
++const client = new Client({ connectionString });
++
++async function run() {
++    try {
++        await client.connect();
++
++        const alterTableQuery = `
++            ALTER TABLE orders ADD COLUMN IF NOT EXISTS items JSONB;
++        `;
++
++        await client.query(alterTableQuery);
++        console.log('Orders table altered successfully! Added items column.');
++    } catch (e) {
++        console.error('Error altering table:', e);
++    } finally {
++        await client.end();
++    }
++}
++run();
+diff --git a/server/clean_orders.js b/server/clean_orders.js
+new file mode 100644
+index 0000000..237ee13
+--- /dev/null
++++ b/server/clean_orders.js
+@@ -0,0 +1,20 @@
++require('dotenv').config();
++const { Pool } = require('pg');
++
++const connString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`;
++console.log("Connecting to Database...");
++
++const pool = new Pool({ connectionString: connString });
++
++const cleanQuery = `
++    DELETE FROM orders 
++    WHERE shipping_address IS NULL 
++       OR shipping_address = '' 
++       OR payment_method IS NULL 
++       OR payment_method = '';
++`;
++
++pool.query(cleanQuery)
++    .then(res => console.log(`SUCCESS: Deleted ${res.rowCount} old incomplete orders from the database!`))
++    .catch(err => console.error("Error deleting orders:", err))
++    .finally(() => pool.end());
+diff --git a/server/controllers/vinylController.js b/server/controllers/vinylController.js
+index 1e5f02e..0b11a7b 100644
+--- a/server/controllers/vinylController.js
++++ b/server/controllers/vinylController.js
+@@ -88,7 +88,7 @@ exports.deleteVinyl = async (req, res) => {
+ exports.checkout = async (req, res) => {
+     const client = await pool.connect();
+     try {
+-        const { items } = req.body; // array of { id, quantity }
++        const { items, userId, customerName, totalAmount, shippingAddress, paymentMethod } = req.body; // array of { id, quantity }
+ 
+         await client.query('BEGIN');
+ 
+@@ -113,6 +113,25 @@ exports.checkout = async (req, res) => {
+             await client.query(updateQuery, [quantity, id]);
+         }
+ 
++        // Create the order
++        const orderId = require('crypto').randomUUID();
++        const createOrderQuery = `
++            INSERT INTO orders (id, user_id, customer_name, total_amount, items, shipping_address, payment_method)
++            VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)
++            RETURNING *;
++        `;
++        const orderValues = [
++            orderId,
++            userId || 'guest',
++            customerName || 'Anonymous',
++            totalAmount || 0,
++            JSON.stringify(items),
++            shippingAddress || '',
++            paymentMethod || 'credit'
++        ];
++
++        await client.query(createOrderQuery, orderValues);
++
+         await client.query('COMMIT');
+         res.status(200).json({ message: 'Checkout successful.' });
+     } catch (error) {
+@@ -123,3 +142,67 @@ exports.checkout = async (req, res) => {
+         client.release();
+     }
+ };
++
++exports.getOrders = async (req, res) => {
++    try {
++        const query = 'SELECT * FROM orders ORDER BY created_at DESC;';
++        const result = await pool.query(query);
++        res.status(200).json(result.rows);
++    } catch (error) {
++        console.error('Error fetching orders:', error);
++        res.status(500).json({ message: 'Error fetching orders', error: error.message });
++    }
++};
++
++exports.updateOrderStatus = async (req, res) => {
++    const client = await pool.connect();
++    try {
++        const { id } = req.params;
++        const { status } = req.body;
++
++        if (!['paid', 'shipped', 'cancelled'].includes(status)) {
++            return res.status(400).json({ message: 'Invalid status provided.' });
++        }
++
++        await client.query('BEGIN');
++
++        // Check current status and items to see if we need to restock
++        const orderQuery = 'SELECT * FROM orders WHERE id = $1 FOR UPDATE;';
++        const orderResult = await client.query(orderQuery, [id]);
++
++        if (orderResult.rowCount === 0) {
++            throw new Error(`Order ${id} not found.`);
++        }
++
++        const order = orderResult.rows[0];
++
++        // If cancelling a previously paid or shipped order, we should restock
++        if (status === 'cancelled' && order.status !== 'cancelled') {
++            const items = order.items; // Assuming JSONB format array
++            for (const item of items) {
++                const { id: vinylId, quantity } = item;
++                const updateQuery = 'UPDATE vinyls SET stock = stock + $1 WHERE id = $2;';
++                await client.query(updateQuery, [quantity, vinylId]);
++            }
++        }
++
++        // If somehow changing from cancelled back to paid (e.g. undo cancel), you'd need to deduct stock.
++        // For simplicity, we just block un-cancelling.
++        if (order.status === 'cancelled' && status !== 'cancelled') {
++            throw new Error('Cannot change status of a cancelled order.');
++        }
++
++        // Update the order status
++        const updateOrderQuery = 'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *;';
++        const updatedOrderResult = await client.query(updateOrderQuery, [status, id]);
++
++        await client.query('COMMIT');
++        res.status(200).json({ message: 'Order status updated successfully.', order: updatedOrderResult.rows[0] });
++    } catch (error) {
++        await client.query('ROLLBACK');
++        console.error('Error updating order status:', error);
++        res.status(400).json({ message: 'Error updating order status.', error: error.message });
++    } finally {
++        client.release();
++    }
++};
+diff --git a/server/create_orders_table.js b/server/create_orders_table.js
+new file mode 100644
+index 0000000..cb35462
+--- /dev/null
++++ b/server/create_orders_table.js
+@@ -0,0 +1,33 @@
++const { Client } = require('pg');
++require('dotenv').config({ path: './.env' });
++
++// Using the connection string from alter.js or env variable
++const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ne2baMdHYW6G@ep-purple-shadow-aifiyie5-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require';
++
++const client = new Client({ connectionString });
++
++async function run() {
++    try {
++        await client.connect();
++
++        const createTableQuery = `
++            CREATE TABLE IF NOT EXISTS orders (
++                id UUID PRIMARY KEY,
++                user_id VARCHAR(255),
++                customer_name VARCHAR(255),
++                total_amount DECIMAL(10,2),
++                status VARCHAR(50) DEFAULT 'paid',
++                items JSONB,
++                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
++            );
++        `;
++
++        await client.query(createTableQuery);
++        console.log('Orders table created successfully!');
++    } catch (e) {
++        console.error('Error creating table:', e);
++    } finally {
++        await client.end();
++    }
++}
++run();
+diff --git a/server/routes/vinylRoutes.js b/server/routes/vinylRoutes.js
+index f5cb9f8..d73b7d7 100644
+--- a/server/routes/vinylRoutes.js
++++ b/server/routes/vinylRoutes.js
+@@ -10,6 +10,12 @@ const asyncHandler = fn => (req, res, next) => {
+ // POST /api/vinyls/checkout
+ router.post('/checkout', asyncHandler(vinylController.checkout));
+ 
++// GET /api/vinyls/orders
++router.get('/orders', asyncHandler(vinylController.getOrders));
++
++// PUT /api/vinyls/orders/:id/status
++router.put('/orders/:id/status', asyncHandler(vinylController.updateOrderStatus));
++
+ // POST /api/vinyls
+ router.post('/', asyncHandler(vinylController.createVinyl));
+ 
+diff --git a/src/App.jsx b/src/App.jsx
+index f4b6504..024e710 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -59,30 +59,18 @@ function App() {
+                   <Route path="/cart" element={<CartPage />} />
+                   <Route path="/checkout" element={<CheckoutPage />} />
+ 
+-                  {/* Admin */}
+-                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+-                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+-                  <Route path="/admin/inventory" element={<AdminInventory />} />
+-                  <Route path="/admin/orders" element={<AdminOrders />} />
+-                  <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+-                  <Route path="/admin/reports" element={<AdminReports />} />
+-                  <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+-                  <Route path="/admin/inventory/edit/:sku" element={<AdminEditVinyl />} />
+-                  {/* Admin - Protected Routes */}
+-                  <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+-                    <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+-                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+-                    <Route path="/admin/inventory" element={<AdminInventory />} />
+-                    <Route path="/admin/orders" element={<AdminOrders />} />
+-                    <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+-                    <Route path="/admin/reports" element={<AdminReports />} />
+-                    <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
+-                  </Route>
+-                </Routes>
+-              </Router>
+-            </ThemeProvider>
+-          </WishlistProvider>
+-        </CartProvider>
++              {/* Admin */}
++              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
++              <Route path="/admin/dashboard" element={<AdminDashboard />} />
++              <Route path="/admin/inventory" element={<AdminInventory />} />
++              <Route path="/admin/orders" element={<AdminOrders />} />
++              <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
++              <Route path="/admin/reports" element={<AdminReports />} />
++              <Route path="/admin/inventory/new" element={<AddNewVinyl />} />
++              <Route path="/admin/inventory/edit/:sku" element={<AdminEditVinyl />} />
++            </Routes>
++          </Router>
++        </ThemeProvider>
+       </InventoryProvider>
+     </LanguageProvider>
+   );
+diff --git a/src/components/AdminNotifications.jsx b/src/components/AdminNotifications.jsx
+new file mode 100644
+index 0000000..5367907
+--- /dev/null
++++ b/src/components/AdminNotifications.jsx
+@@ -0,0 +1,97 @@
++import React, { useState, useEffect, useRef } from 'react';
++import { Link } from 'react-router-dom';
++import { useTranslation } from 'react-i18next';
++
++export default function AdminNotifications() {
++    const { t } = useTranslation();
++    const [isOpen, setIsOpen] = useState(false);
++    const [recentOrders, setRecentOrders] = useState([]);
++    const dropdownRef = useRef(null);
++
++    useEffect(() => {
++        const fetchRecent = async () => {
++            try {
++                const res = await fetch('/api/vinyls/orders');
++                if (res.ok) {
++                    const data = await res.json();
++                    setRecentOrders(data.slice(0, 5)); // Last 5 orders
++                }
++            } catch (err) {
++                console.error('Error fetching notifications:', err);
++            }
++        };
++        fetchRecent();
++    }, []);
++
++    useEffect(() => {
++        const handleClickOutside = (event) => {
++            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
++                setIsOpen(false);
++            }
++        };
++        document.addEventListener("mousedown", handleClickOutside);
++        return () => document.removeEventListener("mousedown", handleClickOutside);
++    }, []);
++
++    return (
++        <div className="relative" ref={dropdownRef}>
++            <button
++                className="relative group flex items-center justify-center focus:outline-none"
++                onClick={() => setIsOpen(!isOpen)}
++                title={t('admin.notifications', 'Notificaciones')}
++                type="button"
++            >
++                <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-[#5E1914] transition-colors">
++                    notifications
++                </span>
++                {recentOrders.length > 0 && (
++                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full" />
++                )}
++            </button>
++
++            {isOpen && (
++                <div className="absolute right-0 mt-4 w-80 bg-[#E1E5F0] dark:bg-walnut rounded-2xl shadow-2xl border border-black/10 dark:border-rose-fog/10 z-50 overflow-hidden">
++                    <div className="p-4 border-b border-black/5 dark:border-rose-fog/5 bg-black/5 dark:bg-black-pearl/20 text-center">
++                        <h3 className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog uppercase tracking-widest">
++                            {t('admin.notifications', 'Notificaciones')}
++                        </h3>
++                    </div>
++                    <div className="max-h-80 overflow-y-auto custom-scrollbar">
++                        {recentOrders.length === 0 ? (
++                            <div className="p-6 text-center text-xs text-[#0B1B2A]/60 dark:text-rose-fog/60">
++                                {t('admin.no_notifications', 'No hay nuevas compras u órdenes registradas.')}
++                            </div>
++                        ) : (
++                            recentOrders.map(order => (
++                                <div key={order.id} className="p-4 border-b border-black/5 dark:border-rose-fog/5 hover:bg-black/5 dark:hover:bg-rose-fog/5 transition-colors">
++                                    <p className="text-xs font-bold text-[#0B1B2A] dark:text-rose-fog mb-1">
++                                        {t('admin.new_purchase', 'Nueva compra registrada')} 🎉
++                                    </p>
++                                    <p className="text-[10px] text-[#0B1B2A]/70 dark:text-rose-fog/70 mb-2">
++                                        {order.customer_name || 'Cliente'} {t('admin.has_purchased', 'ha realizado una compra por')} ${parseFloat(order.total_amount).toFixed(2)}.
++                                    </p>
++                                    <Link
++                                        to={`/admin/orders/${order.id}`}
++                                        onClick={() => setIsOpen(false)}
++                                        className="text-[10px] font-bold text-[#5E1914] dark:text-[#E1C2B3] uppercase tracking-widest hover:underline flex items-center gap-1"
++                                    >
++                                        {t('admin.view_order_details', 'Ver detalles del pedido')} <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
++                                    </Link>
++                                </div>
++                            ))
++                        )}
++                    </div>
++                    <div className="p-3 text-center border-t border-black/5 dark:border-rose-fog/5 bg-black/5 dark:bg-black-pearl/20">
++                        <Link
++                            to="/admin/orders"
++                            onClick={() => setIsOpen(false)}
++                            className="text-[10px] font-bold text-[#0B1B2A]/60 dark:text-rose-fog/60 hover:text-[#5E1914] dark:hover:text-[#E1C2B3] transition-colors uppercase tracking-widest block"
++                        >
++                            {t('admin.go_to_orders', 'Ir al panel de Pedidos Registrados')}
++                        </Link>
++                    </div>
++                </div>
++            )}
++        </div>
++    );
++}
+diff --git a/src/i18n.js b/src/i18n.js
+index 6fc3d71..be64a39 100644
+--- a/src/i18n.js
++++ b/src/i18n.js
+@@ -4,6 +4,16 @@ import { initReactI18next } from 'react-i18next';
+ const resources = {
+     EN: {
+         translation: {
++            status: {
++                pending: "Pending",
++                paid: "Paid",
++                shipped: "Shipped",
++                cancelled: "Cancelled",
++                processed: "Order Processed",
++                in_preparation: "In Preparation",
++                in_transit: "In Transit",
++                was_cancelled: "Order was cancelled"
++            },
+             sidebar: {
+                 home: "Home",
+                 profile: "Profile",
+@@ -90,7 +100,12 @@ const resources = {
+                 purchase: "Purchase",
+                 level: "MUSA",
+                 logout: "Log Out",
+-                empty_purchases: "No purchases yet."
++                empty_purchases: "No purchases yet.",
++                cancel_order: "Cancel Order",
++                order_cancelled: "Order cancelled successfully.",
++                confirm_cancel: "Are you sure you want to cancel this order?",
++                cancel_hold: "Hold On",
++                cancel_yes: "Yes, Cancel"
+             },
+             auth: {
+                 email: "Email Address",
+@@ -191,6 +206,16 @@ const resources = {
+     },
+     ES: {
+         translation: {
++            status: {
++                pending: "Pendiente",
++                paid: "Pagado",
++                shipped: "Enviado",
++                cancelled: "Cancelado",
++                processed: "Pedido Procesado",
++                in_preparation: "En Preparación",
++                in_transit: "En Tránsito",
++                was_cancelled: "El pedido fue cancelado"
++            },
+             sidebar: {
+                 home: "Inicio",
+                 profile: "Perfil",
+@@ -277,7 +302,12 @@ const resources = {
+                 purchase: "Comprar",
+                 level: "MUSA",
+                 logout: "Cerrar Sesión",
+-                empty_purchases: "No has realizado ninguna compra aún."
++                empty_purchases: "No has realizado ninguna compra aún.",
++                cancel_order: "Cancelar Pedido",
++                order_cancelled: "Pedido cancelado con éxito.",
++                confirm_cancel: "¿Estás seguro de que deseas cancelar este pedido?",
++                cancel_hold: "Esperar",
++                cancel_yes: "Sí, Cancelar"
+             },
+             auth: {
+                 email: "Correo Electrónico",
+diff --git a/src/pages/Admin/Dashboard.jsx b/src/pages/Admin/Dashboard.jsx
+index 59545b6..6541983 100644
+--- a/src/pages/Admin/Dashboard.jsx
++++ b/src/pages/Admin/Dashboard.jsx
+@@ -4,6 +4,30 @@ import toast from 'react-hot-toast';
+ import { useTranslation } from "react-i18next";
+ import { useTheme } from "../../context/ThemeContext";
+ import TopBarUser from "../../components/TopBarUser";
++import AdminNotifications from "../../components/AdminNotifications";
++import { Link } from "react-router-dom";
++
++const generateChartPaths = (data) => {
++  if (!data || data.length === 0) return { line: "", fill: "", points: [] };
++  const maxVal = Math.max(...data, 100);
++  const points = data.map((val, i) => {
++    const x = (i / (data.length - 1)) * 800;
++    const y = 180 - ((val / maxVal) * 160);
++    return { x, y, val };
++  });
++
++  let linePath = `M${points[0].x},${points[0].y}`;
++  for (let i = 1; i < points.length; i++) {
++    const p0 = points[i - 1];
++    const p1 = points[i];
++    const cx = (p0.x + p1.x) / 2;
++    linePath += ` C${cx},${p0.y} ${cx},${p1.y} ${p1.x},${p1.y}`;
++  }
++
++  const fillPath = `${linePath} L800,200 L0,200 Z`;
++
++  return { line: linePath, fill: fillPath, points };
++};
+ 
+ export default function Dashboard() {
+   const { isDark, toggleTheme } = useTheme();
+@@ -18,6 +42,67 @@ export default function Dashboard() {
+   });
+   const [isAdminLoading, setIsAdminLoading] = useState(false);
+ 
++  // Dynamic Dashboard Data State
++  const [dashboardData, setDashboardData] = useState({
++    totalSales: 0,
++    totalOrders: 0,
++    lowStockCount: 0,
++    recentOrders: [],
++    chartData: Array(30).fill(0)
++  });
++
++  useEffect(() => {
++    const fetchDashboardData = async () => {
++      try {
++        const [ordersRes, vinylsRes] = await Promise.all([
++          fetch('/api/vinyls/orders'),
++          fetch('/api/vinyls')
++        ]);
++
++        if (ordersRes.ok && vinylsRes.ok) {
++          const orders = await ordersRes.json();
++          const vinyls = await vinylsRes.json();
++
++          const totalSales = orders.reduce((acc, order) => acc + parseFloat(order.total_amount || 0), 0);
++          const lowStockCount = vinyls.filter(v => parseInt(v.stock) > 0 && parseInt(v.stock) < 10).length;
++
++          // Calculate 30-day revenue chart
++          const last30Days = [];
++          for (let i = 29; i >= 0; i--) {
++            const d = new Date();
++            d.setDate(d.getDate() - i);
++            last30Days.push(d.toISOString().split('T')[0]);
++          }
++
++          const dailyMap = {};
++          last30Days.forEach(d => dailyMap[d] = 0);
++
++          orders.forEach(order => {
++            if (order.created_at) {
++              const d = new Date(order.created_at).toISOString().split('T')[0];
++              if (dailyMap[d] !== undefined) {
++                dailyMap[d] += parseFloat(order.total_amount || 0);
++              }
++            }
++          });
++
++          const chartData = last30Days.map(d => dailyMap[d]);
++
++          setDashboardData({
++            totalSales,
++            totalOrders: orders.length,
++            lowStockCount,
++            recentOrders: orders.slice(0, 4),
++            chartData
++          });
++        }
++      } catch (err) {
++        console.error('Error fetching dashboard data:', err);
++      }
++    };
++    fetchDashboardData();
++  }, []);
++
+   const handleAdminRegister = async (e) => {
+     e.preventDefault();
+     setIsAdminLoading(true);
+@@ -64,12 +149,7 @@ export default function Dashboard() {
+           </div>
+ 
+           <div className="flex items-center gap-6">
+-            <div className="relative group">
+-              <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-[#5E1914] transition-colors">
+-                notifications
+-              </span>
+-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full" />
+-            </div>
++            <AdminNotifications />
+ 
+             <button
+               className="p-2.5 bg-black/5 dark:bg-walnut/20 backdrop-blur-md hover:bg-black/10 dark:hover:bg-walnut/40 text-[#0B1B2A] dark:text-rose-fog rounded-full transition-all border border-black/10 dark:border-rose-fog/10 shadow-lg flex items-center justify-center"
+@@ -112,7 +192,7 @@ export default function Dashboard() {
+               {t('admin.total_sales')}
+             </p>
+             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
+-              $12,840.00
++              ${dashboardData.totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+             </h3>
+           </div>
+ 
+@@ -135,7 +215,7 @@ export default function Dashboard() {
+               {t('admin.total_orders')}
+             </p>
+             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
+-              154
++              {dashboardData.totalOrders}
+             </h3>
+           </div>
+ 
+@@ -148,14 +228,14 @@ export default function Dashboard() {
+                 </span>
+               </div>
+               <span className="text-xs font-bold uppercase tracking-tighter text-[#0B1B2A]/80 dark:text-rose-fog">
+-                4 {t('admin.critical_items')}
++                {dashboardData.lowStockCount} {t('admin.critical_items')}
+               </span>
+             </div>
+             <p className="text-xs font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-rose-fog/60">
+               {t('admin.low_stock')}
+             </p>
+             <h3 className="display-font text-3xl mt-1 text-[#0B1B2A] dark:text-rose-fog">
+-              12
++              {dashboardData.lowStockCount}
+             </h3>
+           </div>
+         </div>
+@@ -173,30 +253,28 @@ export default function Dashboard() {
+             </div>
+ 
+             <div className="h-64 w-full relative">
+-              <svg className="w-full h-full" viewBox="0 0 800 200">
++              <svg className="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
+                 <defs>
+                   <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+-                    <stop offset="0%" stopColor="#5E1914" stopOpacity="0.2" />
+-                    <stop offset="100%" stopColor="#5E1914" stopOpacity="0" />
++                    <stop offset="0%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0.2" />
++                    <stop offset="100%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0" />
+                   </linearGradient>
+                 </defs>
+ 
+                 <path
+-                  d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40"
++                  d={generateChartPaths(dashboardData.chartData).line}
+                   fill="none"
+-                  stroke="#5E1914"
++                  stroke={isDark ? "#ef4444" : "#5E1914"}
+                   strokeWidth="3"
+                 />
+                 <path
+-                  d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40 L800,200 L0,200 Z"
++                  d={generateChartPaths(dashboardData.chartData).fill}
+                   fill="url(#chartGradient)"
+                 />
+ 
+-                <circle cx="150" cy="140" r="4" fill="#5E1914" stroke="#E1C2B3" strokeWidth="2" />
+-                <circle cx="250" cy="110" r="4" fill="#5E1914" stroke="#E1C2B3" strokeWidth="2" />
+-                <circle cx="400" cy="130" r="4" fill="#5E1914" stroke="#E1C2B3" strokeWidth="2" />
+-                <circle cx="550" cy="80" r="4" fill="#5E1914" stroke="#E1C2B3" strokeWidth="2" />
+-                <circle cx="700" cy="100" r="4" fill="#5E1914" stroke="#E1C2B3" strokeWidth="2" />
++                {generateChartPaths(dashboardData.chartData).points.filter((_, i) => i % 5 === 0 || i === 29).map((p, i) => (
++                  <circle key={i} cx={p.x} cy={p.y} r="4" fill={isDark ? "#ef4444" : "#5E1914"} stroke="#E1C2B3" strokeWidth="2" title={`$${p.val.toFixed(2)}`} />
++                ))}
+               </svg>
+ 
+               <div className="flex justify-between mt-4 text-[10px] uppercase tracking-widest text-[#0B1B2A]/45 dark:text-rose-fog/40">
+@@ -221,68 +299,37 @@ export default function Dashboard() {
+             </div>
+ 
+             <div className="space-y-6">
+-              {[
+-                {
+-                  title: "Midnight Melodies",
+-                  meta: "Order #8832 • 2m ago",
+-                  price: "$34.00",
+-                  status: "Paid",
+-                  statusClass: "text-green-600 dark:text-green-500",
+-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs",
+-                },
+-                {
+-                  title: "Urban Echoes",
+-                  meta: "Order #8831 • 15m ago",
+-                  price: "$28.50",
+-                  status: "Paid",
+-                  statusClass: "text-green-600 dark:text-green-500",
+-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i",
+-                },
+-                {
+-                  title: "Blue Jazz Nights",
+-                  meta: "Order #8830 • 1h ago",
+-                  price: "$42.00",
+-                  status: "Pending",
+-                  statusClass: "text-amber-600 dark:text-amber-500",
+-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT",
+-                },
+-                {
+-                  title: "Neon Drift",
+-                  meta: "Order #8829 • 3h ago",
+-                  price: "$25.00",
+-                  status: "Paid",
+-                  statusClass: "text-green-600 dark:text-green-500",
+-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp",
+-                },
+-              ].map((o) => (
+-                <div key={o.meta} className="flex items-center gap-4 group cursor-pointer">
+-                  <div className="w-12 h-12 rounded-lg bg-black/10 dark:bg-black-pearl/40 flex-shrink-0 flex items-center justify-center overflow-hidden">
+-                    <img
+-                      alt="Album"
+-                      className="w-full h-full object-cover opacity-90 dark:opacity-80"
+-                      src={o.img}
+-                    />
+-                  </div>
++              {dashboardData.recentOrders.length === 0 ? (
++                <p className="text-sm text-[#0B1B2A]/60 dark:text-rose-fog/60">{t('admin.no_orders', 'No orders yet.')}</p>
++              ) : dashboardData.recentOrders.map((o) => {
++                const parsedItems = o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : [];
++                return (
++                  <div key={o.id} className="flex items-center gap-4 group cursor-pointer">
++                    <div className="w-12 h-12 rounded-lg bg-black/10 dark:bg-black-pearl/40 flex-shrink-0 flex items-center justify-center overflow-hidden">
++                      {/* Generics fallback icon for recent order */}
++                      <span className="material-symbols-outlined text-[#0B1B2A]/60 dark:text-rose-fog/60">album</span>
++                    </div>
+ 
+-                  <div className="flex-1">
+-                    <h5 className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
+-                      {o.title}
+-                    </h5>
+-                    <p className="text-[10px] text-[#0B1B2A]/45 dark:text-rose-fog/40">
+-                      {o.meta}
+-                    </p>
+-                  </div>
++                    <div className="flex-1">
++                      <h5 className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
++                        {o.customer_name || 'Customer'}
++                      </h5>
++                      <p className="text-[10px] text-[#0B1B2A]/45 dark:text-rose-fog/40">
++                        {`Order #${o.id.slice(0, 8).toUpperCase()} • ${new Date(o.created_at).toLocaleDateString()}`}
++                      </p>
++                    </div>
+ 
+-                  <div className="text-right">
+-                    <p className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
+-                      {o.price}
+-                    </p>
+-                    <p className={`text-[9px] uppercase font-bold ${o.statusClass}`}>
+-                      {o.status}
+-                    </p>
++                    <div className="text-right">
++                      <p className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
++                        ${parseFloat(o.total_amount).toFixed(2)}
++                      </p>
++                      <p className={`text-[9px] uppercase font-bold text-green-600 dark:text-green-500`}>
++                        {o.status}
++                      </p>
++                    </div>
+                   </div>
+-                </div>
+-              ))}
++                );
++              })}
+             </div>
+ 
+           </div>
+diff --git a/src/pages/Admin/Inventory.jsx b/src/pages/Admin/Inventory.jsx
+index ecb00a1..d2c701e 100644
+--- a/src/pages/Admin/Inventory.jsx
++++ b/src/pages/Admin/Inventory.jsx
+@@ -4,6 +4,7 @@ import AdminSidebar from "./cart/AdminSidebar";
+ import { useNavigate } from "react-router-dom";
+ import { useTranslation } from "react-i18next";
+ import TopBarUser from "../../components/TopBarUser";
++import AdminNotifications from "../../components/AdminNotifications";
+ 
+ export default function Inventory() {
+   const navigate = useNavigate();
+@@ -73,12 +74,7 @@ export default function Inventory() {
+           </div>
+ 
+           <div className="flex items-center gap-6">
+-            <div className="relative group">
+-              <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-whine-berry transition-colors">
+-                notifications
+-              </span>
+-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-whine-berry rounded-full" />
+-            </div>
++            <AdminNotifications />
+ 
+ 
+ 
+diff --git a/src/pages/Admin/NewVinyl.jsx b/src/pages/Admin/NewVinyl.jsx
+index 762c0d2..0acc85b 100644
+--- a/src/pages/Admin/NewVinyl.jsx
++++ b/src/pages/Admin/NewVinyl.jsx
+@@ -165,18 +165,32 @@ export default function NewVinyl() {
+       setPreview(reader.result);
+     };
+     reader.readAsDataURL(f);
++
++    // Read the file as a Base64 string so it can be saved in the database
++    const reader = new FileReader();
++    reader.onloadend = () => {
++      setPreview(reader.result);
++    };
++    reader.readAsDataURL(f);
+   };
+ 
+   const handleChange = (e) => {
+     setFormData({ ...formData, [e.target.name]: e.target.value });
+   };
+ 
++  const onSubmit = async (e) => {
+   const onSubmit = async (e) => {
+     e.preventDefault();
+ 
+     // The database expects:
+     // title (album), artist, price (numeric), description (genre), cover_image_url (img), sku is not in db right now, nor is stock, but we will save what we can to DB and the full to local context for now
+ 
++    const dbPayload = {
++      title: formData.album || "Untitled Album",
++
++    // The database expects:
++    // title (album), artist, price (numeric), description (genre), cover_image_url (img), sku is not in db right now, nor is stock, but we will save what we can to DB and the full to local context for now
++
+     const dbPayload = {
+       title: formData.album || "Untitled Album",
+       artist: formData.artist || "Unknown Artist",
+@@ -186,6 +200,12 @@ export default function NewVinyl() {
+       stock: parseInt(formData.stock) || 0,
+       sku: formData.sku || null,
+       release_year: parseInt(formData.year) || null,
++      price: parseFloat(formData.price) || 0,
++      description: formData.genre.charAt(0).toUpperCase() + formData.genre.slice(1),
++      cover_image_url: preview || "https://images.unsplash.com/photo-1603048588665-791ca8aea617?fit=crop&q=80&w=200&h=200",
++      stock: parseInt(formData.stock) || 0,
++      sku: formData.sku || null,
++      release_year: parseInt(formData.year) || null,
+       genre: formData.genre.charAt(0).toUpperCase() + formData.genre.slice(1),
+       audio_preview_url: formData.audioPreviewUrl || null,
+     };
+diff --git a/src/pages/Admin/OrderDetails.jsx b/src/pages/Admin/OrderDetails.jsx
+index 51ec11f..dfb7be0 100644
+--- a/src/pages/Admin/OrderDetails.jsx
++++ b/src/pages/Admin/OrderDetails.jsx
+@@ -2,30 +2,104 @@ import React, { useEffect, useState } from "react";
+ import { Link, useParams } from "react-router-dom";
+ import AdminSidebar from "./cart/AdminSidebar";
+ import TopBarUser from "../../components/TopBarUser";
++import { useTranslation } from "react-i18next";
+ 
+-//
+ export default function OrderDetails() {
+     const { id } = useParams();
++    const { t } = useTranslation();
++    const [order, setOrder] = useState(null);
++    const [loading, setLoading] = useState(true);
++
++    useEffect(() => {
++        const fetchOrderDetails = async () => {
++            try {
++                const [ordersRes, vinylsRes] = await Promise.all([
++                    fetch('/api/vinyls/orders'),
++                    fetch('/api/vinyls')
++                ]);
++                const orders = await ordersRes.json();
++                const vinyls = await vinylsRes.json();
++
++                const foundOrder = orders.find(o => o.id === id);
++                if (foundOrder) {
++                    const hydratedItems = (foundOrder.items || []).map(item => {
++                        const vinyl = vinyls.find(v => v.id === item.id) || {};
++                        return {
++                            ...item,
++                            title: vinyl.title || 'Unknown Vinyl',
++                            cover_image_url: vinyl.cover_image_url || 'https://via.placeholder.com/150',
++                            price: vinyl.price || 0,
++                            genre: vinyl.genre || 'Various'
++                        };
++                    });
++                    setOrder({ ...foundOrder, hydratedItems });
++                }
++            } catch (error) {
++                console.error("Error fetching order details:", error);
++            } finally {
++                setLoading(false);
++            }
++        };
++        fetchOrderDetails();
++    }, [id]);
++
++    const handleMarkShipped = async () => {
++        if (!window.confirm('Are you sure you want to mark this order as shipped?')) return;
++
++        try {
++            const res = await fetch(`/api/vinyls/orders/${id}/status`, {
++                method: 'PUT',
++                headers: { 'Content-Type': 'application/json' },
++                body: JSON.stringify({ status: 'shipped' })
++            });
++
++            if (res.ok) {
++                setOrder(prev => ({ ...prev, status: 'shipped' }));
++                alert('Order marked as shipped successfully.');
++            } else {
++                const errorData = await res.json();
++                alert(errorData.message || 'Error updating order status');
++            }
++        } catch (error) {
++            console.error('Error updating status:', error);
++            alert('Error updating status');
++        }
++    };
++
++    if (loading) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">Cargando detalles de orden...</div>;
++    if (!order) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">Orden no encontrada</div>;
++
++    const orderDate = new Date(order.created_at).toLocaleString();
+ 
+     return (
+-        <div className="min-h-screen bg-[#f5f5f5] text-[#E1C2B3] dark:bg-[#091C2A] dark:text-[#E1C2B3]">
+-            <AdminSidebar />
++        <div className="min-h-screen bg-[#f5f5f5] text-[#E1C2B3] dark:bg-[#091C2A] dark:text-[#E1C2B3] print:bg-white print:text-black">
++            <div className="print:hidden">
++                <AdminSidebar />
++            </div>
+ 
+-            <main className="ml-72 transition-all duration-300 min-h-screen p-8 lg:p-12 relative" id="main-content">
+-                <header className="flex justify-between items-center mb-12">
++            <main className="ml-72 transition-all duration-300 min-h-screen p-8 lg:p-12 relative print:ml-0 print:p-0 print:bg-white" id="main-content">
++                <header className="flex justify-between items-center mb-12 print:hidden">
+                     <div className="flex flex-col">
+                         <div className="flex items-center gap-4">
+-                            <Link to="/admin/orders" className="text-[#0B1B2A]/60 hover:text-[#0B1B2A] dark:text-[#E1C2B3]/60 dark:hover:text-[#E1C2B3] transition-colors">
++                            <Link to="/admin/orders" className="text-[#0B1B2A]/60 hover:text-[#0B1B2A] dark:text-[#E1C2B3]/60 dark:hover:text-[#E1C2B3] transition-colors print:hidden">
+                                 <span className="material-symbols-outlined">arrow_back</span>
+                             </Link>
+                             <h1 className="font-['Cormorant_Garamond'] text-4xl text-[#0B1B2A] dark:text-[#E1C2B3] font-bold">
+-                                Order Details <span className="text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 ml-2">{id || "#VH-9921"}</span>
++                                Order Details <span className="text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 ml-2">{id}</span>
+                             </h1>
+                         </div>
+                         <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-widest mt-1 ml-10 uppercase">ADMIN TERMINAL</p>
+                     </div>
+ 
+-                    <div className="flex items-center gap-6">
++                    <div className="flex items-center gap-6 print:hidden">
++                        {order.status !== 'shipped' && order.status !== 'cancelled' && (
++                            <button
++                                className="flex items-center gap-2 px-6 py-2.5 bg-[#0B1B2A] dark:bg-[#E1C2B3] text-white dark:text-[#0B1B2A] text-xs font-bold uppercase tracking-widest rounded-full shadow-lg hover:brightness-110 transition-all"
++                                onClick={handleMarkShipped}
++                            >
++                                <span className="material-symbols-outlined text-sm">local_shipping</span> Mark Shipped
++                            </button>
++                        )}
+                         <button
+                             className="flex items-center gap-2 px-6 py-2.5 bg-[#5E1914] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg hover:brightness-110 transition-all"
+                             onClick={() => window.print()}
+@@ -40,46 +114,37 @@ export default function OrderDetails() {
+                     </div>
+                 </header>
+ 
+-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
++                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:hidden">
+                     {/* Main Content */}
+                     <div className="lg:col-span-2 space-y-6">
+                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl overflow-hidden p-8">
+                             <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 flex items-center justify-between">
+                                 Order Items
+-                                <span className="px-3 py-1 text-[10px] font-bold uppercase bg-[#5E1914] text-white rounded-full border border-black/10 dark:border-[#5E1914]/30">Paid</span>
++                                <span className={`px-3 py-1 text-[10px] font-bold uppercase text-white rounded-full border ${order.status === 'cancelled' ? 'bg-red-700 border-red-900' : 'bg-[#5E1914] border-black/10 dark:border-[#5E1914]/30'}`}>
++                                    {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
++                                </span>
+                             </h2>
+                             <div className="space-y-6">
+-                                <div className="flex items-center gap-6 pb-6 border-b border-black/10 dark:border-[#E1C2B3]/10">
+-                                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#091C2A] shadow-inner flex-shrink-0">
+-                                        <img alt="Album Cover" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIEWE4977C0f0eClN2m_BW6uMspWH-mMWVHRz23eOWZwi4gPqjftVb38Bc4XddExeaynyxrKir2KZNqUKMxNn0pRllq5pU6m47BR4xzeLlllFisrFjZpuFqUNRp9TcEn9f15e5bX5YUoADqRxQSRmdjqXdbgCEjvCREUizZFddjtOBfOOFhZ-pv_ixM1Ud3VhgpcBjITts21NKxeBazTu0JkYb_PCMjPEn_Jg5NdjUz0CwsyERl_Er_0ssjgN2seOwSKxkRr8SpsDh" />
+-                                    </div>
+-                                    <div className="flex-1">
+-                                        <h3 className="font-['Cormorant_Garamond'] text-xl font-semibold text-[#0B1B2A] dark:text-[#E1C2B3]">Midnight City Sessions</h3>
+-                                        <p className="text-xs text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 uppercase tracking-widest mt-1">Limited Blue Edition Vinyl</p>
+-                                    </div>
+-                                    <div className="text-right">
+-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Qty: 1</p>
+-                                        <p className="text-lg font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">$45.00</p>
+-                                    </div>
+-                                </div>
+-                                <div className="flex items-center gap-6 pb-6 border-b border-black/10 dark:border-[#E1C2B3]/10">
+-                                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#091C2A] shadow-inner flex-shrink-0">
+-                                        <img alt="Album Cover" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuMUt3Exl-CalowrQKrVOEtbhQy4ZK8Z_7Vo7A9KLR25MObllCtPHmBgSjMXe6OjeapoHYIFtVSF86yaE5W5GAK5SoRm4p2W5c3IJNPxDGHRVeNDJMoh43XIEnBGyD9qoMeROWs1D2C1rrkFjAAu7MtSTuUUu_U-GK_xUqVjJ6Th_g3TZES6OXBSIly4zH58B5HU4SJ6omM0mbZhCjIl144Dz5JCoNv0iV9RbclKTlkq4vN3nyRDvBQ3TStuXhQlewNnFtK2LGaO5X" />
++                                {order.hydratedItems.map((item, idx) => (
++                                    <div key={idx} className="flex items-center gap-6 pb-6 border-b border-black/10 dark:border-[#E1C2B3]/10">
++                                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#091C2A] shadow-inner flex-shrink-0">
++                                            <img alt="Album Cover" className="w-full h-full object-cover" src={item.cover_image_url} />
++                                        </div>
++                                        <div className="flex-1">
++                                            <h3 className="font-['Cormorant_Garamond'] text-xl font-semibold text-[#0B1B2A] dark:text-[#E1C2B3]">{item.title}</h3>
++                                            <p className="text-xs text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 uppercase tracking-widest mt-1">{item.genre}</p>
++                                        </div>
++                                        <div className="text-right">
++                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Qty: {item.quantity}</p>
++                                            <p className="text-lg font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">${parseFloat(item.price).toFixed(2)}</p>
++                                        </div>
+                                     </div>
+-                                    <div className="flex-1">
+-                                        <h3 className="font-['Cormorant_Garamond'] text-xl font-semibold text-[#0B1B2A] dark:text-[#E1C2B3]">Echoes of the Valley</h3>
+-                                        <p className="text-xs text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 uppercase tracking-widest mt-1">180g Audiophile Pressing</p>
+-                                    </div>
+-                                    <div className="text-right">
+-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Qty: 2</p>
+-                                        <p className="text-lg font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">$79.50</p>
+-                                    </div>
+-                                </div>
++                                ))}
+                             </div>
+                             <div className="mt-8 pt-6">
+                                 <div className="flex justify-between items-center text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">
+-                                    <p className="text-sm">Placed on Oct 24, 2023 at 14:32 PM</p>
+-                                    <p className="text-sm">Weight: 1.4kg</p>
++                                    <p className="text-sm">Placed on {orderDate}</p>
++                                    <p className="text-sm">Items: {order.hydratedItems.reduce((acc, curr) => acc + curr.quantity, 0)}</p>
+                                 </div>
+                             </div>
+                         </div>
+@@ -91,19 +156,42 @@ export default function OrderDetails() {
+                                         <span className="material-symbols-outlined text-[12px] text-white">check</span>
+                                     </div>
+                                     <div>
+-                                        <p className="text-sm font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">Order Processed</p>
+-                                        <p className="text-[10px] text-[#0B1B2A]/50 dark:text-[#E1C2B3]/40 uppercase">Oct 24, 2023 • 14:45 PM</p>
++                                        <p className="text-sm font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">{t('status.processed', 'Order Processed')}</p>
++                                        <p className="text-[10px] text-[#0B1B2A]/50 dark:text-[#E1C2B3]/40 uppercase">{orderDate}</p>
+                                     </div>
+                                 </div>
+-                                <div className="flex gap-6 relative">
+-                                    <div className="w-6 h-6 rounded-full bg-black/5 border border-black/10 dark:bg-[#E1C2B3]/20 dark:border-[#E1C2B3]/30 flex items-center justify-center z-10">
+-                                        <div className="w-2 h-2 rounded-full bg-black/20 dark:bg-[#E1C2B3]/50"></div>
++
++                                {order.status === 'cancelled' ? (
++                                    <div className="flex gap-6 relative">
++                                        <div className="w-6 h-6 rounded-full flex items-center justify-center z-10 bg-red-700">
++                                            <span className="material-symbols-outlined text-[12px] text-white">close</span>
++                                        </div>
++                                        <div>
++                                            <p className="text-sm font-bold text-red-700 dark:text-red-500">{t('status.cancelled', 'Cancelled')}</p>
++                                            <p className="text-[10px] uppercase text-red-700/60 dark:text-red-500/60">
++                                                {t('status.was_cancelled', 'Order was cancelled')}
++                                            </p>
++                                        </div>
+                                     </div>
+-                                    <div>
+-                                        <p className="text-sm font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">Shipped</p>
+-                                        <p className="text-[10px] text-[#0B1B2A]/30 dark:text-[#E1C2B3]/30 uppercase">In Preparation</p>
++                                ) : (
++                                    <div className="flex gap-6 relative">
++                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center z-10 ${order.status === 'shipped' ? 'bg-[#5E1914]' : 'bg-black/5 border border-black/10 dark:bg-[#E1C2B3]/20 dark:border-[#E1C2B3]/30'}`}>
++                                            {order.status === 'shipped' ? (
++                                                <span className="material-symbols-outlined text-[12px] text-white">check</span>
++                                            ) : (
++                                                <div className="w-2 h-2 rounded-full bg-black/20 dark:bg-[#E1C2B3]/50"></div>
++                                            )}
++                                        </div>
++                                        <div>
++                                            <p className={`text-sm font-bold ${order.status === 'shipped' ? 'text-[#0B1B2A] dark:text-[#E1C2B3]' : 'text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50'}`}>
++                                                {t('status.shipped', 'Shipped')}
++                                            </p>
++                                            <p className={`text-[10px] uppercase ${order.status === 'shipped' ? 'text-[#0B1B2A]/50 dark:text-[#E1C2B3]/40' : 'text-[#0B1B2A]/30 dark:text-[#E1C2B3]/30'}`}>
++                                                {order.status === 'shipped' ? t('status.in_transit', 'In Transit') : t('status.in_preparation', 'In Preparation')}
++                                            </p>
++                                        </div>
+                                     </div>
+-                                </div>
++                                )}
+                             </div>
+                         </div>
+                     </div>
+@@ -117,57 +205,119 @@ export default function OrderDetails() {
+                                     <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">person</span>
+                                     <div>
+                                         <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Full Name</p>
+-                                        <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">Julianna Vane</p>
++                                        <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">{order.customer_name || 'Anonymous'}</p>
+                                     </div>
+                                 </div>
+-                                <div className="flex items-start gap-4">
+-                                    <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">mail</span>
+-                                    <div>
+-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Email Address</p>
+-                                        <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">j.vane@luxemail.com</p>
++                                {order.shipping_address && (
++                                    <div className="flex items-start gap-4">
++                                        <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">home</span>
++                                        <div>
++                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Shipping Address</p>
++                                            <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">{order.shipping_address}</p>
++                                        </div>
+                                     </div>
+-                                </div>
++                                )}
+                                 <div className="flex items-start gap-4">
+-                                    <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">location_on</span>
++                                    <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">receipt_long</span>
+                                     <div>
+-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Shipping Address</p>
+-                                        <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1 leading-relaxed">
+-                                            722 Marble Arch, Apt 4B<br />
+-                                            London, W1H 7EJ<br />
+-                                            United Kingdom
+-                                        </p>
++                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Order Reference</p>
++                                        <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1 break-all">{order.id}</p>
+                                     </div>
+                                 </div>
++                                {order.payment_method && (
++                                    <div className="flex items-start gap-4">
++                                        <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">
++                                            {order.payment_method === 'paypal' ? 'account_balance_wallet' : 'credit_card'}
++                                        </span>
++                                        <div>
++                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Payment Method</p>
++                                            <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1 capitalize">
++                                                {order.payment_method === 'paypal' ? 'PayPal' : 'Credit Card'}
++                                            </p>
++                                        </div>
++                                    </div>
++                                )}
+                             </div>
+                         </div>
+ 
+                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl p-8">
+                             <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 border-b border-black/10 dark:border-[#E1C2B3]/10 pb-4">Payment Summary</h2>
+                             <div className="space-y-4">
+-                                <div className="flex justify-between">
+-                                    <p className="text-sm text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Subtotal</p>
+-                                    <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3]">$124.50</p>
+-                                </div>
+-                                <div className="flex justify-between">
+-                                    <p className="text-sm text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Shipping (Express)</p>
+-                                    <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3]">$15.00</p>
+-                                </div>
+-                                <div className="flex justify-between">
+-                                    <p className="text-sm text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Tax (20%)</p>
+-                                    <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3]">$24.90</p>
+-                                </div>
+-                                <div className="pt-4 border-t border-black/10 dark:border-[#E1C2B3]/10 flex justify-between items-baseline">
++                                <div className="pt-2 flex justify-between items-baseline">
+                                     <p className="font-['Cormorant_Garamond'] text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">Total</p>
+-                                    <p className="text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] tracking-tight">$164.40</p>
++                                    <p className="text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] tracking-tight">${parseFloat(order.total_amount).toFixed(2)}</p>
+                                 </div>
+                             </div>
+                             <div className="mt-8 flex items-center justify-center gap-2 py-3 bg-black/5 dark:bg-[#091C2A]/20 rounded-lg border border-black/5 dark:border-[#E1C2B3]/5">
+                                 <span className="material-symbols-outlined text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">verified_user</span>
+-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">Payment via Stripe</span>
++                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">Payment Validated</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
++
++                {/* Print-Only Invoice Layout (Inspired by Reference Receipt) */}
++                <div className="hidden print:block w-full max-w-3xl mx-auto p-4 font-sans bg-white relative text-black">
++                    {/* Yellow Banner */}
++                    <div className="bg-[#FFF8E1] border border-[#F6E199] text-[#8D6E11] p-6 rounded-md mb-10">
++                        <div className="flex items-center gap-3 font-semibold text-[22px] mb-2">
++                            {order.status === 'shipped' ? (
++                                <><span className="material-symbols-outlined text-2xl">check_circle</span> Pedido Enviado y Procesado</>
++                            ) : order.status === 'cancelled' ? (
++                                <><span className="material-symbols-outlined text-2xl text-red-700">cancel</span> Pedido Cancelado</>
++                            ) : (
++                                <><span className="material-symbols-outlined text-2xl">verified</span> Pago Registrado Exitosamente</>
++                            )}
++                        </div>
++                        <p className="text-[15px] opacity-90">Este es el comprobante oficial de tu compra en Vinyl Horizon.</p>
++                    </div>
++
++                    <div className="space-y-4 text-[16px] text-[#333333]">
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Descripción:</span>
++                            <span className="font-medium text-[#111111]">
++                                {order.hydratedItems.map(item => `${item.title} (x${item.quantity})`).join(', ')}
++                            </span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Monto:</span>
++                            <span className="font-medium text-[#111111]">${parseFloat(order.total_amount).toFixed(2)} USD</span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Fecha:</span>
++                            <span className="font-medium text-[#111111]">{orderDate}</span>
++                        </div>
++
++                        <div className="border-t border-dashed border-[#CCCCCC] my-10 py-1"></div>
++
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Estado:</span>
++                            <span className="font-medium text-[#111111] capitalize">{order.status || 'Pagado'}</span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Método de pago:</span>
++                            <span className="font-medium text-[#111111] capitalize">{order.payment_method === 'paypal' ? 'PayPal' : 'Tarjeta de Crédito'}</span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4 items-start">
++                            <span className="text-[#666666]">Referencia de pago (ID):</span>
++                            <span className="font-medium text-[#111111] break-all">{order.id}</span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Razón social:</span>
++                            <span className="font-medium text-[#111111]">Vinyl Horizon Global S.A.</span>
++                        </div>
++                        <div className="grid grid-cols-[220px_1fr] gap-4">
++                            <span className="text-[#666666]">Cliente:</span>
++                            <span className="font-medium text-[#111111]">{order.customer_name || 'Anonymous'}</span>
++                        </div>
++                        {order.shipping_address && (
++                            <div className="grid grid-cols-[220px_1fr] gap-4 items-start">
++                                <span className="text-[#666666]">Dirección de envío:</span>
++                                <span className="font-medium text-[#111111]">{order.shipping_address}</span>
++                            </div>
++                        )}
++                    </div>
++                </div>
+             </main>
+         </div>
+     );
+diff --git a/src/pages/Admin/Orders.jsx b/src/pages/Admin/Orders.jsx
+index 87cc25f..aae307f 100644
+--- a/src/pages/Admin/Orders.jsx
++++ b/src/pages/Admin/Orders.jsx
+@@ -3,22 +3,49 @@ import { Link } from "react-router-dom";
+ import AdminSidebar from "./cart/AdminSidebar";
+ import { useTranslation } from "react-i18next";
+ import TopBarUser from "../../components/TopBarUser";
++import AdminNotifications from "../../components/AdminNotifications";
+ 
+-const ORDERS_DATA = [
+-  { id: "#VH-9921", name: "Julianna Vane", date: "Oct 24, 2023", total: "$124.50", statusKey: "admin.shipped", statusClass: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20" },
+-  { id: "#VH-9920", name: "Marcus Thorne", date: "Oct 24, 2023", total: "$89.00", statusKey: "admin.pending", statusClass: "bg-amber-100 text-amber-700 border-amber-200" },
+-  { id: "#VH-9919", name: "Evelyn Reed", date: "Oct 23, 2023", total: "$210.30", statusKey: "admin.shipped", statusClass: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-400/20" },
+-  { id: "#VH-9918", name: "Silas Blackwood", date: "Oct 23, 2023", total: "$45.00", statusKey: "admin.shipped", statusClass: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20" },
+-  { id: "#VH-9917", name: "Clarissa Bloom", date: "Oct 22, 2023", total: "$315.00", statusKey: "admin.pending", statusClass: "bg-amber-100 text-amber-700 border-amber-200" },
+-  { id: "#VH-9916", name: "Arthur Sterling", date: "Oct 22, 2023", total: "$72.25", statusKey: "admin.shipped", statusClass: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-400/20" },
+-];
+-
+-//
+ export default function Orders() {
+   const { t } = useTranslation();
+   const [filterStatus, setFilterStatus] = useState("admin.all_orders");
++  const [ordersData, setOrdersData] = useState([]);
++
++  useEffect(() => {
++    const fetchOrders = async () => {
++      try {
++        const res = await fetch('/api/vinyls/orders');
++        if (res.ok) {
++          const data = await res.json();
++          const formatted = data.map(o => {
++            let statusKey = "admin.pending";
++            let statusClass = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-400/20";
++            if (o.status === "shipped") {
++              statusKey = "admin.shipped";
++              statusClass = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20";
++            } else if (o.status === "cancelled") {
++              statusKey = "admin.cancelled";
++              statusClass = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-400 dark:border-red-400/20";
++            }
++            return {
++              id: `#${o.id.slice(0, 8).toUpperCase()}`,
++              rawId: o.id,
++              name: o.customer_name || 'Customer',
++              date: new Date(o.created_at).toLocaleDateString(),
++              total: `$${parseFloat(o.total_amount).toFixed(2)}`,
++              statusKey,
++              statusClass
++            };
++          });
++          setOrdersData(formatted);
++        }
++      } catch (err) {
++        console.error('Error fetching orders:', err);
++      }
++    };
++    fetchOrders();
++  }, []);
+ 
+-  const filteredOrders = ORDERS_DATA.filter((order) => {
++  const filteredOrders = ordersData.filter((order) => {
+     if (filterStatus === "admin.all_orders") return true;
+     return order.statusKey === filterStatus;
+   });
+@@ -35,10 +62,7 @@ export default function Orders() {
+           </div>
+ 
+           <div className="flex items-center gap-6">
+-            <div className="relative group">
+-              <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-[#5E1914] transition-colors">notifications</span>
+-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
+-            </div>
++            <AdminNotifications />
+ 
+ 
+ 
+@@ -89,7 +113,7 @@ export default function Orders() {
+                       </span>
+                     </td>
+                     <td className="px-8 py-5">
+-                      <Link to={`/admin/orders/${order.id.replace('#', '')}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
++                      <Link to={`/admin/orders/${order.rawId}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
+                         {t('admin.view_details')}
+                       </Link>
+                     </td>
+diff --git a/src/pages/Admin/Reports.jsx b/src/pages/Admin/Reports.jsx
+index aa9ac3e..e5fecae 100644
+--- a/src/pages/Admin/Reports.jsx
++++ b/src/pages/Admin/Reports.jsx
+@@ -1,4 +1,4 @@
+-import React, { useRef } from "react";
++import React, { useRef, useState, useEffect } from "react";
+ import AdminSidebar from "./cart/AdminSidebar";
+ import { useTheme } from "../../context/ThemeContext";
+ import jsPDF from 'jspdf';
+@@ -7,12 +7,145 @@ import { toPng } from 'html-to-image';
+ import toast from 'react-hot-toast';
+ import { useTranslation } from "react-i18next";
+ import TopBarUser from "../../components/TopBarUser";
++import AdminNotifications from "../../components/AdminNotifications";
++import { Link } from "react-router-dom";
++
++const generateChartPaths = (data) => {
++  if (!data || data.length === 0) return { line: "", fill: "", points: [] };
++  const maxVal = Math.max(...data, 100);
++  const points = data.map((val, i) => {
++    const x = (i / (data.length - 1)) * 800;
++    const y = 180 - ((val / maxVal) * 160);
++    return { x, y, val };
++  });
++
++  let linePath = `M${points[0].x},${points[0].y}`;
++  for (let i = 1; i < points.length; i++) {
++    const p0 = points[i - 1];
++    const p1 = points[i];
++    const cx = (p0.x + p1.x) / 2;
++    linePath += ` C${cx},${p0.y} ${cx},${p1.y} ${p1.x},${p1.y}`;
++  }
++
++  const fillPath = `${linePath} L800,200 L0,200 Z`;
++
++  return { line: linePath, fill: fillPath, points };
++};
+ 
+ export default function Reports() {
+   const { isDark, toggleTheme } = useTheme();
+   const { t } = useTranslation();
+   const printRef = useRef();
+ 
++  const [reportData, setReportData] = useState({
++    totalRevenue: 0,
++    avgOrderValue: 0,
++    customersCount: 0,
++    topVinyls: [],
++    genres: [],
++    chartData: Array(6).fill(0),
++    chartLabels: ["", "", "", "", "", ""]
++  });
++
++  useEffect(() => {
++    const fetchReportData = async () => {
++      try {
++        const [ordersRes, vinylsRes] = await Promise.all([
++          fetch('/api/vinyls/orders'),
++          fetch('/api/vinyls')
++        ]);
++
++        if (ordersRes.ok && vinylsRes.ok) {
++          const orders = await ordersRes.json();
++          const vinyls = await vinylsRes.json();
++
++          let totalRev = 0;
++          let uniqueCustomers = new Set();
++          let itemMap = {}; // { vinylId: { qty: 0, rev: 0 } }
++
++          orders.forEach(o => {
++            totalRev += parseFloat(o.total_amount || 0);
++            if (o.user_id && o.user_id !== 'guest') uniqueCustomers.add(o.user_id);
++            else if (o.customer_name) uniqueCustomers.add(o.customer_name);
++
++            const items = o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : [];
++            items.forEach(item => {
++              if (!itemMap[item.id]) itemMap[item.id] = { qty: 0, rev: 0 };
++              itemMap[item.id].qty += item.quantity || 1;
++              // we don't store price in items directly, so we map from vinyls list
++              const v = vinyls.find(vi => vi.id === item.id);
++              if (v) itemMap[item.id].rev += (parseFloat(v.price || 0) * (item.quantity || 1));
++            });
++          });
++
++          // Top Vinyls
++          const vinylsArray = Object.keys(itemMap).map(id => {
++            const v = vinyls.find(vi => vi.id === id) || {};
++            return {
++              id,
++              title: v.title || 'Unknown',
++              genre: v.genre || 'Various',
++              cover: v.cover_image_url || '',
++              units: itemMap[id].qty,
++              revenue: itemMap[id].rev
++            };
++          }).sort((a, b) => b.units - a.units);
++
++          // By Genre
++          let genreTotals = {};
++          let totalStr = 0;
++          vinylsArray.forEach(v => {
++            if (!genreTotals[v.genre]) genreTotals[v.genre] = 0;
++            genreTotals[v.genre] += v.units;
++            totalStr += v.units;
++          });
++
++          const genresArr = Object.keys(genreTotals).map(g => ({
++            name: g,
++            percentage: totalStr > 0 ? (genreTotals[g] / totalStr) * 100 : 0
++          })).sort((a, b) => b.percentage - a.percentage).slice(0, 4);
++
++          // Calculate 6-month revenue chart
++          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
++          const monthlyData = [];
++          const currentDate = new Date();
++
++          for (let i = 5; i >= 0; i--) {
++            const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
++            monthlyData.push({ monthKey: `${d.getFullYear()}-${d.getMonth()}`, label: monthNames[d.getMonth()], sales: 0 });
++          }
++
++          orders.forEach(order => {
++            if (order.created_at) {
++              const d = new Date(order.created_at);
++              const mKey = `${d.getFullYear()}-${d.getMonth()}`;
++              const mt = monthlyData.find(m => m.monthKey === mKey);
++              if (mt) {
++                mt.sales += parseFloat(order.total_amount || 0);
++              }
++            }
++          });
++
++          const chartData = monthlyData.map(m => m.sales);
++          const chartLabels = monthlyData.map(m => m.label);
++
++          setReportData({
++            totalRevenue: totalRev,
++            avgOrderValue: orders.length ? (totalRev / orders.length) : 0,
++            customersCount: uniqueCustomers.size,
++            topVinyls: vinylsArray.slice(0, 3), // Top 3
++            genres: genresArr,
++            chartData,
++            chartLabels
++          });
++        }
++      } catch (err) {
++        console.error('Error fetching report data:', err);
++      }
++    };
++    fetchReportData();
++  }, []);
++
+   const handleGenerateFullReport = async () => {
+     try {
+       toast.loading('Capturing data & generating report...', { id: 'report-gen' });
+@@ -176,10 +309,7 @@ export default function Reports() {
+               <span className="material-symbols-outlined text-sm">download</span>
+               {t('admin.generate_full')}
+             </button>
+-            <div className="relative group">
+-              <span className="material-symbols-outlined cursor-pointer hover:text-[#5E1914] transition-colors">notifications</span>
+-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
+-            </div>
++            <AdminNotifications />
+ 
+             <div className="border-l border-[#3A2E29]/30 pl-6">
+               <TopBarUser />
+@@ -193,30 +323,27 @@ export default function Reports() {
+               <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                 <span className="material-symbols-outlined text-[#5E1914]">payments</span>
+               </div>
+-              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+14.2%</span>
+             </div>
+             <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Total Revenue</p>
+-            <h3 className="font-['Playfair_Display'] text-3xl mt-1">$48,295.50</h3>
++            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+           </div>
+           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+             <div className="flex justify-between items-start mb-4">
+               <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                 <span className="material-symbols-outlined text-[#5E1914]">shopping_cart</span>
+               </div>
+-              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+5.7%</span>
+             </div>
+             <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Avg. Order Value</p>
+-            <h3 className="font-['Playfair_Display'] text-3xl mt-1">$42.80</h3>
++            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.avgOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+           </div>
+           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
+             <div className="flex justify-between items-start mb-4">
+               <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
+                 <span className="material-symbols-outlined text-[#5E1914]">group_add</span>
+               </div>
+-              <span className="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">+22.1%</span>
+             </div>
+-            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Customer Growth</p>
+-            <h3 className="font-['Playfair_Display'] text-3xl mt-1">1,204</h3>
++            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Unique Customers</p>
++            <h3 className="font-['Playfair_Display'] text-3xl mt-1">{reportData.customersCount}</h3>
+           </div>
+         </div>
+ 
+@@ -228,22 +355,13 @@ export default function Reports() {
+             </div>
+           </div>
+           <div className="flex items-end justify-between h-64 gap-8 px-4">
+-            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+-              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "85%" }}></div>
+-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Jazz</span>
+-            </div>
+-            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+-              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "65%" }}></div>
+-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Rock</span>
+-            </div>
+-            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+-              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "45%" }}></div>
+-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Electronica</span>
+-            </div>
+-            <div className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+-              <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: "30%" }}></div>
+-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Classical</span>
+-            </div>
++            {reportData.genres.map((g, idx) => (
++              <div key={idx} className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
++                <div className="w-full bg-[#5E1914] rounded-t-lg transition-all duration-500 group-hover:opacity-80 shadow-lg" style={{ height: `${Math.max(g.percentage, 5)}%` }}></div>
++                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{g.name} ({Math.round(g.percentage)}%)</span>
++              </div>
++            ))}
++            {reportData.genres.length === 0 && <p className="text-center w-full mt-24 text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">No genre data available</p>}
+           </div>
+         </div>
+ 
+@@ -254,42 +372,22 @@ export default function Reports() {
+               <span className="material-symbols-outlined text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 cursor-pointer">more_horiz</span>
+             </div>
+             <div className="space-y-6">
+-              <div className="flex items-center gap-4">
+-                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+-                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs" />
+-                </div>
+-                <div className="flex-1">
+-                  <h5 className="text-sm font-bold">Midnight Melodies</h5>
+-                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Jazz • 84 Units</p>
+-                </div>
+-                <div className="text-right">
+-                  <p className="text-sm font-bold">$2,856.00</p>
++              {reportData.topVinyls.length === 0 ? (
++                <p className="text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">No sales data yet.</p>
++              ) : reportData.topVinyls.map((v, idx) => (
++                <div key={idx} className="flex items-center gap-4">
++                  <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
++                    <img alt="Album" className="w-full h-full object-cover" src={v.cover || "https://images.unsplash.com/photo-1603048588665-791ca8aea617?fit=crop&q=80&w=200&h=200"} />
++                  </div>
++                  <div className="flex-1">
++                    <h5 className="text-sm font-bold">{v.title}</h5>
++                    <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">{v.genre} • {v.units} Units</p>
++                  </div>
++                  <div className="text-right">
++                    <p className="text-sm font-bold">${v.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
++                  </div>
+                 </div>
+-              </div>
+-              <div className="flex items-center gap-4">
+-                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+-                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i" />
+-                </div>
+-                <div className="flex-1">
+-                  <h5 className="text-sm font-bold">Urban Echoes</h5>
+-                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Rock • 72 Units</p>
+-                </div>
+-                <div className="text-right">
+-                  <p className="text-sm font-bold">$2,052.00</p>
+-                </div>
+-              </div>
+-              <div className="flex items-center gap-4">
+-                <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
+-                  <img alt="Album" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT" />
+-                </div>
+-                <div className="flex-1">
+-                  <h5 className="text-sm font-bold">Blue Jazz Nights</h5>
+-                  <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">Jazz • 65 Units</p>
+-                </div>
+-                <div className="text-right">
+-                  <p className="text-sm font-bold">$2,730.00</p>
+-                </div>
+-              </div>
++              ))}
+             </div>
+           </div>
+ 
+@@ -304,25 +402,25 @@ export default function Reports() {
+               <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
+                 <defs>
+                   <linearGradient id="growthGradient" x1="0" x2="0" y1="0" y2="1">
+-                    <stop offset="0%" stopColor="#5E1914" stopOpacity="0.3"></stop>
+-                    <stop offset="100%" stopColor="#5E1914" stopOpacity="0"></stop>
++                    <stop offset="0%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0.3"></stop>
++                    <stop offset="100%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0"></stop>
+                   </linearGradient>
+                 </defs>
+-                <path d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40" fill="none" stroke="#5E1914" strokeWidth="3"></path>
+-                <path d="M0,180 Q100,160 150,140 T250,110 T400,130 T550,80 T700,100 T800,40 L800,200 L0,200 Z" fill="url(#growthGradient)"></path>
+-                <circle cx="150" cy="140" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+-                <circle cx="250" cy="110" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+-                <circle cx="400" cy="130" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+-                <circle cx="550" cy="80" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
+-                <circle cx="700" cy="100" fill="#5E1914" r="5" stroke="#E1C2B3" strokeWidth="2"></circle>
++                <path d={generateChartPaths(reportData.chartData).line} fill="none" stroke={isDark ? "#ef4444" : "#5E1914"} strokeWidth="3"></path>
++                <path d={generateChartPaths(reportData.chartData).fill} fill="url(#growthGradient)"></path>
++                {generateChartPaths(reportData.chartData).points.map((p, i) => (
++                  <g key={i}>
++                    <circle cx={p.x} cy={p.y} fill={isDark ? "#ef4444" : "#5E1914"} r="5" stroke={isDark ? "#3A2E29" : "#D9D9D9"} strokeWidth="2"></circle>
++                    <text x={Math.max(20, Math.min(p.x, 780))} y={p.y > 30 ? p.y - 12 : p.y + 20} fill={isDark ? "#E1C2B3" : "#0B1B2A"} fontSize="12" textAnchor="middle" fontWeight="bold">
++                      ${p.val.toFixed(0)}
++                    </text>
++                  </g>
++                ))}
+               </svg>
+               <div className="flex justify-between mt-6 text-[9px] uppercase font-bold tracking-[0.2em] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 px-2">
+-                <span>Jan</span>
+-                <span>Feb</span>
+-                <span>Mar</span>
+-                <span>Apr</span>
+-                <span>May</span>
+-                <span>Jun</span>
++                {reportData.chartLabels.map((l, i) => (
++                  <span key={i}>{l}</span>
++                ))}
+               </div>
+             </div>
+           </div>
+diff --git a/src/pages/CheckoutPage.jsx b/src/pages/CheckoutPage.jsx
+index cfb6f18..7b0df95 100644
+--- a/src/pages/CheckoutPage.jsx
++++ b/src/pages/CheckoutPage.jsx
+@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
+ import Sidebar from '../components/Sidebar';
+ import TopBarUser from '../components/TopBarUser';
+ import { CartContext } from '../context/CartContext';
++import { InventoryContext } from '../context/InventoryContext';
+ import { useContext } from 'react';
+ 
+ const CheckoutPage = () => {
+@@ -15,9 +16,46 @@ const CheckoutPage = () => {
+     const { t } = useTranslation();
+     const navigate = useNavigate();
+     const { cartItems, subtotal, shipping, taxes, total, clearCart } = useContext(CartContext);
++    const { fetchVinyls } = useContext(InventoryContext);
+ 
+     const [paymentMethod, setPaymentMethod] = useState('credit');
+     const [isProcessing, setIsProcessing] = useState(false);
++    const [showSuccessModal, setShowSuccessModal] = useState(false);
++
++    const [shippingDetails, setShippingDetails] = useState({
++        fullName: '',
++        address: '',
++        city: '',
++        postalCode: ''
++    });
++
++    const [cardDetails, setCardDetails] = useState({
++        number: '',
++        expiry: '',
++        cvc: ''
++    });
++
++    const handleCardNumberChange = (e) => {
++        let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
++        if (val.length > 16) val = val.slice(0, 16); // Limit to 16
++        val = val.replace(/(.{4})/g, '$1 ').trim(); // Add space every 4 digits
++        setCardDetails({ ...cardDetails, number: val });
++    };
++
++    const handleExpiryChange = (e) => {
++        let val = e.target.value.replace(/\D/g, '');
++        if (val.length > 4) val = val.slice(0, 4);
++        if (val.length >= 2) {
++            val = val.slice(0, 2) + '/' + val.slice(2);
++        }
++        setCardDetails({ ...cardDetails, expiry: val });
++    };
++
++    const handleCvcChange = (e) => {
++        let val = e.target.value.replace(/\D/g, '');
++        if (val.length > 3) val = val.slice(0, 3); // Limit to 3 max
++        setCardDetails({ ...cardDetails, cvc: val });
++    };
+ 
+     const handleCheckout = async () => {
+         if (cartItems.length === 0) {
+@@ -25,6 +63,11 @@ const CheckoutPage = () => {
+             return;
+         }
+ 
++        if (!shippingDetails.fullName) {
++            toast.error(t('checkout.missing_name', 'Please provide your full name'));
++            return;
++        }
++
+         setIsProcessing(true);
+         try {
+             const itemsPayload = cartItems.map(item => ({
+@@ -32,33 +75,45 @@ const CheckoutPage = () => {
+                 quantity: item.quantity
+             }));
+ 
++            const userDataStr = localStorage.getItem('vinyl_user');
++            const userObj = userDataStr ? JSON.parse(userDataStr) : null;
++
++            const formattedAddress = `${shippingDetails.address}, ${shippingDetails.city}, ${shippingDetails.postalCode}`;
++
+             const response = await fetch('/api/vinyls/checkout', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+-                body: JSON.stringify({ items: itemsPayload })
++                body: JSON.stringify({
++                    items: itemsPayload,
++                    userId: userObj?.id || 'guest',
++                    customerName: shippingDetails.fullName,
++                    totalAmount: total,
++                    shippingAddress: formattedAddress,
++                    paymentMethod: paymentMethod
++                })
+             });
+ 
+             if (!response.ok) {
+                 const errorData = await response.json();
+-                throw new Error(errorData.message || 'Checkout failed');
++                throw new Error(errorData.error || errorData.message || 'Checkout failed');
+             }
+ 
+             // Save purchases locally for Profile
+-            const userDataStr = localStorage.getItem('vinyl_user');
+-            if (userDataStr) {
+-                const userObj = JSON.parse(userDataStr);
++            if (userObj) {
+                 const purchasesKey = `vinyl_purchases_${userObj.id}`;
+                 const currentPurchasesStr = localStorage.getItem(purchasesKey);
+                 const currentPurchases = currentPurchasesStr ? JSON.parse(currentPurchasesStr) : [];
+                 const newPurchases = cartItems.map(item => ({ ...item, purchaseDate: new Date().toISOString() }));
+ 
+-                // Keep unique items or allow multiples. We will just append them.
+                 localStorage.setItem(purchasesKey, JSON.stringify([...newPurchases, ...currentPurchases]));
+             }
+ 
+-            toast.success(t('checkout.success', 'Order placed successfully!'));
++            toast.success(t('checkout.success_saved', 'Tu pedido quedó guardado exitosamente.'));
+             clearCart();
+-            navigate('/profile');
++            if (fetchVinyls) {
++                await fetchVinyls();
++            }
++            setShowSuccessModal(true);
+         } catch (error) {
+             console.error('Checkout error:', error);
+             toast.error(error.message || 'Failed to process checkout. Please try again.');
+@@ -102,19 +157,31 @@ const CheckoutPage = () => {
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                     <div className="md:col-span-2 flex flex-col gap-2">
+                                         <label className="text-xs uppercase tracking-widest text-black-pearl dark:text-rose-fog font-medium">{t('checkout.full_name')}</label>
+-                                        <input className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="Julian V. Sterling" type="text" />
++                                        <input
++                                            value={shippingDetails.fullName}
++                                            onChange={e => setShippingDetails({ ...shippingDetails, fullName: e.target.value })}
++                                            className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="Julian V. Sterling" type="text" />
+                                     </div>
+                                     <div className="md:col-span-2 flex flex-col gap-2">
+                                         <label className="text-xs uppercase tracking-widest text-black-pearl dark:text-rose-fog font-medium">{t('checkout.address')}</label>
+-                                        <input className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="1242 Artisan Boulevard, Suite 4B" type="text" />
++                                        <input
++                                            value={shippingDetails.address}
++                                            onChange={e => setShippingDetails({ ...shippingDetails, address: e.target.value })}
++                                            className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="1242 Artisan Boulevard, Suite 4B" type="text" />
+                                     </div>
+                                     <div className="flex flex-col gap-2">
+                                         <label className="text-xs uppercase tracking-widest text-black-pearl dark:text-rose-fog font-medium">{t('checkout.city')}</label>
+-                                        <input className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="New York" type="text" />
++                                        <input
++                                            value={shippingDetails.city}
++                                            onChange={e => setShippingDetails({ ...shippingDetails, city: e.target.value })}
++                                            className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="New York" type="text" />
+                                     </div>
+                                     <div className="flex flex-col gap-2">
+                                         <label className="text-xs uppercase tracking-widest text-black-pearl dark:text-rose-fog font-medium">{t('checkout.postal_code')}</label>
+-                                        <input className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="10001" type="text" />
++                                        <input
++                                            value={shippingDetails.postalCode}
++                                            onChange={e => setShippingDetails({ ...shippingDetails, postalCode: e.target.value })}
++                                            className="bg-transparent border-b border-black-pearl/30 dark:border-rose-fog/30 focus:border-black-pearl dark:focus:border-rose-fog focus:ring-0 py-2 px-0 text-black-pearl dark:text-rose-fog placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 transition-colors focus:outline-none" placeholder="10001" type="text" />
+                                     </div>
+                                 </div>
+                             </section>
+@@ -155,7 +222,13 @@ const CheckoutPage = () => {
+                                                     <div className="flex flex-col gap-1">
+                                                         <label className="text-sm font-medium text-black-pearl dark:text-rose-fog">{t('checkout.card_number')} <span className="text-red-500">*</span></label>
+                                                         <div className="relative">
+-                                                            <input type="text" placeholder="1234 1234 1234 1234" className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50" />
++                                                            <input
++                                                                type="text"
++                                                                placeholder="1234 1234 1234 1234"
++                                                                value={cardDetails.number}
++                                                                onChange={handleCardNumberChange}
++                                                                className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50"
++                                                            />
+                                                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-black-pearl/40 dark:text-gray-400">credit_card</span>
+                                                         </div>
+                                                     </div>
+@@ -163,11 +236,23 @@ const CheckoutPage = () => {
+                                                     <div className="flex gap-4">
+                                                         <div className="flex-1 flex flex-col gap-1">
+                                                             <label className="text-sm font-medium text-black-pearl dark:text-rose-fog">{t('checkout.exp_date')} <span className="text-red-500">*</span></label>
+-                                                            <input type="text" placeholder="MM / AA" className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50" />
++                                                            <input
++                                                                type="text"
++                                                                placeholder="MM/AA"
++                                                                value={cardDetails.expiry}
++                                                                onChange={handleExpiryChange}
++                                                                className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50"
++                                                            />
+                                                         </div>
+                                                         <div className="flex-1 flex flex-col gap-1">
+                                                             <label className="text-sm font-medium text-black-pearl dark:text-rose-fog">{t('checkout.cvc')} <span className="text-red-500">*</span></label>
+-                                                            <input type="text" placeholder="CVC" className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50" />
++                                                            <input
++                                                                type="text"
++                                                                placeholder="123"
++                                                                value={cardDetails.cvc}
++                                                                onChange={handleCvcChange}
++                                                                className="w-full bg-white dark:bg-[#122838] text-black dark:text-white px-4 py-2 rounded border border-black-pearl/20 dark:border-rose-fog/20 focus:outline-none focus:ring-2 focus:ring-wine-berry/50"
++                                                            />
+                                                         </div>
+                                                     </div>
+                                                 </div>
+@@ -192,6 +277,25 @@ const CheckoutPage = () => {
+                                             <span className="material-symbols-outlined text-black-pearl/60 dark:text-rose-fog/60">account_balance_wallet</span>
+                                         </label>
+                                     </div>
++
++                                    {/* PayPal Mock Inputs */}
++                                    {paymentMethod === 'paypal' && (
++                                        <div className="mt-2 pl-8 pr-2 pb-2 space-y-4 animate-fadeIn">
++                                            <p className="text-sm text-black-pearl/80 dark:text-rose-fog/80 italic">
++                                                By proceeding, you agree to use your simulated PayPal balance to complete this transaction. No real funds will be deducted.
++                                            </p>
++                                            <div className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg">
++                                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
++                                                    <span className="text-white font-bold text-xs">P</span>
++                                                </div>
++                                                <div className="flex-1">
++                                                    <p className="text-sm font-bold text-black-pearl dark:text-rose-fog">Connected as {shippingDetails.fullName || 'User'}</p>
++                                                    <p className="text-xs text-blue-600 dark:text-blue-400">user@paypal-mock.com</p>
++                                                </div>
++                                                <span className="material-symbols-outlined text-blue-600">check_circle</span>
++                                            </div>
++                                        </div>
++                                    )}
+                                 </div>
+                             </section>
+                         </div>
+@@ -225,10 +329,10 @@ const CheckoutPage = () => {
+                                     <button
+                                         onClick={handleCheckout}
+                                         disabled={isProcessing}
+-                                        className={`w-full bg-wine-berry text-white hover:bg-black-pearl transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
++                                        className={`w-full ${paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#003087]' : 'bg-wine-berry hover:bg-black-pearl'} text-white transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                     >
+-                                        {isProcessing ? t('checkout.processing', 'Processing...') : t('checkout.confirm')}
+-                                        {!isProcessing && <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">lock</span>}
++                                        {isProcessing ? t('checkout.processing', 'Processing...') : (paymentMethod === 'paypal' ? 'Pay with PayPal' : t('checkout.confirm'))}
++                                        {!isProcessing && <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">{paymentMethod === 'paypal' ? 'arrow_forward' : 'lock'}</span>}
+                                     </button>
+ 
+                                     <p className="mt-6 text-center text-xs text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-widest">{t('checkout.encrypted')}</p>
+@@ -248,6 +352,33 @@ const CheckoutPage = () => {
+                     </div>
+                 </div>
+             </main>
++
++            {/* Success Modal */}
++            {showSuccessModal && (
++                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black-pearl/60 dark:bg-black-pearl/80 backdrop-blur-sm animate-fadeIn">
++                    <div className="bg-timberwolf dark:bg-walnut border border-black-pearl/10 dark:border-rose-fog/20 p-8 rounded-friendly shadow-2xl max-w-md w-full mx-4 text-center">
++                        <div className="w-16 h-16 rounded-full bg-wine-berry text-white flex items-center justify-center mx-auto mb-6">
++                            <span className="material-symbols-outlined text-3xl">check_circle</span>
++                        </div>
++                        <h3 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog mb-2">{t('checkout.success_title', '¡Pago Aceptado!')}</h3>
++                        <p className="text-black-pearl/70 dark:text-rose-fog/70 mb-8">{t('checkout.success_msg', 'Tu pedido quedó guardado exitosamente. ¿Quieres seguir comprando?')}</p>
++                        <div className="flex flex-col gap-4">
++                            <button
++                                onClick={() => navigate('/catalog')}
++                                className="w-full bg-wine-berry text-white hover:bg-black-pearl transition-all py-3 rounded-full font-bold uppercase tracking-widest text-xs shadow-md"
++                            >
++                                {t('checkout.continue_shopping', 'Sí, ir al catálogo')}
++                            </button>
++                            <button
++                                onClick={() => navigate('/')}
++                                className="w-full bg-transparent border border-black-pearl/30 dark:border-rose-fog/30 text-black-pearl dark:text-rose-fog hover:bg-black-pearl/5 dark:hover:bg-rose-fog/5 transition-all py-3 rounded-full font-bold uppercase tracking-widest text-xs"
++                            >
++                                {t('checkout.go_home', 'No, regresar al inicio')}
++                            </button>
++                        </div>
++                    </div>
++                </div>
++            )}
+         </div>
+     );
+ };
+diff --git a/src/pages/Profile.jsx b/src/pages/Profile.jsx
+index 4f5e7b5..5203e6a 100644
+--- a/src/pages/Profile.jsx
++++ b/src/pages/Profile.jsx
+@@ -25,6 +25,7 @@ export default function Profile() {
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
+   const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
+   const [purchases, setPurchases] = useState([]);
++  const [cancellingOrderId, setCancellingOrderId] = useState(null);
+ 
+   useEffect(() => {
+     // Hydrate state from localStorage
+@@ -37,12 +38,14 @@ export default function Profile() {
+         const parsedUser = JSON.parse(userDataStr);
+         setUser(parsedUser);
+ 
+-        // Load purchases
+-        const purchasesKey = `vinyl_purchases_${parsedUser.id}`;
+-        const pStr = localStorage.getItem(purchasesKey);
+-        if (pStr) {
+-          setPurchases(JSON.parse(pStr));
+-        }
++        // Fetch real orders from database for this user
++        fetch('/api/vinyls/orders')
++          .then(res => res.json())
++          .then(ordersData => {
++            const userOrders = ordersData.filter(o => o.user_id === parsedUser.id || o.customer_name === parsedUser.firstName);
++            setPurchases(userOrders);
++          })
++          .catch(err => console.error("Error fetching user purchases:", err));
+ 
+       } catch (err) {
+         console.error("Failed to parse user data from localStorage", err);
+@@ -86,6 +89,34 @@ export default function Profile() {
+     }
+   };
+ 
++  const handleCancelOrder = (orderId) => {
++    setCancellingOrderId(orderId);
++  };
++
++  const confirmCancelOrder = async () => {
++    if (!cancellingOrderId) return;
++    try {
++      const res = await fetch(`/api/vinyls/orders/${cancellingOrderId}/status`, {
++        method: 'PUT',
++        headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ status: 'cancelled' })
++      });
++
++      if (res.ok) {
++        toast.success(t('profile.order_cancelled', 'Order cancelled successfully.'));
++        setPurchases(prev => prev.map(o => o.id === cancellingOrderId ? { ...o, status: 'cancelled' } : o));
++      } else {
++        const errData = await res.json();
++        toast.error(errData.message || 'Error cancelling order');
++      }
++    } catch (error) {
++      console.error('Cancel order error:', error);
++      toast.error('Connection error while cancelling order.');
++    } finally {
++      setCancellingOrderId(null);
++    }
++  };
++
+   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
+ 
+   return (
+@@ -257,33 +288,63 @@ export default function Profile() {
+ 
+               {purchases.length === 0 ? (
+                 <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
+-                  <span className="material-symbols-outlined text-6xl mb-4">album</span>
++                  <span className="material-symbols-outlined text-6xl mb-4">receipt_long</span>
+                   <p className="font-['Cormorant_Garamond'] text-2xl italic">
+-                    {language === 'ES' ? 'No has realizado ninguna compra aún.' : 'No purchases yet.'}
++                    {language === 'ES' ? 'No has realizado ninguna orden aún.' : 'No orders yet.'}
+                   </p>
+                 </div>
+               ) : (
+-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+-                  {purchases.map((item, idx) => (
+-                    <div key={`${item.id}-${idx}`} className="group bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-black/10 dark:border-[#E1C2B3]/5 transition-colors duration-500 animate-card">
+-                      <div className="relative p-6 md:p-8 aspect-square flex items-center justify-center cursor-pointer" onClick={() => navigate('/catalog')}>
+-                        <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
+-                          <img
+-                            alt={item.title}
+-                            className="w-[85%] sm:w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
+-                            src={item.cover_image_url || item.image || "https://picsum.photos/400"}
+-                          />
+-                          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[85%] sm:w-3/4 h-[85%] sm:h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
+-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 sm:border-8 border-black" />
++                <div className="space-y-6 max-w-5xl mx-auto">
++                  {purchases.map((order, idx) => {
++                    const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
++                    const isCancellable = order.status === 'paid' || order.status === 'pending';
++
++                    return (
++                      <div key={`${order.id}-${idx}`} className="bg-[#EFEFEF] dark:bg-[#091C2A] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start justify-between border border-black/10 dark:border-[#E1C2B3]/10 shadow-lg">
++                        <div className="flex-1 space-y-4 w-full">
++                          <div className="flex items-center gap-4">
++                            <span className="material-symbols-outlined text-[#5E1914] dark:text-[#E1C2B3]">receipt_long</span>
++                            <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
++                              Order #{order.id.slice(0, 8).toUpperCase()}
++                            </h4>
++                            <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
++                              {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
++                            </span>
++                          </div>
++                          <p className="opacity-70 font-light text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">
++                            Placed on {new Date(order.created_at).toLocaleDateString()}
++                          </p>
++                          <div className="bg-[#D1D1D1]/50 dark:bg-[#122838]/50 p-4 rounded-xl flex items-center justify-between border border-black/5 dark:border-[#E1C2B3]/5">
++                            <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Total Amount</p>
++                            <p className="text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">${parseFloat(order.total_amount).toFixed(2)}</p>
+                           </div>
+                         </div>
++
++                        <div className="w-full md:w-auto flex flex-col gap-4">
++                          <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl w-full md:w-64">
++                            <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Items ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
++                            <ul className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
++                              {items.map((item, i) => (
++                                <li key={i} className="flex justify-between text-xs text-[#0B1B2A] dark:text-[#E1C2B3]">
++                                  <span className="truncate flex-1 pr-2">- {item.quantity}x unit</span>
++                                </li>
++                              ))}
++                            </ul>
++                          </div>
++
++                          {isCancellable && (
++                            <button
++                              onClick={() => handleCancelOrder(order.id)}
++                              className="w-full py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
++                            >
++                              <span className="material-symbols-outlined text-sm">cancel</span>
++                              {t('profile.cancel_order', 'Cancel Order')}
++                            </button>
++                          )}
++                        </div>
+                       </div>
+-                      <div className="p-8">
+-                        <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase truncate" title={item.artist}>{item.artist}</h4>
+-                        <p className="opacity-70 font-light italic truncate" title={item.title}>{item.title}</p>
+-                      </div>
+-                    </div>
+-                  ))}
++                    );
++                  })}
+                 </div>
+               )}
+             </section>
+@@ -354,6 +415,40 @@ export default function Profile() {
+             </section>
+           </>
+         )}
++
++        {/* Cancellation Modal */}
++        {cancellingOrderId && (
++          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
++            <div className={`w-full max-w-md p-8 rounded-[2rem] border shadow-2xl transition-all ${isDark ? 'bg-[#3A2E29] border-[#E1C2B3]/20 shadow-black/50' : 'bg-white border-black/10 shadow-black/10'}`}>
++              <div className="flex flex-col items-center text-center">
++                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center mb-6 border border-red-200 dark:border-red-800">
++                  <span className="material-symbols-outlined text-3xl text-red-600 dark:text-red-400">warning</span>
++                </div>
++                <h3 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-4">
++                  {t('profile.cancel_order', 'Cancel Order')}
++                </h3>
++                <p className="text-sm text-[#0B1B2A]/70 dark:text-[#E1C2B3]/70 mb-10">
++                  {t('profile.confirm_cancel', 'Are you sure you want to cancel this order?')} This action cannot be undone.
++                </p>
++
++                <div className="flex gap-4 w-full">
++                  <button
++                    onClick={() => setCancellingOrderId(null)}
++                    className="flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-xs border border-black/20 dark:border-[#E1C2B3]/20 text-[#0B1B2A] dark:text-[#E1C2B3] hover:bg-black/5 dark:hover:bg-[#E1C2B3]/10 transition-colors"
++                  >
++                    {t('profile.cancel_hold', 'Hold On')}
++                  </button>
++                  <button
++                    onClick={confirmCancelOrder}
++                    className="flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-xs bg-red-700 hover:bg-red-800 text-white transition-colors shadow-lg"
++                  >
++                    {t('profile.cancel_yes', 'Yes, Cancel')}
++                  </button>
++                </div>
++              </div>
++            </div>
++          </div>
++        )}
+       </main>
+     </div>
+   );

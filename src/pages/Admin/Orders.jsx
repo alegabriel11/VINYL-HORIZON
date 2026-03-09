@@ -3,22 +3,49 @@ import { Link } from "react-router-dom";
 import AdminSidebar from "./cart/AdminSidebar";
 import { useTranslation } from "react-i18next";
 import TopBarUser from "../../components/TopBarUser";
+import AdminNotifications from "../../components/AdminNotifications";
 
-const ORDERS_DATA = [
-  { id: "#VH-9921", name: "Julianna Vane", date: "Oct 24, 2023", total: "$124.50", statusKey: "admin.shipped", statusClass: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20" },
-  { id: "#VH-9920", name: "Marcus Thorne", date: "Oct 24, 2023", total: "$89.00", statusKey: "admin.pending", statusClass: "bg-amber-100 text-amber-700 border-amber-200" },
-  { id: "#VH-9919", name: "Evelyn Reed", date: "Oct 23, 2023", total: "$210.30", statusKey: "admin.shipped", statusClass: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-400/20" },
-  { id: "#VH-9918", name: "Silas Blackwood", date: "Oct 23, 2023", total: "$45.00", statusKey: "admin.shipped", statusClass: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20" },
-  { id: "#VH-9917", name: "Clarissa Bloom", date: "Oct 22, 2023", total: "$315.00", statusKey: "admin.pending", statusClass: "bg-amber-100 text-amber-700 border-amber-200" },
-  { id: "#VH-9916", name: "Arthur Sterling", date: "Oct 22, 2023", total: "$72.25", statusKey: "admin.shipped", statusClass: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-400/20" },
-];
-
-//
 export default function Orders() {
   const { t } = useTranslation();
   const [filterStatus, setFilterStatus] = useState("admin.all_orders");
+  const [ordersData, setOrdersData] = useState([]);
 
-  const filteredOrders = ORDERS_DATA.filter((order) => {
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch('/api/vinyls/orders');
+        if (res.ok) {
+          const data = await res.json();
+          const formatted = data.map(o => {
+            let statusKey = "admin.pending";
+            let statusClass = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-400/20";
+            if (o.status === "shipped") {
+              statusKey = "admin.shipped";
+              statusClass = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-400/20";
+            } else if (o.status === "cancelled") {
+              statusKey = "admin.cancelled";
+              statusClass = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-400 dark:border-red-400/20";
+            }
+            return {
+              id: `#${o.id.slice(0, 8).toUpperCase()}`,
+              rawId: o.id,
+              name: o.customer_name || 'Customer',
+              date: new Date(o.created_at).toLocaleDateString(),
+              total: `$${parseFloat(o.total_amount).toFixed(2)}`,
+              statusKey,
+              statusClass
+            };
+          });
+          setOrdersData(formatted);
+        }
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  const filteredOrders = ordersData.filter((order) => {
     if (filterStatus === "admin.all_orders") return true;
     return order.statusKey === filterStatus;
   });
@@ -35,10 +62,7 @@ export default function Orders() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="relative group">
-              <span className="material-symbols-outlined cursor-pointer text-[#0B1B2A] dark:text-rose-fog hover:text-[#5E1914] transition-colors">notifications</span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
-            </div>
+            <AdminNotifications />
 
 
 
@@ -89,7 +113,7 @@ export default function Orders() {
                       </span>
                     </td>
                     <td className="px-8 py-5">
-                      <Link to={`/admin/orders/${order.id.replace('#', '')}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
+                      <Link to={`/admin/orders/${order.rawId}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
                         {t('admin.view_details')}
                       </Link>
                     </td>

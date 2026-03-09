@@ -25,6 +25,7 @@ export default function Profile() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
   const [purchases, setPurchases] = useState([]);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
 
   useEffect(() => {
     // Hydrate state from localStorage
@@ -37,12 +38,14 @@ export default function Profile() {
         const parsedUser = JSON.parse(userDataStr);
         setUser(parsedUser);
 
-        // Load purchases
-        const purchasesKey = `vinyl_purchases_${parsedUser.id}`;
-        const pStr = localStorage.getItem(purchasesKey);
-        if (pStr) {
-          setPurchases(JSON.parse(pStr));
-        }
+        // Fetch real orders from database for this user
+        fetch('/api/vinyls/orders')
+          .then(res => res.json())
+          .then(ordersData => {
+            const userOrders = ordersData.filter(o => o.user_id === parsedUser.id || o.customer_name === parsedUser.firstName);
+            setPurchases(userOrders);
+          })
+          .catch(err => console.error("Error fetching user purchases:", err));
 
       } catch (err) {
         console.error("Failed to parse user data from localStorage", err);
@@ -83,6 +86,34 @@ export default function Profile() {
         toast.success("Avatar updated!");
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCancelOrder = (orderId) => {
+    setCancellingOrderId(orderId);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!cancellingOrderId) return;
+    try {
+      const res = await fetch(`/api/vinyls/orders/${cancellingOrderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'cancelled' })
+      });
+
+      if (res.ok) {
+        toast.success(t('profile.order_cancelled', 'Order cancelled successfully.'));
+        setPurchases(prev => prev.map(o => o.id === cancellingOrderId ? { ...o, status: 'cancelled' } : o));
+      } else {
+        const errData = await res.json();
+        toast.error(errData.message || 'Error cancelling order');
+      }
+    } catch (error) {
+      console.error('Cancel order error:', error);
+      toast.error('Connection error while cancelling order.');
+    } finally {
+      setCancellingOrderId(null);
     }
   };
 
@@ -257,33 +288,63 @@ export default function Profile() {
 
               {purchases.length === 0 ? (
                 <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
-                  <span className="material-symbols-outlined text-6xl mb-4">album</span>
+                  <span className="material-symbols-outlined text-6xl mb-4">receipt_long</span>
                   <p className="font-['Cormorant_Garamond'] text-2xl italic">
-                    {language === 'ES' ? 'No has realizado ninguna compra aún.' : 'No purchases yet.'}
+                    {language === 'ES' ? 'No has realizado ninguna orden aún.' : 'No orders yet.'}
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                  {purchases.map((item, idx) => (
-                    <div key={`${item.id}-${idx}`} className="group bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-black/10 dark:border-[#E1C2B3]/5 transition-colors duration-500 animate-card">
-                      <div className="relative p-6 md:p-8 aspect-square flex items-center justify-center cursor-pointer" onClick={() => navigate('/catalog')}>
-                        <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                          <img
-                            alt={item.title}
-                            className="w-[85%] sm:w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
-                            src={item.cover_image_url || item.image || "https://picsum.photos/400"}
-                          />
-                          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[85%] sm:w-3/4 h-[85%] sm:h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 sm:border-8 border-black" />
+                <div className="space-y-6 max-w-5xl mx-auto">
+                  {purchases.map((order, idx) => {
+                    const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+                    const isCancellable = order.status === 'paid' || order.status === 'pending';
+
+                    return (
+                      <div key={`${order.id}-${idx}`} className="bg-[#EFEFEF] dark:bg-[#091C2A] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start justify-between border border-black/10 dark:border-[#E1C2B3]/10 shadow-lg">
+                        <div className="flex-1 space-y-4 w-full">
+                          <div className="flex items-center gap-4">
+                            <span className="material-symbols-outlined text-[#5E1914] dark:text-[#E1C2B3]">receipt_long</span>
+                            <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
+                              Order #{order.id.slice(0, 8).toUpperCase()}
+                            </h4>
+                            <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
+                              {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
+                            </span>
+                          </div>
+                          <p className="opacity-70 font-light text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">
+                            Placed on {new Date(order.created_at).toLocaleDateString()}
+                          </p>
+                          <div className="bg-[#D1D1D1]/50 dark:bg-[#122838]/50 p-4 rounded-xl flex items-center justify-between border border-black/5 dark:border-[#E1C2B3]/5">
+                            <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Total Amount</p>
+                            <p className="text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">${parseFloat(order.total_amount).toFixed(2)}</p>
                           </div>
                         </div>
+
+                        <div className="w-full md:w-auto flex flex-col gap-4">
+                          <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl w-full md:w-64">
+                            <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Items ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
+                            <ul className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                              {items.map((item, i) => (
+                                <li key={i} className="flex justify-between text-xs text-[#0B1B2A] dark:text-[#E1C2B3]">
+                                  <span className="truncate flex-1 pr-2">- {item.quantity}x unit</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {isCancellable && (
+                            <button
+                              onClick={() => handleCancelOrder(order.id)}
+                              className="w-full py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-sm">cancel</span>
+                              {t('profile.cancel_order', 'Cancel Order')}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div className="p-8">
-                        <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase truncate" title={item.artist}>{item.artist}</h4>
-                        <p className="opacity-70 font-light italic truncate" title={item.title}>{item.title}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -353,6 +414,40 @@ export default function Profile() {
               )}
             </section>
           </>
+        )}
+
+        {/* Cancellation Modal */}
+        {cancellingOrderId && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className={`w-full max-w-md p-8 rounded-[2rem] border shadow-2xl transition-all ${isDark ? 'bg-[#3A2E29] border-[#E1C2B3]/20 shadow-black/50' : 'bg-white border-black/10 shadow-black/10'}`}>
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center mb-6 border border-red-200 dark:border-red-800">
+                  <span className="material-symbols-outlined text-3xl text-red-600 dark:text-red-400">warning</span>
+                </div>
+                <h3 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-4">
+                  {t('profile.cancel_order', 'Cancel Order')}
+                </h3>
+                <p className="text-sm text-[#0B1B2A]/70 dark:text-[#E1C2B3]/70 mb-10">
+                  {t('profile.confirm_cancel', 'Are you sure you want to cancel this order?')} This action cannot be undone.
+                </p>
+
+                <div className="flex gap-4 w-full">
+                  <button
+                    onClick={() => setCancellingOrderId(null)}
+                    className="flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-xs border border-black/20 dark:border-[#E1C2B3]/20 text-[#0B1B2A] dark:text-[#E1C2B3] hover:bg-black/5 dark:hover:bg-[#E1C2B3]/10 transition-colors"
+                  >
+                    {t('profile.cancel_hold', 'Hold On')}
+                  </button>
+                  <button
+                    onClick={confirmCancelOrder}
+                    className="flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-xs bg-red-700 hover:bg-red-800 text-white transition-colors shadow-lg"
+                  >
+                    {t('profile.cancel_yes', 'Yes, Cancel')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
