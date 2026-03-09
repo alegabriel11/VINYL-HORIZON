@@ -16,19 +16,6 @@ export default function AdminSidebar() {
 
   const isActive = (to) => pathname === to;
 
-  const handleAdminLogout = (e) => {
-    e.preventDefault();
-    localStorage.removeItem('vinyl_token');
-    localStorage.removeItem('vinyl_user');
-    toast.success(t('sidebar.logout') + ' 👋', {
-      style: {
-        background: '#091C2A',
-        color: '#E1C2B3',
-      }
-    });
-    window.location.href = '/login';
-  };
-
   const base =
     "group flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 select-none";
 
@@ -84,12 +71,7 @@ export default function AdminSidebar() {
 
       {/* Footer */}
       <div className="mt-auto p-6 border-t border-[#0B1B2A]/15 dark:border-[#3A2E29]/50">
-        <button onClick={handleAdminLogout} className={`${base} ${inactive} w-full text-left`}>
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-[15px]">{t('sidebar.exit_admin')}</span>
-        </button>
-
-        <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-[#0B1B2A]/45 dark:text-[#E1C2B3]/35">
+        <p className="text-[10px] uppercase tracking-[0.25em] text-[#0B1B2A]/45 dark:text-[#E1C2B3]/35">
           {t('admin.admin_footer').replace('© 2024 ', '').replace(' v1.2', '').split('•')[0] + ' • ADMIN'}
         </p>
       </div>

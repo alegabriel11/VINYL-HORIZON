@@ -8,22 +8,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
   const location = useLocation();
 
   const handleLogout = () => {
-    let wasAdmin = false;
-    try {
-      const user = JSON.parse(localStorage.getItem('vinyl_user') || '{}');
-      if (user.role === 'admin') wasAdmin = true;
-    } catch (e) { }
-
-    localStorage.removeItem('vinyl_token');
-    localStorage.removeItem('vinyl_user');
-    toast.success(t('sidebar.logout') + ' 👋', {
-      style: {
-        background: '#091C2A',
-        color: '#E1C2B3',
-      }
-    });
-    // Force a reload to clear all prop-based auth states, navigating to login if admin
-    window.location.href = wasAdmin ? '/login' : '/';
+    // Left empty or removed entirely, but leaving standard logic 
   };
 
   const isActive = (path) => location.pathname === path;
@@ -66,26 +51,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
         </Link>
       </nav>
 
-      {/* BOTTOM SECTION - Solo se renderiza si isLoggedIn es true */}
-      {isLoggedIn && (
-        <div className="px-4 py-8 border-t border-black-pearl/10 dark:border-walnut space-y-2">
-          <Link
-            to="/settings"
-            className={`${linkStyle} ${isActive('/settings') ? activeStyle : inactiveStyle}`}
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm">{t('sidebar.settings')}</span>
-          </Link>
-
-          <button
-            className="w-full flex items-center gap-3 px-5 py-3 rounded-[2rem] text-red-400/80 hover:bg-red-900/20 transition-all group"
-            onClick={handleLogout}
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span className="text-sm font-medium">{t('sidebar.logout')}</span>
-          </button>
-        </div>
-      )}
+      {/* BOTTOM SECTION REMOVED PER USER REQUEST */}
     </aside>
   );
 };

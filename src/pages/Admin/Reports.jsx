@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { toPng } from 'html-to-image';
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
+import TopBarUser from "../../components/TopBarUser";
 
 export default function Reports() {
   const { isDark, toggleTheme } = useTheme();
@@ -180,14 +181,8 @@ export default function Reports() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#5E1914] rounded-full"></span>
             </div>
 
-            <div className="flex items-center gap-3 border-l border-[#3A2E29]/30 pl-6">
-              <div className="text-right">
-                <p className="text-sm font-bold">Alex Rivers</p>
-                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-tighter">{t('admin.manager')}</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[#3A2E29] overflow-hidden border border-[#E1C2B3]/20 shadow-inner">
-                <img alt="Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsOXf4G5EF-_AEWxdF6yLcmKT8OrzGI9t2NuUxuh_3pLDF8eeCGTNpE6Ago8OErxhEn7GqbVuQec-I3R8xW-rWDjvLP_n_9pUgazdY8DtjuYLTRqXdn5TndwJpLtNBQW3LvZk4IskVZNc2t399Ph5aoq9zmLnuYLSXyXUOC4Z2CPwpffSf-ERoI8CHx-yqKlWcYMpRlWxdgyHQnjeHHjZi6hECsrfCH43llb67qAt19LvNOslPAbevGUxVKESPQe1Ap4XTcOa1fXuN" />
-              </div>
+            <div className="border-l border-[#3A2E29]/30 pl-6">
+              <TopBarUser />
             </div>
           </div>
         </div>

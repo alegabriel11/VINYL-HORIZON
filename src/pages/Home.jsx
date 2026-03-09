@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
+import TopBarUser from '../components/TopBarUser';
 import '../Styles/Home.css';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -16,14 +17,17 @@ const Home = () => {
       {/* Contenedor Principal */}
       <main className="min-h-screen relative bg-[#EFEFEF] dark:bg-black-pearl-light ml-64 transition-colors duration-500" id="main-content">
 
-        {/* Botón Dark Mode */}
-        <button
-          className="fixed top-8 right-8 z-[60] flex items-center justify-center p-3 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg group focus:outline-none"
-          onClick={toggleTheme}
-          aria-label="Toggle Dark Mode"
-        >
-          <span className="material-symbols-outlined block">{isDark ? 'dark_mode' : 'light_mode'}</span>
-        </button>
+        {/* Botón Dark Mode & User Profile */}
+        <div className="fixed top-8 right-8 z-[60] flex items-center gap-4 bg-timberwolf/20 dark:bg-walnut/20 backdrop-blur-md px-2 py-2 pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg">
+          <TopBarUser />
+          <button
+            className="flex items-center justify-center p-3 bg-timberwolf/60 dark:bg-walnut/60 hover:bg-timberwolf dark:hover:bg-walnut text-black-pearl dark:text-rose-fog rounded-full transition-all group focus:outline-none"
+            onClick={toggleTheme}
+            aria-label="Toggle Dark Mode"
+          >
+            <span className="material-symbols-outlined block">{isDark ? 'dark_mode' : 'light_mode'}</span>
+          </button>
+        </div>
         {/* Hero Section */}
         <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center px-4">
           <div className="absolute inset-0 z-0">

@@ -3,6 +3,7 @@ import AdminSidebar from "./cart/AdminSidebar";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContext";
+import TopBarUser from "../../components/TopBarUser";
 
 export default function Dashboard() {
   const { isDark, toggleTheme } = useTheme();
@@ -84,23 +85,8 @@ export default function Dashboard() {
               </span>
             </button>
 
-            <div className="flex items-center gap-3 border-l border-black/10 dark:border-walnut pl-6">
-              <div className="text-right">
-                <p className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
-                  Alex Rivers
-                </p>
-                <p className="text-[10px] text-[#0B1B2A]/40 dark:text-rose-fog/40 uppercase tracking-tighter">
-                  {t('admin.manager')}
-                </p>
-              </div>
-
-              <div className="w-10 h-10 rounded-full bg-walnut overflow-hidden border border-black/10 dark:border-rose-fog/20">
-                <img
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsOXf4G5EF-_AEWxdF6yLcmKT8OrzGI9t2NuUxuh_3pLDF8eeCGTNpE6Ago8OErxhEn7GqbVuQec-I3R8xW-rWDjvLP_n_9pUgazdY8DtjuYLTRqXdn5TndwJpLtNBQW3LvZk4IskVZNc2t399Ph5aoq9zmLnuYLSXyXUOC4Z2CPwpffSf-ERoI8CHx-yqKlWcYMpRlWxdgyHQnjeHHjZi6hECsrfCH43llb67qAt19LvNOslPAbevGUxVKESPQe1Ap4XTcOa1fXuN"
-                />
-              </div>
+            <div className="border-l border-black/10 dark:border-walnut pl-6">
+              <TopBarUser />
             </div>
           </div>
         </div>

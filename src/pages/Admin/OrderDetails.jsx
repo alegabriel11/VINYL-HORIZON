@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AdminSidebar from "./cart/AdminSidebar";
+import TopBarUser from "../../components/TopBarUser";
 
 //
 export default function OrderDetails() {
@@ -33,14 +34,8 @@ export default function OrderDetails() {
                         </button>
 
 
-                        <div className="flex items-center gap-3 border-l border-[#0B1B2A]/10 dark:border-[#3A2E29]/30 pl-6">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">Alex Rivers</p>
-                                <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-tighter">Store Manager</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-[#3A2E29] overflow-hidden border border-[#0B1B2A]/10 dark:border-[#E1C2B3]/20">
-                                <img alt="Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL5V6spRYwrSM6WMFEjPpXQRwEuAq3zA66eSBItuctIxY1Vm1f9vPwV5qXxqxd1sARXwqRYBikJsCMxIrTsS4F0Zs5HHya79w57aZSY8OUq2GWm_SrXgS_MGZYbEy9ACIEaaTunCZuPTiUTR8SAgRG82KFsDaFUNWQ2xZtcOUMwKEcciEkd9J0F2kPUKQCJmcjX13UdHMxlXwk21JzBVYHpzfpFbD_oPtuwx506rulKFOw2EozKJ0PhTRJCRl-XhGgaSHUmkA4S5pA" />
-                            </div>
+                        <div className="border-l border-[#0B1B2A]/10 dark:border-[#3A2E29]/30 pl-6">
+                            <TopBarUser />
                         </div>
                     </div>
                 </header>
