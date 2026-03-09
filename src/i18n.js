@@ -74,7 +74,7 @@ const resources = {
                 purchase: "Purchase",
                 restock: "Restock",
                 out_of_stock: "Out of Stock",
-                fallback_desc: "Experience the smooth, nocturnal soundscapes of {{artist}}. This premium 180g audiophile pressing captures every nuance of the original studio recording.",
+                fallback_desc: "Discover the immersive sounds of {{artist}} in this fundamental piece of our collection. An unmissable {{genre}} work for analog music lovers. Spin the record and let the chords carry you away!",
                 tracklist_details: "Tracklist Details",
                 no_tracklist: "No tracklist found for this album."
             },
@@ -261,7 +261,7 @@ const resources = {
                 purchase: "Comprar",
                 restock: "Reabastecer",
                 out_of_stock: "Agotado",
-                fallback_desc: "Experimenta los paisajes sonoros suaves y nocturnos de {{artist}}. Este prensado para audiófilos de 180g captura cada matiz de la grabación original del estudio.",
+                fallback_desc: "Descubre los sonidos inmersivos de {{artist}} en esta pieza fundamental de nuestra colección. Una obra de {{genre}} imperdible para los amantes de la buena música en formato analógico. ¡Haz girar el disco y déjate llevar por sus acordes!",
                 tracklist_details: "Detalles de Canciones",
                 no_tracklist: "No se encontró lista de canciones para este álbum."
             },

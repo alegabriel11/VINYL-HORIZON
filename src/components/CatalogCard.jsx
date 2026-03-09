@@ -12,6 +12,7 @@ const CatalogCard = ({
   image,
   outOfStock,
   stock,
+  genre,
   audioPreviewUrl,
   releaseYear,
   isSelected,
@@ -35,22 +36,53 @@ const CatalogCard = ({
       const fetchWiki = async () => {
         setWikiLoading(true);
         try {
-          const query = encodeURIComponent(`${album} ${artist}`);
-          const res = await fetch(`https://${currentLang}.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch=${query}&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&origin=*`);
-          const data = await res.json();
+          // Attempt strict title match first to find the Album page
+          const query = encodeURIComponent(`intitle:"${album}"`);
+          let res = await fetch(`https://${currentLang}.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch=${query}&gsrlimit=3&prop=extracts&exintro=1&explaintext=1&origin=*`);
+          let data = await res.json();
+
+          // Fallback to loose search if strict title match fails
+          if (!data.query || !data.query.pages) {
+            const looseQuery = encodeURIComponent(`${album} ${artist}`);
+            res = await fetch(`https://${currentLang}.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch=${looseQuery}&gsrlimit=3&prop=extracts&exintro=1&explaintext=1&origin=*`);
+            data = await res.json();
+          }
 
           if (data.query && data.query.pages) {
-            const pages = data.query.pages;
-            const pageId = Object.keys(pages)[0];
+            const pages = Object.values(data.query.pages);
 
-            if (pageId !== "-1" && pages[pageId].extract) {
-              // Get first 2-3 sentences max
-              const extract = pages[pageId].extract;
+            // Extract artist keywords for strict matching (e.g. "Luis Miguel" -> ["Luis", "Miguel"])
+            const artistKeywords = artist.toLowerCase().split(' ').filter(word => word.length > 2);
+
+            // Filter out files, lists, artist biographies, and REQUIRE the artist to be mentioned
+            const validPage = pages.find(p => {
+              if (!p.extract) return false;
+
+              const titleLower = p.title.toLowerCase();
+              const extractLower = p.extract.toLowerCase();
+
+              if (titleLower === artist.toLowerCase()) return false;
+              if (titleLower.startsWith('archivo:') || titleLower.startsWith('file:') || titleLower.startsWith('anexo:')) return false;
+
+              // Strict Check: The article MUST mention at least one word of the artist's name
+              const mentionsArtist = artistKeywords.length > 0
+                ? artistKeywords.some(keyword => extractLower.includes(keyword))
+                : true;
+
+              return mentionsArtist;
+            });
+
+            if (validPage) {
+              let extract = validPage.extract;
+              // Remove anything in parentheses (birth dates, alternate names) for clean UI
+              extract = extract.replace(/\s*\([^)]*\)/g, '');
+
+              // Keep only the very first sentence for brevity
               const sentences = extract.match(/[^.!?]+[.!?]+/g);
               if (sentences && sentences.length > 0) {
-                setWikiDescription(sentences.slice(0, 3).join(' '));
+                setWikiDescription(sentences[0].trim());
               } else {
-                setWikiDescription(extract.substring(0, 200) + '...');
+                setWikiDescription(extract.substring(0, 100).trim() + '...');
               }
             } else {
               setWikiDescription(null);
@@ -218,7 +250,7 @@ const CatalogCard = ({
               </div>
             ) : (
               <p className="text-sm md:text-base text-black-pearl/60 dark:text-rose-fog/70 leading-relaxed max-w-md line-clamp-4">
-                {wikiDescription ? wikiDescription : t('catalog.fallback_desc', { artist })}
+                {wikiDescription ? wikiDescription : t('catalog.fallback_desc', { artist, genre: genre || (currentLang === 'es' ? 'vinilo' : 'vinyl') })}
               </p>
             )}
             <div className="flex flex-wrap gap-2 md:gap-3 py-1 mt-2">

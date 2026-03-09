@@ -215,6 +215,7 @@ const Catalog = () => {
                 outOfStock={parseInt(album.stock, 10) <= 0}
                 stock={album.stock}
                 releaseYear={album.release_year}
+                genre={album.genre}
                 audioPreviewUrl={album.audio_preview_url}
                 isSelected={selectedAlbumId === album.id}
                 onClick={() => handleAlbumClick(album.id)}
