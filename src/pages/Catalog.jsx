@@ -20,6 +20,7 @@ const Catalog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAlbumId, setSelectedAlbumId] = useState(null);
   const [tracklistModalAlbum, setTracklistModalAlbum] = useState(null);
+  const [isMuted, setIsMuted] = useState(false);
 
   const carouselRef = useRef(null);
 
@@ -142,6 +143,21 @@ const Catalog = () => {
             </span>
           </button>
 
+          <button
+            onClick={() => setIsMuted(!isMuted)}
+            className={`flex items-center justify-center p-2.5 backdrop-blur-md rounded-full transition-all border shadow-lg
+              ${isMuted
+                ? 'bg-wine-berry/20 border-wine-berry text-wine-berry dark:bg-wine-berry/40 dark:border-wine-berry/50 dark:text-rose-fog'
+                : 'bg-timberwolf/40 dark:bg-walnut/40 hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog border-black-pearl/10 dark:border-rose-fog/10'
+              }
+            `}
+            title={isMuted ? "Unmute Previews" : "Mute Previews"}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {isMuted ? 'volume_off' : 'volume_up'}
+            </span>
+          </button>
+
         </div>
 
         <header className="pt-24 px-12 pb-6 border-b border-black-pearl/10 dark:border-walnut/30">
@@ -217,6 +233,7 @@ const Catalog = () => {
                 releaseYear={album.release_year}
                 genre={album.genre}
                 audioPreviewUrl={album.audio_preview_url}
+                isMuted={isMuted}
                 isSelected={selectedAlbumId === album.id}
                 onClick={() => handleAlbumClick(album.id)}
                 onViewTracklist={() => setTracklistModalAlbum(album)}

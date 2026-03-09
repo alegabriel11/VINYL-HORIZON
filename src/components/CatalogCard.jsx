@@ -15,6 +15,7 @@ const CatalogCard = ({
   genre,
   audioPreviewUrl,
   releaseYear,
+  isMuted,
   isSelected,
   onClick,
   onViewTracklist
@@ -103,8 +104,15 @@ const CatalogCard = ({
     }
   }, [isSelected, album, artist, currentLang, loadedLang]);
 
+  useEffect(() => {
+    // If user mutes globally while hovering, pause the audio immediately
+    if (isMuted && audioRef.current) {
+      audioRef.current.pause();
+    }
+  }, [isMuted]);
+
   const handleMouseEnter = () => {
-    if (audioRef.current && audioPreviewUrl && !outOfStock) {
+    if (audioRef.current && audioPreviewUrl && !outOfStock && !isMuted) {
       audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
     }
   };
@@ -138,7 +146,7 @@ const CatalogCard = ({
           onMouseLeave={handleMouseLeave}
         >
           {audioPreviewUrl && !outOfStock && (
-            <audio ref={audioRef} src={audioPreviewUrl} preload="auto" />
+            <audio ref={audioRef} src={audioPreviewUrl} preload="auto" muted={isMuted} />
           )}
 
           {image ? (
@@ -210,10 +218,10 @@ const CatalogCard = ({
       {/* RIGHT PANEL (DETALLES COMPLETOS): se desliza desde la derecha y se expande en width */}
       <div
         className={`flex flex-col justify-center overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] 
-            ${isSelected ? 'w-full md:w-1/2 opacity-100 translate-x-0 pl-0 md:pl-8 lg:pl-12 py-4' : 'w-0 opacity-0 translate-x-12 pl-0 py-4 pointer-events-none'}
+            ${isSelected ? 'w-full md:w-1/2 opacity-100 translate-x-0 pl-0 md:pl-8 lg:pl-12 py-4' : 'w-0 opacity-0 translate-x-12 pl-0 py-0 pointer-events-none'}
         `}
       >
-        <div className="min-w-[280px]">
+        <div className={`flex flex-col justify-center relative transition-all duration-700 ${isSelected ? 'w-full h-full' : 'w-[280px] h-0'}`}>
           {isSelected && (
             <button
               onClick={(e) => {
@@ -229,7 +237,7 @@ const CatalogCard = ({
 
           <div className="space-y-1 md:space-y-2 w-full pt-6 md:pt-0 pr-8 md:pr-0 transition-all duration-700 delay-100 ease-out translate-y-0">
             {!outOfStock && <span className="text-[10px] md:text-sm font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-1 md:mb-2 block">{t('catalog.new_release')}</span>}
-            <h2 className="serif-font text-2xl md:text-3xl lg:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight">
+            <h2 className="serif-font text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight break-words">
               {album}
             </h2>
             <div className="flex items-center gap-2 md:gap-4 mt-2">
@@ -259,13 +267,13 @@ const CatalogCard = ({
             </div>
           </div>
 
-          <div className="flex justify-between items-center gap-4 mt-8 transition-all duration-700 delay-300">
+          <div className="flex flex-wrap justify-between items-center gap-4 mt-auto pt-6 transition-all duration-700 delay-300">
             <div className="flex flex-col shrink-0">
               <span className="text-xs md:text-sm text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-tighter">{t('catalog.price')}</span>
               <span className="display-font text-2xl md:text-3xl font-bold text-black-pearl dark:text-white">${price}</span>
             </div>
 
-            <div className="flex flex-1 gap-2 justify-end w-full max-w-[400px]">
+            <div className="flex flex-1 gap-2 justify-end w-full min-w-[200px]">
               {isSelected && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onViewTracklist(); }}
