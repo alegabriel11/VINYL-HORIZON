@@ -84,3 +84,42 @@ exports.deleteVinyl = async (req, res) => {
         res.status(500).json({ message: 'Error deleting vinyl', error: error.message });
     }
 };
+
+exports.checkout = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const { items } = req.body; // array of { id, quantity }
+
+        await client.query('BEGIN');
+
+        for (const item of items) {
+            const { id, quantity } = item;
+
+            // Check stock first
+            const checkQuery = 'SELECT stock FROM vinyls WHERE id = $1 FOR UPDATE;';
+            const checkResult = await client.query(checkQuery, [id]);
+
+            if (checkResult.rowCount === 0) {
+                throw new Error(`Vinyl with id ${id} not found.`);
+            }
+
+            const currentStock = checkResult.rows[0].stock;
+            if (currentStock < quantity) {
+                throw new Error(`Not enough stock for vinyl ${id}.`);
+            }
+
+            // Deduct stock
+            const updateQuery = 'UPDATE vinyls SET stock = stock - $1 WHERE id = $2;';
+            await client.query(updateQuery, [quantity, id]);
+        }
+
+        await client.query('COMMIT');
+        res.status(200).json({ message: 'Checkout successful.' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Error during checkout:', error);
+        res.status(400).json({ message: 'Error during checkout.', error: error.message });
+    } finally {
+        client.release();
+    }
+};

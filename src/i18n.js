@@ -78,7 +78,8 @@ const resources = {
                 wishlist: "Wishlist",
                 purchase: "Purchase",
                 level: "MUSA",
-                logout: "Log Out"
+                logout: "Log Out",
+                empty_purchases: "No purchases yet."
             },
             auth: {
                 email: "Email Address",
@@ -253,7 +254,8 @@ const resources = {
                 wishlist: "Lista de Deseos",
                 purchase: "Comprar",
                 level: "MUSA",
-                logout: "Cerrar Sesión"
+                logout: "Cerrar Sesión",
+                empty_purchases: "No has realizado ninguna compra aún."
             },
             auth: {
                 email: "Correo Electrónico",

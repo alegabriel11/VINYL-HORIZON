@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
@@ -6,57 +6,13 @@ import Sidebar from '../components/Sidebar';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
 import TopBarUser from '../components/TopBarUser';
-
-const initialCartItems = [
-    {
-        id: 1,
-        artist: 'Michael Corey',
-        title: "Who's round the corner (1996)",
-        price: 85.00,
-        quantity: 1,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs',
-        grayscale: false
-    },
-    {
-        id: 2,
-        artist: 'Linda Trusten',
-        title: "I'm done (2021)",
-        price: 48.00,
-        quantity: 1,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i',
-        grayscale: true
-    },
-    {
-        id: 3,
-        artist: 'Terry Wine',
-        title: "Sharp turn (2003)",
-        price: 77.00,
-        quantity: 1,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT',
-        grayscale: false
-    }
-];
+import { CartContext } from '../context/CartContext';
 
 const CartPage = () => {
     const { isDark, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useLanguage();
     const { t } = useTranslation();
-    const [items, setItems] = useState(initialCartItems);
-
-    const handleUpdateQuantity = (id, newQuantity) => {
-        if (newQuantity < 1) return;
-        setItems(items.map(item =>
-            item.id === id ? { ...item, quantity: newQuantity } : item
-        ));
-    };
-
-    const handleRemove = (id) => {
-        setItems(items.filter(item => item.id !== id));
-    };
-
-    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const taxes = subtotal * 0.059; // Roughly matching the $12.40 tax from $210 subtotal in HTML (approx 5.9%)
-    const shipping = 0; // Complimentary
+    const { cartItems: items, updateQuantity: handleUpdateQuantity, removeFromCart: handleRemove, subtotal, shipping, taxes } = useContext(CartContext);
 
     return (
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
@@ -83,7 +39,7 @@ const CartPage = () => {
                 <div className="max-w-6xl mx-auto w-full">
                     <header className="mb-12">
                         <h1 className="serif-font text-5xl lg:text-6xl font-bold dark:text-rose-fog text-black-pearl uppercase tracking-tight">
-                            {t('cart.title')}
+                            {t('cart.title', 'Your Collection Bag')}
                         </h1>
                         <p className="mt-4 serif-font italic text-xl dark:text-rose-fog/60 text-black-pearl/60">
                             {items.length === 0

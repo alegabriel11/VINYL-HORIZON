@@ -1,13 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopBarUser from '../components/TopBarUser';
 import '../Styles/Home.css';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { CartContext } from '../context/CartContext';
+import { useContext } from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const { isDark, toggleTheme } = useTheme();
   const { t } = useTranslation();
+  const { addToCart, cartCount } = useContext(CartContext);
+
+  const [recentVinyls, setRecentVinyls] = useState([]);
+
+  useEffect(() => {
+    const fetchRecentVinyls = async () => {
+      try {
+        const response = await fetch('/api/vinyls');
+        if (response.ok) {
+          const data = await response.json();
+          // Assume the latest added are at the end of the array, or sort by id descending
+          const sorted = data.sort((a, b) => b.id - a.id);
+          setRecentVinyls(sorted.slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Error fetching recent vinyls:", error);
+      }
+    };
+    fetchRecentVinyls();
+  }, []);
 
   return (
     <div className="bg-timberwolf dark:bg-black-pearl text-black-pearl dark:text-rose-fog selection:bg-black-pearl selection:text-timberwolf dark:selection:bg-rose-fog dark:selection:text-black-pearl transition-colors duration-500">
@@ -51,9 +74,16 @@ const Home = () => {
 
         {/* Header Content */}
         <header className="px-8 lg:px-12 pt-12 pb-4 relative flex justify-start">
-          <div className="flex gap-4 lg:hidden mb-8">
-            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog">search</span>
-            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog">shopping_cart</span>
+          <div className="flex gap-4 lg:hidden mb-8 items-center">
+            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog cursor-pointer hover:opacity-70 transition-opacity">search</span>
+            <Link to="/cart" className="relative group">
+              <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog hover:opacity-70 transition-opacity">shopping_cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-wine-berry text-white-berry text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
           <div className="max-w-4xl relative w-full mt-10">
             <span className="material-symbols-outlined absolute -top-20 -left-12 text-black-pearl/5 dark:text-rose-fog/10 text-[150px] leading-none pointer-events-none select-none">graphic_eq</span>
@@ -88,7 +118,18 @@ const Home = () => {
                   <span className="display-font text-5xl font-bold">$85.00</span>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button className="bg-rose-fog hover:bg-black-pearl hover:text-white-berry text-black-pearl px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly shadow-lg">
+                  <button
+                    onClick={() => addToCart({
+                      id: 9999, // Dummy ID for featured Michael Corey
+                      artist: 'Michael Corey',
+                      title: "Who's round the corner",
+                      price: 85.00,
+                      cover_image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs',
+                      stock: 10,
+                      outOfStock: false
+                    })}
+                    className="bg-rose-fog hover:bg-black-pearl hover:text-white-berry text-black-pearl px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly shadow-lg"
+                  >
                     {t('home.add_to_collection')}
                   </button>
                   <button className="border border-black-pearl/20 text-black-pearl hover:bg-black-pearl hover:text-white-berry px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly">
@@ -123,79 +164,68 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {/* Record Item 1 */}
-            <div className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
-              <div className="relative p-8 aspect-square flex items-center justify-center">
-                <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                  <img alt="Linda Trusten" className="w-4/5 h-full object-cover shadow-2xl z-10 relative grayscale group-hover:grayscale-0 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ck-EJUxjNrF3VRbOCTm5aWlwihjIJiM0NezxunGc_x1WKnOaf9bjtjypUbZf2B9b9Ze2f4jVO58IolBX2r0IeyxuHLiZCecO30A2Fh__hZ3HBfee_3BYZywAsTriBEoQtrAroIRfFWt1W8cxBc2CiMj0XSE6YASaCNsXCWXRoS5CnuNNAYgOiZF_vhbIixNQ9v3PWLJOT4MTal3ak1d_shZzcnlVwRUkSpYEhrZvh9sjrs-sRZD6fLUK8fGje4jtnfXwRH1tPN6i" />
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                    <div className="w-16 h-16 bg-walnut rounded-full border-8 border-black"></div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-8 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog uppercase">Linda Trusten</h4>
-                    <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light tracking-wide italic">I'm done / 2021</p>
-                  </div>
-                  <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$48</span>
-                </div>
-                <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  {t('home.purchase')}
-                </button>
-              </div>
-            </div>
+            {recentVinyls.map((vinyl) => {
+              const isOutOfStock = parseInt(vinyl.stock, 10) <= 0;
+              const priceNum = parseFloat(vinyl.price);
 
-            {/* Record Item 2 */}
-            <div className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
-              <div className="relative p-8 aspect-square flex items-center justify-center">
-                <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                  <img alt="Terry Wine" className="w-4/5 h-full object-cover shadow-2xl z-10 relative brightness-90 group-hover:brightness-105 transition-all duration-500 rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqC760MfIjduczNxNbVZ1EMVnkPY8-PHc52IaOG0JptO5zHBO90Aw4zzWG8zJ8b3cw-0677vr5OfD0R-EhwDi2adXKj8MyXXsahF7hKFtsrMNx1zX4cydk7F12doMK2HdGKA-Z66lN_Zze-wHVPOoXy0U-Yl1tbzVyCUpO_SzD7otWDtFIPHRV1f3La1uoQmtMkzeL8M4b9goXMyLJRFLIMAJKwN5Rbi-7zaGRxN1-boIRHPifNwTBk1u5tQPc4zpYW_uIqFCVqYGT" />
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                    <div className="w-16 h-16 bg-rose-fog/20 rounded-full border-8 border-black"></div>
+              return (
+                <div key={vinyl.id} className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
+                  <div className="relative p-8 aspect-square flex items-center justify-center">
+                    <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
+                      {isOutOfStock ? (
+                        <div className="w-4/5 h-full bg-black-pearl border border-walnut/50 shadow-2xl z-10 relative flex items-center justify-center p-8 text-center rounded-2xl mx-auto">
+                          <p className="serif-font italic text-rose-fog text-xl">{t('home.awaiting_restock')}</p>
+                        </div>
+                      ) : (
+                        <img
+                          alt={vinyl.artist}
+                          className="w-4/5 h-full object-cover shadow-2xl z-10 relative grayscale group-hover:grayscale-0 transition-all duration-500 rounded-2xl mx-auto"
+                          src={vinyl.cover_image_url || "https://picsum.photos/400"}
+                        />
+                      )}
+                      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
+                        <div className="w-16 h-16 bg-walnut rounded-full border-8 border-black"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-8 space-y-4">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog uppercase truncate">{vinyl.artist}</h4>
+                        <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light tracking-wide italic truncate" title={`${vinyl.title} / ${vinyl.release_year}`}>
+                          {vinyl.title} {vinyl.release_year ? `/ ${vinyl.release_year}` : ''}
+                        </p>
+                      </div>
+                      <span className="display-font text-2xl text-black-pearl dark:text-rose-fog whitespace-nowrap">${isNaN(priceNum) ? "0.00" : priceNum.toFixed(2)}</span>
+                    </div>
+                    <button
+                      disabled={isOutOfStock}
+                      onClick={() => !isOutOfStock && addToCart({
+                        id: vinyl.id,
+                        artist: vinyl.artist,
+                        title: vinyl.title,
+                        price: vinyl.price,
+                        cover_image_url: vinyl.cover_image_url,
+                        stock: vinyl.stock,
+                        outOfStock: isOutOfStock
+                      })}
+                      className={`w-full py-4 rounded-friendly font-bold uppercase tracking-widest text-xs transition-all shadow-md ${isOutOfStock
+                        ? 'bg-black-pearl/20 dark:bg-rose-fog/20 text-black-pearl/50 dark:text-rose-fog/50 cursor-not-allowed'
+                        : 'bg-rose-fog text-black-pearl hover:bg-black-pearl hover:text-white-berry'
+                        }`}
+                    >
+                      {isOutOfStock ? t('cart.out_of_stock', 'OUT OF STOCK') : t('home.purchase')}
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div className="p-8 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog uppercase">Terry Wine</h4>
-                    <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light tracking-wide italic">Sharp turn / 2003</p>
-                  </div>
-                  <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$77</span>
-                </div>
-                <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  {t('home.purchase')}
-                </button>
-              </div>
-            </div>
+              );
+            })}
 
-            {/* Record Item 3 */}
-            <div className="group bg-timberwolf dark:bg-walnut rounded-friendly overflow-hidden border border-black-pearl/5 transition-colors duration-500">
-              <div className="relative p-8 aspect-square flex items-center justify-center">
-                <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                  <div className="w-4/5 h-full bg-black-pearl border border-walnut/50 shadow-2xl z-10 relative flex items-center justify-center p-8 text-center rounded-2xl">
-                    <p className="serif-font italic text-rose-fog text-xl">{t('home.awaiting_restock')}</p>
-                  </div>
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3/4 h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                    <div className="w-16 h-16 bg-black-pearl rounded-full border-8 border-black"></div>
-                  </div>
-                </div>
+            {recentVinyls.length === 0 && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 text-black-pearl/50 dark:text-rose-fog/50">
+                Loading new releases...
               </div>
-              <div className="p-8 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="serif-font text-2xl font-bold text-black-pearl dark:text-rose-fog uppercase">Joe Mean</h4>
-                    <p className="text-black-pearl/70 dark:text-rose-fog/70 font-light tracking-wide italic">Selena / 2021</p>
-                  </div>
-                  <span className="display-font text-2xl text-black-pearl dark:text-rose-fog">$42</span>
-                </div>
-                <button className="w-full bg-rose-fog text-black-pearl py-4 rounded-friendly font-bold uppercase tracking-widest text-xs hover:bg-black-pearl hover:text-white-berry transition-all shadow-md">
-                  {t('home.purchase')}
-                </button>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="mt-20 flex justify-center">

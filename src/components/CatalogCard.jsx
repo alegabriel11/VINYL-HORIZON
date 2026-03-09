@@ -1,17 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CartContext } from '../context/CartContext';
+import { WishlistContext } from '../context/WishlistContext';
 
 const CatalogCard = ({
+  id,
   artist,
   album,
   price,
   image,
   outOfStock,
+  stock,
   audioPreviewUrl,
+  releaseYear,
   isSelected,
   onClick
 }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { t } = useTranslation();
+  const { addToCart } = useContext(CartContext);
+  const { toggleWishlist, isInWishlist } = useContext(WishlistContext);
+
   const audioRef = useRef(null);
+  const isWishlisted = id ? isInWishlist(id) : false;
 
   const handleMouseEnter = () => {
     if (audioRef.current && audioPreviewUrl && !outOfStock) {
@@ -61,7 +71,9 @@ const CatalogCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setIsWishlisted(!isWishlisted);
+              if (id) {
+                toggleWishlist({ id, artist, title: album, price, cover_image_url: image, stock, outOfStock });
+              }
             }}
             className="absolute top-3 right-3 z-20 p-2 bg-black/20 backdrop-blur-sm rounded-full transition-transform active:scale-90 hover:scale-110"
           >
@@ -97,14 +109,19 @@ const CatalogCard = ({
           <div className="mt-auto flex items-center justify-between gap-4 pb-1">
             <span className="display-font text-2xl font-bold text-black-pearl dark:text-rose-fog">${price}</span>
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (id && !outOfStock) {
+                  addToCart({ id, artist, title: album, price, cover_image_url: image, stock, outOfStock });
+                }
+              }}
               disabled={outOfStock}
               className={`px-6 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all duration-300 shadow-md ${outOfStock
                 ? 'bg-wine-berry/50 text-white-berry/50 dark:text-rose-fog/50 cursor-not-allowed'
                 : 'bg-wine-berry text-white-berry hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                 }`}
             >
-              {outOfStock ? 'Out of Stock' : 'Purchase'}
+              {outOfStock ? t('cart.out_of_stock', 'Out of Stock') : t('home.purchase', 'Purchase')}
             </button>
           </div>
         </div>
@@ -138,7 +155,7 @@ const CatalogCard = ({
             <div className="flex items-center gap-2 md:gap-4 mt-2">
               <p className="text-base md:text-lg lg:text-2xl font-medium text-black-pearl/70 dark:text-rose-fog/80">{artist}</p>
               <span className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-wine-berry dark:bg-primary/50 shrink-0"></span>
-              <p className="text-sm md:text-base lg:text-xl font-normal text-black-pearl/50 dark:text-rose-fog/60">2023</p>
+              <p className="text-sm md:text-base lg:text-xl font-normal text-black-pearl/50 dark:text-rose-fog/60">{releaseYear || "2023"}</p>
             </div>
           </div>
 
@@ -160,21 +177,26 @@ const CatalogCard = ({
 
             <button
               disabled={outOfStock}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (id && !outOfStock) {
+                  addToCart({ id, artist, title: album, price, cover_image_url: image, stock, outOfStock });
+                }
+              }}
               className={`flex-1 max-w-[200px] flex items-center justify-center gap-2 px-6 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all duration-300 ${outOfStock
-                  ? 'bg-wine-berry/50 text-white-berry/50 cursor-not-allowed'
-                  : 'bg-wine-berry hover:bg-[#4a151b] text-rose-fog hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:scale-95'
+                ? 'bg-wine-berry/50 text-white-berry/50 cursor-not-allowed'
+                : 'bg-wine-berry hover:bg-[#4a151b] text-rose-fog hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:scale-95'
                 }`}
             >
               {outOfStock ? (
                 <>
                   <span className="material-symbols-outlined text-sm md:text-base">hourglass_empty</span>
-                  Restock
+                  {t('cart.out_of_stock', 'Out of Stock')}
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined text-sm md:text-base">payments</span>
-                  Purchase
+                  {t('home.purchase', 'Purchase')}
                 </>
               )}
             </button>

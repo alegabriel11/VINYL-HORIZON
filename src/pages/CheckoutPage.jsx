@@ -2,15 +2,70 @@ import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import TopBarUser from '../components/TopBarUser';
+import { CartContext } from '../context/CartContext';
+import { useContext } from 'react';
 
 const CheckoutPage = () => {
     const { isDark, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useLanguage();
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { cartItems, subtotal, shipping, taxes, total, clearCart } = useContext(CartContext);
+
     const [paymentMethod, setPaymentMethod] = useState('credit');
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleCheckout = async () => {
+        if (cartItems.length === 0) {
+            toast.error(t('cart.empty_collection', 'Your cart is empty'));
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            const itemsPayload = cartItems.map(item => ({
+                id: item.id,
+                quantity: item.quantity
+            }));
+
+            const response = await fetch('/api/vinyls/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: itemsPayload })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Checkout failed');
+            }
+
+            // Save purchases locally for Profile
+            const userDataStr = localStorage.getItem('vinyl_user');
+            if (userDataStr) {
+                const userObj = JSON.parse(userDataStr);
+                const purchasesKey = `vinyl_purchases_${userObj.id}`;
+                const currentPurchasesStr = localStorage.getItem(purchasesKey);
+                const currentPurchases = currentPurchasesStr ? JSON.parse(currentPurchasesStr) : [];
+                const newPurchases = cartItems.map(item => ({ ...item, purchaseDate: new Date().toISOString() }));
+
+                // Keep unique items or allow multiples. We will just append them.
+                localStorage.setItem(purchasesKey, JSON.stringify([...newPurchases, ...currentPurchases]));
+            }
+
+            toast.success(t('checkout.success', 'Order placed successfully!'));
+            clearCart();
+            navigate('/profile');
+        } catch (error) {
+            console.error('Checkout error:', error);
+            toast.error(error.message || 'Failed to process checkout. Please try again.');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     return (
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
@@ -149,27 +204,31 @@ const CheckoutPage = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between text-black-pearl/80 dark:text-rose-fog/80">
                                         <span className="font-light">{t('checkout.subtotal')}</span>
-                                        <span className="font-semibold">$210.00</span>
+                                        <span className="font-semibold">${subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-black-pearl/80 dark:text-rose-fog/80">
                                         <span className="font-light">{t('checkout.shipping')}</span>
-                                        <span className="font-semibold italic">{t('checkout.complimentary')}</span>
+                                        <span className="font-semibold italic">{shipping === 0 ? t('checkout.complimentary') : `$${shipping.toFixed(2)}`}</span>
                                     </div>
                                     <div className="flex justify-between text-black-pearl/80 dark:text-rose-fog/80">
                                         <span className="font-light">{t('checkout.taxes')}</span>
-                                        <span className="font-semibold">$12.40</span>
+                                        <span className="font-semibold">${taxes.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 <div className="pt-6 border-t border-black-pearl/10 dark:border-walnut">
                                     <div className="flex justify-between items-end mb-8">
                                         <span className="serif-font text-xl uppercase tracking-widest text-black-pearl dark:text-rose-fog">{t('checkout.total')}</span>
-                                        <span className="serif-font text-4xl font-bold text-black-pearl dark:text-rose-fog">$222.40</span>
+                                        <span className="serif-font text-4xl font-bold text-black-pearl dark:text-rose-fog">${total.toFixed(2)}</span>
                                     </div>
 
-                                    <button className="w-full bg-wine-berry text-white hover:bg-black-pearl transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group">
-                                        {t('checkout.confirm')}
-                                        <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">lock</span>
+                                    <button
+                                        onClick={handleCheckout}
+                                        disabled={isProcessing}
+                                        className={`w-full bg-wine-berry text-white hover:bg-black-pearl transition-all py-5 rounded-friendly font-bold uppercase tracking-[0.2em] text-sm shadow-xl flex items-center justify-center gap-3 group ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    >
+                                        {isProcessing ? t('checkout.processing', 'Processing...') : t('checkout.confirm')}
+                                        {!isProcessing && <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">lock</span>}
                                     </button>
 
                                     <p className="mt-6 text-center text-xs text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-widest">{t('checkout.encrypted')}</p>

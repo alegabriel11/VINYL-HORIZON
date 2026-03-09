@@ -2,14 +2,13 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import { CartContext } from '../context/CartContext';
+import { useContext } from 'react';
 
 const Sidebar = ({ isLoggedIn = false }) => {
   const { t } = useTranslation();
   const location = useLocation();
-
-  const handleLogout = () => {
-    // Left empty or removed entirely, but leaving standard logic 
-  };
+  const { cartCount } = useContext(CartContext);
 
   const isActive = (path) => location.pathname === path;
 
@@ -37,7 +36,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
 
         <Link to="/profile" className={`${linkStyle} ${isActive('/profile') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">person</span>
-          <span className="text-sm">{t('sidebar.profile')}</span>
+          <span className="text-sm flex-1">{t('sidebar.profile')}</span>
         </Link>
 
         <Link to="/catalog" className={`${linkStyle} ${isActive('/catalog') ? activeStyle : inactiveStyle}`}>
@@ -47,7 +46,12 @@ const Sidebar = ({ isLoggedIn = false }) => {
 
         <Link to="/cart" className={`${linkStyle} ${isActive('/cart') ? activeStyle : inactiveStyle}`}>
           <span className="material-symbols-outlined">shopping_bag</span>
-          <span className="text-sm">{t('sidebar.cart')}</span>
+          <span className="text-sm flex-1">{t('sidebar.cart')}</span>
+          {cartCount > 0 && (
+            <span className="bg-wine-berry text-white-berry text-[10px] font-bold px-2 py-0.5 rounded-full">
+              {cartCount}
+            </span>
+          )}
         </Link>
       </nav>
 

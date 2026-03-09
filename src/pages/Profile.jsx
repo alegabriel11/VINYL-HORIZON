@@ -5,6 +5,9 @@ import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "react-i18next";
 import toast from 'react-hot-toast';
+import { WishlistContext } from '../context/WishlistContext';
+import { CartContext } from '../context/CartContext';
+import { useContext } from 'react';
 
 export default function Profile() {
   const { isDark, toggleTheme } = useTheme();
@@ -12,12 +15,16 @@ export default function Profile() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const { wishlistItems, removeFromWishlist } = useContext(WishlistContext);
+  const { addToCart } = useContext(CartContext);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Auth State
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
+  const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
     // Hydrate state from localStorage
@@ -27,7 +34,16 @@ export default function Profile() {
     if (token && userDataStr) {
       setIsLoggedIn(true);
       try {
-        setUser(JSON.parse(userDataStr));
+        const parsedUser = JSON.parse(userDataStr);
+        setUser(parsedUser);
+
+        // Load purchases
+        const purchasesKey = `vinyl_purchases_${parsedUser.id}`;
+        const pStr = localStorage.getItem(purchasesKey);
+        if (pStr) {
+          setPurchases(JSON.parse(pStr));
+        }
+
       } catch (err) {
         console.error("Failed to parse user data from localStorage", err);
       }
@@ -230,36 +246,38 @@ export default function Profile() {
             </section>
 
             {/* COLLECTION */}
-            <section className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
-                <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{t('profile.my_collection')}</h3>
-                <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
-                <span className="hidden sm:block material-symbols-outlined opacity-40">library_music</span>
-              </div>
+            {purchases.length > 0 && (
+              <section className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
+                  <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{t('profile.my_collection')}</h3>
+                  <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
+                  <span className="hidden sm:block material-symbols-outlined opacity-40">library_music</span>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                {[1, 2].map((i) => (
-                  <div key={i} className="group bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-black/10 dark:border-[#E1C2B3]/5 transition-colors duration-500 animate-card">
-                    <div className="relative p-6 md:p-8 aspect-square flex items-center justify-center">
-                      <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
-                        <img
-                          alt="Album"
-                          className="w-[85%] sm:w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
-                          src={`https://picsum.photos/seed/${i + 20}/400`}
-                        />
-                        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[85%] sm:w-3/4 h-[85%] sm:h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 sm:border-8 border-black" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+                  {purchases.map((item, idx) => (
+                    <div key={`${item.id}-${idx}`} className="group bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-black/10 dark:border-[#E1C2B3]/5 transition-colors duration-500 animate-card">
+                      <div className="relative p-6 md:p-8 aspect-square flex items-center justify-center cursor-pointer" onClick={() => navigate('/catalog')}>
+                        <div className="relative w-full h-full transition-transform group-hover:scale-105 duration-700">
+                          <img
+                            alt={item.title}
+                            className="w-[85%] sm:w-4/5 h-full object-cover shadow-2xl z-10 relative rounded-2xl grayscale group-hover:grayscale-0 transition-all"
+                            src={item.cover_image_url || item.image || "https://picsum.photos/400"}
+                          />
+                          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[85%] sm:w-3/4 h-[85%] sm:h-3/4 bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 sm:border-8 border-black" />
+                          </div>
                         </div>
                       </div>
+                      <div className="p-8">
+                        <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase truncate" title={item.artist}>{item.artist}</h4>
+                        <p className="opacity-70 font-light italic truncate" title={item.title}>{item.title}</p>
+                      </div>
                     </div>
-                    <div className="p-8">
-                      <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold uppercase">Album Artist {i}</h4>
-                      <p className="opacity-70 font-light italic">{t('profile.limited_edition')}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* WISHLIST SECTION */}
             <section className="px-4 lg:px-20 py-16 bg-[#EFEFEF] dark:bg-[#091C2A] transition-colors">
@@ -269,30 +287,61 @@ export default function Profile() {
                 <span className="hidden sm:block material-symbols-outlined opacity-40">favorite</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] p-6 flex flex-col items-center justify-between border border-black/10 dark:border-[#E1C2B3]/5 shadow-xl transition-transform hover:-translate-y-2 relative overflow-hidden">
-                  <div className="relative w-full aspect-square flex items-center justify-center mb-6 mt-4">
-                    <div className="absolute w-[85%] h-[85%] bg-[#EFEFEF] dark:bg-[#122838] rounded-md shadow-2xl z-10 flex items-center justify-center border border-black/10 dark:border-[#E1C2B3]/10">
-                      <div className="w-8 h-8 rounded-full border-4 border-[#D1D1D1] dark:border-[#3A2E29] flex items-center justify-center bg-[#EFEFEF] dark:bg-[#122838]">
-                        <div className="w-2 h-2 rounded-full bg-black/10 dark:bg-[#E1C2B3]/20"></div>
-                      </div>
-                    </div>
-                    <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[70%] h-[80%] bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow">
-                      <div className="w-10 h-10 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 border-black" />
-                    </div>
-                  </div>
-                  <div className="w-full text-left space-y-1 z-10">
-                    <div className="flex justify-between items-end">
-                      <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest">Joe Mean</h4>
-                      <span className="font-['Playfair_Display'] text-lg font-bold">$42</span>
-                    </div>
-                    <p className="opacity-60 font-light italic text-sm">Selena / 2021</p>
-                  </div>
-                  <button className="w-full mt-6 bg-[#E1C2B3] text-[#091C2A] py-3 rounded-full font-bold uppercase tracking-widest text-[10px] md:text-xs hover:brightness-110 active:scale-95 transition-all shadow-md">
-                    {t('profile.purchase') || 'Purchase'}
-                  </button>
+              {wishlistItems.length === 0 ? (
+                <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
+                  <span className="material-symbols-outlined text-6xl mb-4">heart_broken</span>
+                  <p className="font-['Cormorant_Garamond'] text-2xl italic">{t('profile.empty_wishlist', 'Your wishlist is empty.')}</p>
+                  <Link to="/catalog" className="inline-block mt-4 border-b border-[#5E1914] text-[#5E1914] dark:text-[#E1C2B3] dark:border-[#E1C2B3] pb-1 uppercase tracking-widest text-xs font-bold hover:opacity-70 transition-opacity">
+                    {t('home.explore_archive', 'Explore Catalog')}
+                  </Link>
                 </div>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {wishlistItems.map((item) => (
+                    <div key={item.id} className="bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] p-6 flex flex-col items-center justify-between border border-black/10 dark:border-[#E1C2B3]/5 shadow-xl transition-transform hover:-translate-y-2 relative overflow-hidden group">
+                      <button
+                        onClick={() => removeFromWishlist(item.id)}
+                        className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 hover:bg-[#5E1914] hover:text-white transition-colors"
+                        title={t('wishlist.remove', 'Remove')}
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+
+                      <div className="relative w-full aspect-square flex items-center justify-center mb-6 mt-4 cursor-pointer" onClick={() => navigate('/catalog')}>
+                        <div className="absolute w-[85%] h-[85%] bg-[#EFEFEF] dark:bg-[#122838] rounded-md shadow-2xl z-10 flex items-center justify-center border border-black/10 dark:border-[#E1C2B3]/10 overflow-hidden group-hover:scale-105 transition-transform">
+                          {item.cover_image_url ? (
+                            <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full border-4 border-[#D1D1D1] dark:border-[#3A2E29] flex items-center justify-center bg-[#EFEFEF] dark:bg-[#122838]">
+                              <div className="w-2 h-2 rounded-full bg-black/10 dark:bg-[#E1C2B3]/20"></div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[70%] h-[80%] bg-black rounded-full z-0 flex items-center justify-center vinyl-shadow transition-transform group-hover:translate-x-4">
+                          <div className="w-10 h-10 bg-[#EFEFEF] dark:bg-[#3A2E29] rounded-full border-4 border-black" />
+                        </div>
+                      </div>
+                      <div className="w-full text-left space-y-1 z-10 min-h-[60px]">
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest line-clamp-2" title={item.artist}>{item.artist}</h4>
+                          <span className="font-['Playfair_Display'] text-lg font-bold shrink-0">${parseFloat(item.price).toFixed(2)}</span>
+                        </div>
+                        <p className="opacity-60 font-light italic text-sm truncate" title={item.title}>{item.title}</p>
+                      </div>
+                      <button
+                        disabled={item.outOfStock}
+                        onClick={() => addToCart(item)}
+                        className={`w-full mt-6 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] md:text-xs transition-all shadow-md ${item.outOfStock
+                          ? 'bg-[#5E1914]/50 text-white/50 cursor-not-allowed'
+                          : 'bg-[#5E1914] text-[#E1C2B3] hover:brightness-110 active:scale-95'
+                          }`}
+                      >
+                        {item.outOfStock ? t('cart.out_of_stock', 'OUT OF STOCK') : t('profile.purchase') || 'Purchase'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
           </>
         )}

@@ -7,6 +7,9 @@ const asyncHandler = fn => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
+// POST /api/vinyls/checkout
+router.post('/checkout', asyncHandler(vinylController.checkout));
+
 // POST /api/vinyls
 router.post('/', asyncHandler(vinylController.createVinyl));
 

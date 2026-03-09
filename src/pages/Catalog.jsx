@@ -149,11 +149,14 @@ const Catalog = () => {
 
               <CatalogCard
                 key={album.id}
+                id={album.id}
                 artist={album.artist}
                 album={album.title}
                 price={parseFloat(album.price).toFixed(2)}
                 image={album.cover_image_url}
                 outOfStock={parseInt(album.stock, 10) <= 0}
+                stock={album.stock}
+                releaseYear={album.release_year}
                 audioPreviewUrl={album.audio_preview_url}
                 isSelected={selectedAlbumId === album.id}
                 onClick={() => handleAlbumClick(album.id)}
