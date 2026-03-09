@@ -2,19 +2,19 @@ const pool = require('../config/db');
 
 exports.createVinyl = async (req, res) => {
     try {
-        const { id, title, artist, price, description, cover_image_url, stock, sku, release_year, genre } = req.body;
+        const { id, title, artist, price, description, cover_image_url, stock, sku, release_year, genre, audio_preview_url } = req.body;
 
-        // Note: Our DB schema uses id (uuid), title, artist, price, description, cover_image_url, stock, sku, release_year, genre
+        // Note: Our DB schema uses id (uuid), title, artist, price, description, cover_image_url, stock, sku, release_year, genre, audio_preview_url
 
         // We generate a UUID if one is not provided.
         const uuidId = id || require('crypto').randomUUID();
 
         const query = `
-            INSERT INTO vinyls (id, title, artist, price, description, cover_image_url, stock, sku, release_year, genre)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO vinyls (id, title, artist, price, description, cover_image_url, stock, sku, release_year, genre, audio_preview_url)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *;
         `;
-        const values = [uuidId, title, artist, price, description, cover_image_url, stock || 0, sku || null, release_year || null, genre || null];
+        const values = [uuidId, title, artist, price, description, cover_image_url, stock || 0, sku || null, release_year || null, genre || null, audio_preview_url || null];
 
         const result = await pool.query(query, values);
 
@@ -42,15 +42,15 @@ exports.getVinyls = async (req, res) => {
 exports.updateVinyl = async (req, res) => {
     try {
         const { sku } = req.params;
-        const { title, artist, price, description, cover_image_url, stock, release_year, genre } = req.body;
+        const { title, artist, price, description, cover_image_url, stock, release_year, genre, audio_preview_url } = req.body;
 
         const query = `
             UPDATE vinyls 
-            SET title = $1, artist = $2, price = $3, description = $4, cover_image_url = $5, stock = $6, release_year = $7, genre = $8
-            WHERE sku = $9
+            SET title = $1, artist = $2, price = $3, description = $4, cover_image_url = $5, stock = $6, release_year = $7, genre = $8, audio_preview_url = $9
+            WHERE sku = $10
             RETURNING *;
         `;
-        const values = [title, artist, price, description, cover_image_url, stock || 0, release_year || null, genre || null, sku];
+        const values = [title, artist, price, description, cover_image_url, stock || 0, release_year || null, genre || null, audio_preview_url || null, sku];
 
         const result = await pool.query(query, values);
 

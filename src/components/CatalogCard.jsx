@@ -1,12 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
-const CatalogCard = ({ artist, album, price, image, outOfStock }) => {
+const CatalogCard = ({ artist, album, price, image, outOfStock, audioPreviewUrl }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const audioRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (audioRef.current && audioPreviewUrl && !outOfStock) {
+      audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (audioRef.current && audioPreviewUrl) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
 
   return (
     <div className={`bg-timberwolf dark:bg-walnut rounded-[2rem] p-6 flex flex-col group transition-all hover:scale-[1.02] shadow-2xl ${outOfStock ? 'opacity-80' : ''}`}>
       {/* Contenedor de Imagen */}
-      <div className="relative aspect-square overflow-hidden rounded-xl mb-6 shadow-lg bg-black/20 flex items-center justify-center">
+      <div
+        className="relative aspect-square overflow-hidden rounded-xl mb-6 shadow-lg bg-black/20 flex items-center justify-center cursor-pointer"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {audioPreviewUrl && !outOfStock && (
+          <audio ref={audioRef} src={audioPreviewUrl} preload="auto" />
+        )}
+
         {image ? (
           <img src={image} alt={album} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${outOfStock ? 'grayscale' : ''}`} />
         ) : (
@@ -46,8 +68,8 @@ const CatalogCard = ({ artist, album, price, image, outOfStock }) => {
           <button
             disabled={outOfStock}
             className={`px-6 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all shadow-md ${outOfStock
-                ? 'bg-wine-berry/50 text-white-berry/50 dark:text-rose-fog/50 cursor-not-allowed'
-                : 'bg-wine-berry text-white-berry hover:brightness-110 active:scale-95'
+              ? 'bg-wine-berry/50 text-white-berry/50 dark:text-rose-fog/50 cursor-not-allowed'
+              : 'bg-wine-berry text-white-berry hover:brightness-110 active:scale-95'
               }`}
           >
             {outOfStock ? 'Out of Stock' : 'Purchase'}
