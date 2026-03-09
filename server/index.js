@@ -23,6 +23,31 @@ app.get('/', (req, res) => {
     res.json({ message: 'Bienvenido a la API de Vinyl Horizon!' });
 });
 
+// Proxy para iTunes (solución a problemas de CORS)
+app.get('/api/itunes/search', async (req, res) => {
+    try {
+        const query = new URLSearchParams(req.query).toString();
+        const response = await fetch(`https://itunes.apple.com/search?${query}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("iTunes Proxy Search Error:", error);
+        res.status(500).json({ error: 'Failed to fetch from iTunes' });
+    }
+});
+
+app.get('/api/itunes/lookup', async (req, res) => {
+    try {
+        const query = new URLSearchParams(req.query).toString();
+        const response = await fetch(`https://itunes.apple.com/lookup?${query}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("iTunes Proxy Lookup Error:", error);
+        res.status(500).json({ error: 'Failed to fetch from iTunes' });
+    }
+});
+
 // Manejo de errores global simple
 app.use((err, req, res, next) => {
     console.error(err.stack);

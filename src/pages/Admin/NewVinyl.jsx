@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { InventoryContext } from "../../context/InventoryContext";
 
 export default function NewVinyl() {
-  const { addVinyl, fetchVinyls } = useContext(InventoryContext);
+  const { addVinyl, fetchVinyls, inventory } = useContext(InventoryContext);
   const fileRef = useRef(null);
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
@@ -22,6 +22,17 @@ export default function NewVinyl() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
+  // Compute available genres dynamically + some defaults
+  const existingGenres = Array.from(
+    new Set(
+      (inventory || [])
+        .map(v => v.genre?.toLowerCase())
+        .filter(Boolean)
+    )
+  );
+  const defaultGenres = ['jazz', 'rock', 'electronica', 'classical', 'pop', 'hip-hop', 'r&b', 'alternative', 'indie', 'metal', 'folk', 'soul'];
+  const dynamicGenres = Array.from(new Set([...defaultGenres, ...existingGenres])).sort();
+
   const handleItunesAutofill = async () => {
     if (!formData.album && !formData.artist) {
       alert("Please enter at least an album title or artist to search.");
@@ -35,12 +46,12 @@ export default function NewVinyl() {
       if (!formData.album && formData.artist) {
         // If ONLY the artist is provided, lookup their official discography directly
         const artistQuery = encodeURIComponent(formData.artist.trim());
-        const artistRes = await fetch(`https://itunes.apple.com/search?term=${artistQuery}&entity=musicArtist&limit=1`);
+        const artistRes = await fetch(`/api/itunes/search?term=${artistQuery}&entity=musicArtist&limit=1`);
         const artistData = await artistRes.json();
 
         if (artistData.results && artistData.results.length > 0) {
           const artistId = artistData.results[0].artistId;
-          const albumRes = await fetch(`https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=200`);
+          const albumRes = await fetch(`/api/itunes/lookup?id=${artistId}&entity=album&limit=200`);
           const albumData = await albumRes.json();
           if (albumData.results) {
             results = albumData.results.filter(item => item.wrapperType === 'collection');
@@ -48,10 +59,33 @@ export default function NewVinyl() {
         }
       } else {
         // Otherwise, search normally (album+artist or just album)
+        // SEARCH FOR SONGS FIRST to bypass iTunes bug hiding massive explicit albums from "entity=album"
         const query = encodeURIComponent(`${formData.album} ${formData.artist}`.trim());
-        const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=200`);
+        const res = await fetch(`/api/itunes/search?term=${query}&entity=song&limit=200`);
         const data = await res.json();
-        if (data.results) results = data.results;
+
+        if (data.results) {
+          // De-duplicate songs into unique collections (Albums)
+          const uniqueCollections = new Map();
+          data.results.forEach(song => {
+            if (song.collectionId && !uniqueCollections.has(song.collectionId)) {
+              uniqueCollections.set(song.collectionId, {
+                wrapperType: 'collection',
+                collectionType: 'Album',
+                collectionId: song.collectionId,
+                artistName: song.artistName,
+                collectionName: song.collectionName,
+                artworkUrl60: song.artworkUrl60,
+                artworkUrl100: song.artworkUrl100,
+                releaseDate: song.releaseDate,
+                primaryGenreName: song.primaryGenreName,
+                collectionPrice: song.collectionPrice,
+                trackCount: song.trackCount
+              });
+            }
+          });
+          results = Array.from(uniqueCollections.values());
+        }
       }
 
       if (results.length > 0) {
@@ -88,7 +122,7 @@ export default function NewVinyl() {
   const handleSelectResult = async (albumData) => {
     setIsSearching(true);
     try {
-      const songsRes = await fetch(`https://itunes.apple.com/lookup?id=${albumData.collectionId}&entity=song`);
+      const songsRes = await fetch(`/api/itunes/lookup?id=${albumData.collectionId}&entity=song`);
       const songsData = await songsRes.json();
 
       let previewUrl = "";
@@ -343,20 +377,22 @@ export default function NewVinyl() {
               </div>
 
               <div className="grid grid-cols-1">
-                <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E1C2B3] mb-2">
+                <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                   Genre
                 </label>
-                <select
+                <input
+                  list="genre-options"
                   name="genre"
                   value={formData.genre}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all appearance-none bg-transparent"
-                >
-                  <option value="jazz">Jazz</option>
-                  <option value="rock">Rock</option>
-                  <option value="electronica">Electronica</option>
-                  <option value="classical">Classical</option>
-                </select>
+                  placeholder="e.g. Pop"
+                  className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
+                />
+                <datalist id="genre-options">
+                  {dynamicGenres.map(g => (
+                    <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
+                  ))}
+                </datalist>
               </div>
 
               <div className="grid grid-cols-2 gap-6">

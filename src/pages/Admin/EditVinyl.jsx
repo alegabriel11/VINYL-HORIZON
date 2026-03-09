@@ -36,12 +36,12 @@ export default function EditVinyl() {
       if (!formData.album && formData.artist) {
         // If ONLY the artist is provided, lookup their official discography directly
         const artistQuery = encodeURIComponent(formData.artist.trim());
-        const artistRes = await fetch(`https://itunes.apple.com/search?term=${artistQuery}&entity=musicArtist&limit=1`);
+        const artistRes = await fetch(`/api/itunes/search?term=${artistQuery}&entity=musicArtist&limit=1`);
         const artistData = await artistRes.json();
 
         if (artistData.results && artistData.results.length > 0) {
           const artistId = artistData.results[0].artistId;
-          const albumRes = await fetch(`https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=200`);
+          const albumRes = await fetch(`/api/itunes/lookup?id=${artistId}&entity=album&limit=200`);
           const albumData = await albumRes.json();
           if (albumData.results) {
             results = albumData.results.filter(item => item.wrapperType === 'collection');
@@ -49,10 +49,33 @@ export default function EditVinyl() {
         }
       } else {
         // Otherwise, search normally (album+artist or just album)
+        // SEARCH FOR SONGS FIRST to bypass iTunes bug hiding massive explicit albums from "entity=album"
         const query = encodeURIComponent(`${formData.album} ${formData.artist}`.trim());
-        const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=200`);
+        const res = await fetch(`/api/itunes/search?term=${query}&entity=song&limit=200`);
         const data = await res.json();
-        if (data.results) results = data.results;
+
+        if (data.results) {
+          // De-duplicate songs into unique collections (Albums)
+          const uniqueCollections = new Map();
+          data.results.forEach(song => {
+            if (song.collectionId && !uniqueCollections.has(song.collectionId)) {
+              uniqueCollections.set(song.collectionId, {
+                wrapperType: 'collection',
+                collectionType: 'Album',
+                collectionId: song.collectionId,
+                artistName: song.artistName,
+                collectionName: song.collectionName,
+                artworkUrl60: song.artworkUrl60,
+                artworkUrl100: song.artworkUrl100,
+                releaseDate: song.releaseDate,
+                primaryGenreName: song.primaryGenreName,
+                collectionPrice: song.collectionPrice,
+                trackCount: song.trackCount
+              });
+            }
+          });
+          results = Array.from(uniqueCollections.values());
+        }
       }
 
       if (results.length > 0) {
@@ -89,7 +112,7 @@ export default function EditVinyl() {
   const handleSelectResult = async (albumData) => {
     setIsSearching(true);
     try {
-      const songsRes = await fetch(`https://itunes.apple.com/lookup?id=${albumData.collectionId}&entity=song`);
+      const songsRes = await fetch(`/api/itunes/lookup?id=${albumData.collectionId}&entity=song`);
       const songsData = await songsRes.json();
 
       let previewUrl = "";

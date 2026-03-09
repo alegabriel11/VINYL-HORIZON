@@ -15,32 +15,41 @@ const TracklistModal = ({ isOpen, onClose, album }) => {
             const fetchTracks = async () => {
                 setLoading(true);
                 try {
-                    const query = encodeURIComponent(`${album.artist} ${album.title}`);
-                    const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`);
-                    const data = await res.json();
+                    const query = encodeURIComponent(`${album.title} ${album.artist}`);
 
-                    if (data.results) {
-                        let songResults = data.results.filter(t => t.wrapperType === 'track');
+                    // 1. Search iTunes for a song from the album to reliably get the correct collectionId
+                    // This bypasses a bug where iTunes hides huge explicit albums from 'entity=album' searches
+                    const songRes = await fetch(`/api/itunes/search?term=${query}&entity=song&limit=50`);
+                    const songData = await songRes.json();
 
-                        // Group into collections to find the most populated tracklist for the closest matching album
-                        const collections = {};
-                        songResults.forEach(song => {
-                            if (!collections[song.collectionId]) {
-                                collections[song.collectionId] = [];
-                            }
-                            collections[song.collectionId].push(song);
-                        });
+                    if (songData.results && songData.results.length > 0) {
+                        // Filter to match the exact artist to remove covers/karaoke songs
+                        const filteredSongs = songData.results.filter(s =>
+                            s.artistName && s.artistName.toLowerCase().includes(album.artist.toLowerCase())
+                        );
 
-                        let bestCollection = [];
-                        for (const colId in collections) {
-                            if (collections[colId].length > bestCollection.length) {
-                                bestCollection = collections[colId];
-                            }
+                        // If the filter removes everything, just use the original results
+                        const validSongs = filteredSongs.length > 0 ? filteredSongs : songData.results;
+
+                        // Extract the collectionId (Album ID) from the most relevant song match
+                        const targetCollectionId = validSongs[0].collectionId;
+
+                        // 2. Lookup exact official songs for that specific album ID
+                        const songsRes = await fetch(`/api/itunes/lookup?id=${targetCollectionId}&entity=song`);
+                        const songsData = await songsRes.json();
+
+                        if (songsData.results && songsData.results.length > 1) {
+                            // The first result is always the collection wrapper itself, everything else is a track
+                            let songResults = songsData.results.filter(t => t.wrapperType === 'track');
+
+                            // Sort by track number for correct ordering
+                            songResults.sort((a, b) => a.trackNumber - b.trackNumber);
+                            setTracks(songResults);
+                        } else {
+                            setTracks([]);
                         }
-
-                        // Sort by track number
-                        bestCollection.sort((a, b) => a.trackNumber - b.trackNumber);
-                        setTracks(bestCollection);
+                    } else {
+                        setTracks([]);
                     }
                 } catch (error) {
                     console.error("Error fetching tracks:", error);

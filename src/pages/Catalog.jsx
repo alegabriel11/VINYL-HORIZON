@@ -17,6 +17,7 @@ const Catalog = () => {
   const [error, setError] = useState(null);
 
   const [selectedGenre, setSelectedGenre] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedAlbumId, setSelectedAlbumId] = useState(null);
   const [tracklistModalAlbum, setTracklistModalAlbum] = useState(null);
 
@@ -45,16 +46,25 @@ const Catalog = () => {
     fetchVinyls();
   }, []);
 
-  const genres = ['all', 'jazz', 'rock', 'electronica', 'classical'];
+  const dynamicGenres = Array.from(
+    new Set(
+      vinyls
+        .map(v => v.genre?.toLowerCase())
+        .filter(Boolean)
+    )
+  );
 
-  const filteredVinyls =
-    selectedGenre === 'all'
-      ? vinyls
-      : vinyls.filter(
-        v =>
-          v.genre &&
-          v.genre.toLowerCase() === selectedGenre.toLowerCase()
-      );
+  const genres = ['all', ...dynamicGenres];
+
+  const filteredVinyls = vinyls.filter(v => {
+    const matchesGenre = selectedGenre === 'all' || (v.genre && v.genre.toLowerCase() === selectedGenre.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = !query ||
+      (v.title && v.title.toLowerCase().includes(query)) ||
+      (v.artist && v.artist.toLowerCase().includes(query));
+
+    return matchesGenre && matchesSearch;
+  });
 
   const handleAlbumClick = (id) => {
     setSelectedAlbumId(prev => (prev === id ? null : id));
@@ -143,11 +153,20 @@ const Catalog = () => {
             </h1>
 
             <div className="flex items-center gap-6">
-              <span className="material-symbols-outlined cursor-pointer">
-                search
-              </span>
+              <div className="relative flex items-center">
+                <span className="material-symbols-outlined absolute left-3 text-black-pearl/50 dark:text-rose-fog/50 text-xl pointer-events-none">
+                  search
+                </span>
+                <input
+                  type="text"
+                  placeholder={t('catalog.search', 'Search album or artist...')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-48 sm:w-64 rounded-full border border-black-pearl/20 dark:border-rose-fog/20 bg-timberwolf/40 dark:bg-walnut/40 text-black-pearl dark:text-rose-fog focus:outline-none focus:ring-1 focus:ring-wine-berry focus:border-wine-berry transition-all placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 text-sm italic font-['Cormorant_Garamond'] tracking-wide"
+                />
+              </div>
 
-              <span className="material-symbols-outlined cursor-pointer">
+              <span className="material-symbols-outlined cursor-pointer text-black-pearl/70 dark:text-rose-fog/70 hover:text-wine-berry transition-colors">
                 filter_list
               </span>
             </div>
@@ -170,7 +189,7 @@ const Catalog = () => {
 
                 {genreKey === 'all'
                   ? t('catalog.all_genres', 'All')
-                  : t(`catalog.genres.${genreKey}`)}
+                  : t(`catalog.genres.${genreKey}`, genreKey.charAt(0).toUpperCase() + genreKey.slice(1))}
 
               </button>
 
