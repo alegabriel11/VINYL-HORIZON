@@ -59,12 +59,16 @@ export default function TopBarUser() {
                     </p>
                 </div>
 
-                <div className="w-10 h-10 rounded-full bg-walnut overflow-hidden border border-black/10 dark:border-rose-fog/20 flex-shrink-0">
-                    <img
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                        src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.nickname || user.firstName}`}
-                    />
+                <div className="w-10 h-10 rounded-full bg-walnut overflow-hidden border border-black/10 dark:border-rose-fog/20 flex-shrink-0 flex items-center justify-center">
+                    {user.role === 'admin' ? (
+                        <span className="material-symbols-outlined text-[#E1C2B3] text-[24px]">shield_person</span>
+                    ) : (
+                        <img
+                            alt="Avatar"
+                            className="w-full h-full object-cover"
+                            src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.nickname || user.firstName}`}
+                        />
+                    )}
                 </div>
             </button>
 
