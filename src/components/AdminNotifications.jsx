@@ -62,23 +62,36 @@ export default function AdminNotifications() {
                                 {t('admin.no_notifications', 'No hay nuevas compras u órdenes registradas.')}
                             </div>
                         ) : (
-                            recentOrders.map(order => (
-                                <div key={order.id} className="p-4 border-b border-black/5 dark:border-rose-fog/5 hover:bg-black/5 dark:hover:bg-rose-fog/5 transition-colors">
-                                    <p className="text-xs font-bold text-[#0B1B2A] dark:text-rose-fog mb-1">
-                                        {t('admin.new_purchase', 'Nueva compra registrada')} 🎉
-                                    </p>
-                                    <p className="text-[10px] text-[#0B1B2A]/70 dark:text-rose-fog/70 mb-2">
-                                        {order.customer_name || 'Cliente'} {t('admin.has_purchased', 'ha realizado una compra por')} ${parseFloat(order.total_amount).toFixed(2)}.
-                                    </p>
-                                    <Link
-                                        to={`/admin/orders/${order.id}`}
-                                        onClick={() => setIsOpen(false)}
-                                        className="text-[10px] font-bold text-[#5E1914] dark:text-[#E1C2B3] uppercase tracking-widest hover:underline flex items-center gap-1"
-                                    >
-                                        {t('admin.view_order_details', 'Ver detalles del pedido')} <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
-                                    </Link>
-                                </div>
-                            ))
+                            recentOrders.map(order => {
+                                let title = t('admin.new_purchase', 'Nueva compra registrada') + ' 🎉';
+                                let message = `${order.customer_name || 'Cliente'} ${t('admin.has_purchased', 'ha realizado una compra por')} $${parseFloat(order.total_amount).toFixed(2)}.`;
+
+                                if (order.status === 'cancelled') {
+                                    title = t('admin.notif_cancelled_title', 'Pedido cancelado') + ' ❌';
+                                    message = `${t('admin.notif_cancelled_msg', 'El pedido de')} ${order.customer_name || 'Cliente'} ${t('admin.notif_cancelled_msg2', 'ha sido cancelado.')}`;
+                                } else if (order.status === 'shipped') {
+                                    title = t('admin.notif_shipped_title', 'Pedido enviado') + ' 🚚';
+                                    message = `${t('admin.notif_shipped_msg', 'El pedido de')} ${order.customer_name || 'Cliente'} ${t('admin.notif_shipped_msg2', 'ha sido enviado al cliente.')}`;
+                                }
+
+                                return (
+                                    <div key={order.id} className="p-4 border-b border-black/5 dark:border-rose-fog/5 hover:bg-black/5 dark:hover:bg-rose-fog/5 transition-colors">
+                                        <p className="text-xs font-bold text-[#0B1B2A] dark:text-rose-fog mb-1">
+                                            {title}
+                                        </p>
+                                        <p className="text-[10px] text-[#0B1B2A]/70 dark:text-rose-fog/70 mb-2">
+                                            {message}
+                                        </p>
+                                        <Link
+                                            to={`/admin/orders/${order.id}`}
+                                            onClick={() => setIsOpen(false)}
+                                            className="text-[10px] font-bold text-[#5E1914] dark:text-[#E1C2B3] uppercase tracking-widest hover:underline flex items-center gap-1"
+                                        >
+                                            {t('admin.view_order_details', 'Ver detalles del pedido')} <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
+                                        </Link>
+                                    </div>
+                                )
+                            })
                         )}
                     </div>
                     <div className="p-3 text-center border-t border-black/5 dark:border-rose-fog/5 bg-black/5 dark:bg-black-pearl/20">
