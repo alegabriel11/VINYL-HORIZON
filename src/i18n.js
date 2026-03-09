@@ -18,8 +18,8 @@ const resources = {
                 exit_admin: "Exit Admin"
             },
             cart: {
-                title: "Your Collection Bag",
-                empty_collection: "Your collection is currently empty",
+                title: "Shopping Cart",
+                empty_collection: "Your cart is currently empty",
                 items_ready: "{{count}} items curated and ready for delivery",
                 start_exploring: "Start Exploring",
                 summary: "Summary",
@@ -205,8 +205,8 @@ const resources = {
                 exit_admin: "Salir del Panel"
             },
             cart: {
-                title: "Tu Colección",
-                empty_collection: "Tu colección está actualmente vacía",
+                title: "Carrito de Compras",
+                empty_collection: "Tu carrito está actualmente vacío",
                 items_ready: "{{count}} artículos seleccionados y listos para entrega",
                 start_exploring: "Comenzar a Explorar",
                 summary: "Resumen",

@@ -4,7 +4,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
     return (
         <div className="cart-item-container flex items-center gap-6 p-6 rounded-friendly bg-timberwolf dark:bg-walnut shadow-xl group border border-black-pearl/10 dark:border-rose-fog/5 transition-colors duration-500">
             <div className="relative aspect-square w-24 sm:w-32 bg-[#E1C2B3]/20 dark:bg-black/30 overflow-hidden shrink-0">
-                <img src={item.image || "https://picsum.photos/400"} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={item.cover_image_url || item.image || "https://picsum.photos/400"} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div className="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>

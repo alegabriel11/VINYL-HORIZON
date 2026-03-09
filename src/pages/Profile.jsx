@@ -62,6 +62,7 @@ export default function Profile() {
     const wasAdmin = user?.role === 'admin';
     localStorage.removeItem('vinyl_token');
     localStorage.removeItem('vinyl_user');
+    window.dispatchEvent(new Event('storage'));
     setIsLoggedIn(false);
     setUser(null);
     toast.success('Sesión cerrada / Logged out', { icon: '👋' });
@@ -246,14 +247,22 @@ export default function Profile() {
             </section>
 
             {/* COLLECTION */}
-            {purchases.length > 0 && (
-              <section className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
-                  <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{t('profile.my_collection')}</h3>
-                  <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
-                  <span className="hidden sm:block material-symbols-outlined opacity-40">library_music</span>
-                </div>
+            {/* COLLECTION */}
+            <section className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
+                <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{t('profile.my_collection')}</h3>
+                <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
+                <span className="hidden sm:block material-symbols-outlined opacity-40">library_music</span>
+              </div>
 
+              {purchases.length === 0 ? (
+                <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
+                  <span className="material-symbols-outlined text-6xl mb-4">album</span>
+                  <p className="font-['Cormorant_Garamond'] text-2xl italic">
+                    {language === 'ES' ? 'No has realizado ninguna compra aún.' : 'No purchases yet.'}
+                  </p>
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                   {purchases.map((item, idx) => (
                     <div key={`${item.id}-${idx}`} className="group bg-[#D1D1D1] dark:bg-[#3A2E29] rounded-[2rem] overflow-hidden border border-black/10 dark:border-[#E1C2B3]/5 transition-colors duration-500 animate-card">
@@ -276,8 +285,8 @@ export default function Profile() {
                     </div>
                   ))}
                 </div>
-              </section>
-            )}
+              )}
+            </section>
 
             {/* WISHLIST SECTION */}
             <section className="px-4 lg:px-20 py-16 bg-[#EFEFEF] dark:bg-[#091C2A] transition-colors">

@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CartContext } from '../context/CartContext';
+import { WishlistContext } from '../context/WishlistContext';
+import { useContext } from 'react';
 
 const CatalogCard = ({
   id,
@@ -18,7 +21,10 @@ const CatalogCard = ({
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language === 'ES' ? 'es' : 'en';
 
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToCart } = useContext(CartContext);
+  const { toggleWishlist, isInWishlist } = useContext(WishlistContext);
+  const isWishlisted = id ? isInWishlist(id) : false;
+
   const [wikiDescription, setWikiDescription] = useState(null);
   const [wikiLoading, setWikiLoading] = useState(false);
   const [loadedLang, setLoadedLang] = useState(null);

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +13,7 @@ const CartPage = () => {
     const { isDark, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useLanguage();
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const { cartItems: items, updateQuantity: handleUpdateQuantity, removeFromCart: handleRemove, subtotal, shipping, taxes } = useContext(CartContext);
 
     return (
@@ -66,7 +68,7 @@ const CartPage = () => {
                         <div className="flex flex-col items-center justify-center py-32 text-center">
                             <span className="material-symbols-outlined text-9xl text-black-pearl/10 dark:text-rose-fog/10 mb-8">album</span>
                             <h2 className="serif-font text-4xl text-black-pearl dark:text-rose-fog mb-4">{t('cart.empty_collection')}</h2>
-                            <button className="px-12 py-4 bg-rose-fog text-black-pearl rounded-friendly font-bold uppercase tracking-widest hover:bg-black-pearl hover:text-white-berry transition-all">
+                            <button onClick={() => navigate('/catalog')} className="px-12 py-4 bg-rose-fog text-black-pearl rounded-friendly font-bold uppercase tracking-widest hover:bg-black-pearl hover:text-white-berry transition-all">
                                 {t('cart.start_exploring')}
                             </button>
                         </div>

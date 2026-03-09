@@ -43,6 +43,7 @@ export default function Register() {
                 localStorage.setItem('vinyl_token', data.token);
                 // Opcional: Podríamos guardar detalles del usuario
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+                window.dispatchEvent(new Event('storage'));
 
                 toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, que vamos a comprar hoy?`, {
                     icon: '🎵',

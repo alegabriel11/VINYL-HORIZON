@@ -35,6 +35,7 @@ export default function Login() {
                 // Autenticado: Guardar JWT en LocalStorage y redirigir
                 localStorage.setItem('vinyl_token', data.token);
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+                window.dispatchEvent(new Event('storage'));
 
                 toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, vamos a comprar hoy?`, {
                     icon: '🎵',
