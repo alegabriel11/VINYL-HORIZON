@@ -65,7 +65,18 @@ const resources = {
                     rock: "Rock",
                     electronica: "Electronica",
                     classical: "Classical"
-                }
+                },
+                new_release: "New Release",
+                audiophile_edition: "Audiophile Edition",
+                limited_pressing: "Limited Pressing",
+                price: "Price",
+                tracks: "Tracks",
+                purchase: "Purchase",
+                restock: "Restock",
+                out_of_stock: "Out of Stock",
+                fallback_desc: "Experience the smooth, nocturnal soundscapes of {{artist}}. This premium 180g audiophile pressing captures every nuance of the original studio recording.",
+                tracklist_details: "Tracklist Details",
+                no_tracklist: "No tracklist found for this album."
             },
             profile: {
                 welcome: "Welcome to Vinyl Horizon",
@@ -240,7 +251,18 @@ const resources = {
                     rock: "Rock",
                     electronica: "Electrónica",
                     classical: "Clásica"
-                }
+                },
+                new_release: "Nuevo Lanzamiento",
+                audiophile_edition: "Edición Audiófilo",
+                limited_pressing: "Prensado Limitado",
+                price: "Precio",
+                tracks: "Pistas",
+                purchase: "Comprar",
+                restock: "Reabastecer",
+                out_of_stock: "Agotado",
+                fallback_desc: "Experimenta los paisajes sonoros suaves y nocturnos de {{artist}}. Este prensado para audiófilos de 180g captura cada matiz de la grabación original del estudio.",
+                tracklist_details: "Detalles de Canciones",
+                no_tracklist: "No se encontró lista de canciones para este álbum."
             },
             profile: {
                 welcome: "Bienvenido a Vinyl Horizon",

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CatalogCard = ({
   artist,
@@ -8,10 +9,58 @@ const CatalogCard = ({
   outOfStock,
   audioPreviewUrl,
   isSelected,
-  onClick
+  onClick,
+  onViewTracklist
 }) => {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language === 'ES' ? 'es' : 'en';
+
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wikiDescription, setWikiDescription] = useState(null);
+  const [wikiLoading, setWikiLoading] = useState(false);
+  const [loadedLang, setLoadedLang] = useState(null);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (isSelected && loadedLang !== currentLang) {
+      const fetchWiki = async () => {
+        setWikiLoading(true);
+        try {
+          const query = encodeURIComponent(`${album} ${artist}`);
+          const res = await fetch(`https://${currentLang}.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch=${query}&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&origin=*`);
+          const data = await res.json();
+
+          if (data.query && data.query.pages) {
+            const pages = data.query.pages;
+            const pageId = Object.keys(pages)[0];
+
+            if (pageId !== "-1" && pages[pageId].extract) {
+              // Get first 2-3 sentences max
+              const extract = pages[pageId].extract;
+              const sentences = extract.match(/[^.!?]+[.!?]+/g);
+              if (sentences && sentences.length > 0) {
+                setWikiDescription(sentences.slice(0, 3).join(' '));
+              } else {
+                setWikiDescription(extract.substring(0, 200) + '...');
+              }
+            } else {
+              setWikiDescription(null);
+            }
+          } else {
+            setWikiDescription(null);
+          }
+        } catch (err) {
+          console.error("Wikipedia fetch error", err);
+          setWikiDescription(null);
+        } finally {
+          setLoadedLang(currentLang);
+          setWikiLoading(false);
+        }
+      };
+
+      fetchWiki();
+    }
+  }, [isSelected, album, artist, currentLang, loadedLang]);
 
   const handleMouseEnter = () => {
     if (audioRef.current && audioPreviewUrl && !outOfStock) {
@@ -104,7 +153,7 @@ const CatalogCard = ({
                 : 'bg-wine-berry text-white-berry hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                 }`}
             >
-              {outOfStock ? 'Out of Stock' : 'Purchase'}
+              {outOfStock ? t('catalog.out_of_stock') : t('catalog.purchase')}
             </button>
           </div>
         </div>
@@ -131,7 +180,7 @@ const CatalogCard = ({
           )}
 
           <div className="space-y-1 md:space-y-2 w-full pt-6 md:pt-0 pr-8 md:pr-0 transition-all duration-700 delay-100 ease-out translate-y-0">
-            {!outOfStock && <span className="text-[10px] md:text-sm font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-1 md:mb-2 block">New Release</span>}
+            {!outOfStock && <span className="text-[10px] md:text-sm font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-1 md:mb-2 block">{t('catalog.new_release')}</span>}
             <h2 className="serif-font text-2xl md:text-3xl lg:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight">
               {album}
             </h2>
@@ -143,41 +192,63 @@ const CatalogCard = ({
           </div>
 
           <div className="space-y-2 md:space-y-4 border-t border-black/10 dark:border-white/10 pt-4 mt-4 transition-all duration-700 delay-200">
-            <p className="text-sm md:text-base text-black-pearl/60 dark:text-rose-fog/70 leading-relaxed max-w-md">
-              Experience the smooth, nocturnal soundscapes of {artist}. This premium 180g audiophile pressing captures every nuance of the original studio recording.
-            </p>
+            {wikiLoading && isSelected ? (
+              <div className="flex animate-pulse space-x-4">
+                <div className="flex-1 space-y-4 py-1">
+                  <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-3/4"></div>
+                  <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded"></div>
+                  <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-5/6"></div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm md:text-base text-black-pearl/60 dark:text-rose-fog/70 leading-relaxed max-w-md line-clamp-4">
+                {wikiDescription ? wikiDescription : t('catalog.fallback_desc', { artist })}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2 md:gap-3 py-1 mt-2">
-              <span className="px-3 py-1 md:py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">Audiophile Edition</span>
-              <span className="px-3 py-1 md:py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">Limited Pressing</span>
+              <span className="px-3 py-1 md:py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">{t('catalog.audiophile_edition')}</span>
+              <span className="px-3 py-1 md:py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">{t('catalog.limited_pressing')}</span>
             </div>
           </div>
 
           <div className="flex justify-between items-center gap-4 mt-8 transition-all duration-700 delay-300">
-            <div className="flex flex-col">
-              <span className="text-xs md:text-sm text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-tighter">Price</span>
+            <div className="flex flex-col shrink-0">
+              <span className="text-xs md:text-sm text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-tighter">{t('catalog.price')}</span>
               <span className="display-font text-2xl md:text-3xl font-bold text-black-pearl dark:text-white">${price}</span>
             </div>
 
-            <button
-              disabled={outOfStock}
-              onClick={(e) => e.stopPropagation()}
-              className={`flex-1 max-w-[200px] flex items-center justify-center gap-2 px-6 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all duration-300 ${outOfStock
+            <div className="flex flex-1 gap-2 justify-end w-full max-w-[400px]">
+              {isSelected && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onViewTracklist(); }}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all duration-300 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black-pearl dark:text-rose-fog hover:-translate-y-1"
+                >
+                  <span className="material-symbols-outlined text-sm md:text-base">queue_music</span>
+                  {t('catalog.tracks')}
+                </button>
+              )}
+
+              <button
+                disabled={outOfStock}
+                onClick={(e) => e.stopPropagation()}
+                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all duration-300 ${outOfStock
                   ? 'bg-wine-berry/50 text-white-berry/50 cursor-not-allowed'
                   : 'bg-wine-berry hover:bg-[#4a151b] text-rose-fog hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:scale-95'
-                }`}
-            >
-              {outOfStock ? (
-                <>
-                  <span className="material-symbols-outlined text-sm md:text-base">hourglass_empty</span>
-                  Restock
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-sm md:text-base">payments</span>
-                  Purchase
-                </>
-              )}
-            </button>
+                  }`}
+              >
+                {outOfStock ? (
+                  <>
+                    <span className="material-symbols-outlined text-sm md:text-base">hourglass_empty</span>
+                    {t('catalog.restock')}
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-sm md:text-base">payments</span>
+                    {t('catalog.purchase')}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

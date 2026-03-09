@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import CatalogCard from '../components/CatalogCard';
 import TopBarUser from '../components/TopBarUser';
+import TracklistModal from '../components/TracklistModal';
 
 const Catalog = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -17,6 +18,7 @@ const Catalog = () => {
 
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [selectedAlbumId, setSelectedAlbumId] = useState(null);
+  const [tracklistModalAlbum, setTracklistModalAlbum] = useState(null);
 
   const carouselRef = useRef(null);
 
@@ -59,7 +61,44 @@ const Catalog = () => {
   };
 
   if (loading) {
-    return <div className="p-12">Loading...</div>;
+    return (
+      <div className="bg-white-berry dark:bg-black-pearl min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500">
+        <Sidebar />
+
+        <div className="flex flex-col items-center justify-center ml-0 md:ml-64 w-full h-full relative z-10 space-y-8 p-12">
+
+          <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-[12px] border-[#111] bg-black shadow-[0_0_50px_rgba(0,0,0,0.4)] flex items-center justify-center animate-[spin_2s_linear_infinite]">
+            {/* Grooves */}
+            <div className="absolute inset-2 md:inset-3 rounded-full border border-white/10"></div>
+            <div className="absolute inset-6 md:inset-8 rounded-full border border-white/5"></div>
+            <div className="absolute inset-10 md:inset-14 rounded-full border border-white/10"></div>
+
+            {/* Center Label */}
+            <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-wine-berry border-2 border-white/20 relative shadow-inner flex items-center justify-center">
+              <span className="text-[6px] md:text-[8px] text-white/60 tracking-widest font-bold uppercase">Loading</span>
+
+              {/* Spindle ring */}
+              <div className="absolute inset-0 m-auto w-6 h-6 border border-white/20 rounded-full mix-blend-overlay"></div>
+
+              {/* Middle Hole */}
+              <div className="absolute inset-0 m-auto w-2 h-2 md:w-3 md:h-3 bg-black-pearl dark:bg-[#111] rounded-full shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)] z-20"></div>
+            </div>
+
+            {/* Vinyl Sheen Overlay */}
+            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg_at_50%_50%,rgba(255,255,255,0)_0%,rgba(255,255,255,0.05)_15%,rgba(255,255,255,0)_30%,rgba(255,255,255,0)_50%,rgba(255,255,255,0.05)_65%,rgba(255,255,255,0)_80%)] pointer-events-none mix-blend-screen z-10"></div>
+          </div>
+
+          <div className="flex flex-col items-center animate-pulse">
+            <h2 className="serif-font text-2xl md:text-3xl text-black-pearl dark:text-rose-fog tracking-widest uppercase">
+              Curating
+            </h2>
+            <p className="text-black-pearl/50 dark:text-rose-fog/50 text-sm tracking-[0.3em] uppercase mt-2">
+              Please wait
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -157,6 +196,7 @@ const Catalog = () => {
                 audioPreviewUrl={album.audio_preview_url}
                 isSelected={selectedAlbumId === album.id}
                 onClick={() => handleAlbumClick(album.id)}
+                onViewTracklist={() => setTracklistModalAlbum(album)}
               />
 
             ))}
@@ -166,6 +206,12 @@ const Catalog = () => {
         </div>
 
       </main>
+
+      <TracklistModal
+        isOpen={!!tracklistModalAlbum}
+        album={tracklistModalAlbum}
+        onClose={() => setTracklistModalAlbum(null)}
+      />
 
     </div>
   );
