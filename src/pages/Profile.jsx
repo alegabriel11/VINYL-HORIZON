@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import ProfileVinylWidget from "../components/ProfileVinylWidget";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "react-i18next";
@@ -24,8 +25,10 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
+  const [coverImage, setCoverImage] = useState(() => localStorage.getItem('vinyl_cover') || null);
   const [purchases, setPurchases] = useState([]);
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
+  const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
 
   useEffect(() => {
     // Hydrate state from localStorage
@@ -116,6 +119,38 @@ export default function Profile() {
       setCancellingOrderId(null);
     }
   };
+
+  const handleCoverSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 4 * 1024 * 1024) {
+        toast.error("Image too large (max 4MB)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverImage(reader.result);
+        localStorage.setItem('vinyl_cover', reader.result);
+        toast.success(t('profile.cover_updated', 'Cover photo updated!'));
+        setIsCoverModalOpen(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const selectPresetCover = (url) => {
+    setCoverImage(url);
+    localStorage.setItem('vinyl_cover', url);
+    toast.success(t('profile.cover_updated', 'Cover photo updated!'));
+    setIsCoverModalOpen(false);
+  };
+
+  const PRESET_COVERS = [
+    "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop", // Vintage Studio
+    "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop", // Neon Vinyls
+    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop", // Dark Concert
+    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop", // Mic Vintage
+  ];
 
   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
 
@@ -220,14 +255,29 @@ export default function Profile() {
              CLIENT LOGGED IN VIEW
              ========================================= */
           <>
-            <section className="pt-24 md:pt-20 pb-16 px-4 md:px-8 flex flex-col items-center">
-              <div className="flex items-center justify-center relative w-full max-w-5xl py-4 sm:py-8">
-                {/* Decorative Element Left */}
-                <div className="hidden lg:flex w-56 h-56 xl:w-64 xl:h-64 rounded-full bg-black items-center justify-center vinyl-shadow animate-floating z-10 border-4 border-[#122838] overflow-hidden -mr-8 xl:-mr-12 shrink-0">
-                  <div className="w-16 h-16 xl:w-24 xl:h-24 bg-[#3A2E29] rounded-full border-[6px] xl:border-[8px] border-black flex items-center justify-center">
-                    <div className="w-2 h-2 bg-[#E1C2B3]/30 rounded-full" />
-                  </div>
+            <section className="relative pt-24 md:pt-20 pb-16 px-4 md:px-8 flex flex-col items-center overflow-hidden">
+              {/* Customizable Cover Background */}
+              {coverImage && (
+                <div className="absolute inset-0 w-full h-full z-0">
+                  <img src={coverImage} alt="Profile Cover" className="w-full h-full object-cover" />
+                  <div className={`absolute inset-0 bg-gradient-to-b ${isDark ? 'from-transparent via-[#091C2A]/80 to-[#091C2A]' : 'from-transparent via-[#EFEFEF]/80 to-[#EFEFEF]'}`}></div>
                 </div>
+              )}
+
+              {/* Edit Cover Action Button */}
+              <button
+                onClick={() => setIsCoverModalOpen(true)}
+                className="absolute top-6 left-6 md:top-8 md:left-8 z-50 flex items-center gap-2 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white/90 hover:text-white transition-all shadow-lg border border-white/10 group"
+              >
+                <span className="material-symbols-outlined text-[1rem]">wallpaper</span>
+                <span className="text-xs uppercase tracking-widest font-bold hidden sm:inline md:opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {t('profile.edit_cover', 'Edit Cover')}
+                </span>
+              </button>
+
+              <div className="flex items-center justify-center relative w-full max-w-5xl py-4 sm:py-8 z-10">
+                {/* Decorative Element Left (Now Interactive) */}
+                <ProfileVinylWidget />
 
                 {/* Avatar with Customization Badge */}
                 <div className="relative group w-56 h-56 md:w-64 md:h-64 xl:w-72 xl:h-72 rounded-full shadow-2xl z-30 shrink-0">
@@ -258,7 +308,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="mt-8 md:mt-12 text-center space-y-2 px-4">
+              <div className="mt-8 md:mt-12 text-center space-y-2 px-4 relative z-10">
                 <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold">
                   {t('profile.welcome_back') || 'Welcome to Horizon'}, {user?.nickname || user?.firstName}!
                 </h1>
@@ -449,6 +499,59 @@ export default function Profile() {
             </div>
           </div>
         )}
+
+        {/* Cover Customization Modal */}
+        {isCoverModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className={`w-full max-w-2xl p-6 md:p-8 rounded-[2rem] border shadow-2xl transition-all ${isDark ? 'bg-[#122838] border-[#E1C2B3]/20' : 'bg-[#EFEFEF] border-black/10'}`}>
+
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-['Cormorant_Garamond'] text-3xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
+                  {t('profile.choose_cover', 'Select Cover Photo')}
+                </h3>
+                <button
+                  onClick={() => setIsCoverModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[#0B1B2A] dark:text-[#E1C2B3]">close</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 auto-rows-[120px] md:auto-rows-[160px] mb-8">
+                {PRESET_COVERS.map((url, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => selectPresetCover(url)}
+                    className={`relative rounded-xl overflow-hidden border-4 transition-all group hover:scale-[1.02] shadow-md
+                      ${coverImage === url ? 'border-[#5E1914] dark:border-[#E1C2B3]' : 'border-transparent'}`}
+                  >
+                    <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    {coverImage === url && (
+                      <div className="absolute top-2 right-2 bg-[#5E1914] text-white rounded-full p-1 shadow-lg">
+                        <span className="material-symbols-outlined text-[16px]">check</span>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-black/10 dark:border-white/10">
+                <span className="font-['Cormorant_Garamond'] text-xl italic opacity-70 text-[#0B1B2A] dark:text-[#E1C2B3]">
+                  {t('profile.or_upload_own', 'Or upload your own image...')}
+                </span>
+
+                <label className="bg-[#5E1914] text-[#E1C2B3] px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:brightness-125 transition-all shadow-xl cursor-pointer flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px]">cloud_upload</span>
+                  {t('profile.upload_photo', 'Upload Photo')}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverSelect} />
+                </label>
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

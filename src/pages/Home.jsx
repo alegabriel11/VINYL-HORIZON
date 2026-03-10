@@ -54,7 +54,14 @@ const Home = () => {
         {/* Hero Section */}
         <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center px-4">
           <div className="absolute inset-0 z-0">
-            <img alt="Vintage Record Player" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp" />
+            <video
+              src="/hero.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 hero-gradient"></div>
           </div>
           <div className="relative z-10 space-y-6">

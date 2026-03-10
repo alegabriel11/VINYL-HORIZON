@@ -6,6 +6,7 @@ import Sidebar from '../components/Sidebar';
 import CatalogCard from '../components/CatalogCard';
 import TopBarUser from '../components/TopBarUser';
 import TracklistModal from '../components/TracklistModal';
+import VinylDetailsModal from '../components/VinylDetailsModal';
 
 const Catalog = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -18,9 +19,14 @@ const Catalog = () => {
 
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAlbumId, setSelectedAlbumId] = useState(null);
   const [tracklistModalAlbum, setTracklistModalAlbum] = useState(null);
+  const [detailsModalAlbum, setDetailsModalAlbum] = useState(null);
+
+  // Global Audio State
   const [isMuted, setIsMuted] = useState(false);
+  const [playingPreviewId, setPlayingPreviewId] = useState(null);
+  const globalAudioRef = useRef(null);
+  const detailsModalIdRef = useRef(null);
 
   const carouselRef = useRef(null);
 
@@ -47,6 +53,28 @@ const Catalog = () => {
     fetchVinyls();
   }, []);
 
+  useEffect(() => {
+    if (globalAudioRef.current) {
+      globalAudioRef.current.muted = isMuted;
+      if (isMuted) {
+        globalAudioRef.current.pause();
+        setPlayingPreviewId(null);
+      }
+    }
+  }, [isMuted]);
+
+  useEffect(() => {
+    // Sync the ref so event handlers have latest value
+    detailsModalIdRef.current = detailsModalAlbum?.id || null;
+
+    // If modal closed, stop global audio completely
+    if (!detailsModalAlbum && globalAudioRef.current) {
+      globalAudioRef.current.pause();
+      globalAudioRef.current.currentTime = 0;
+      setPlayingPreviewId(null);
+    }
+  }, [detailsModalAlbum]);
+
   const dynamicGenres = Array.from(
     new Set(
       vinyls
@@ -63,12 +91,50 @@ const Catalog = () => {
     const matchesSearch = !query ||
       (v.title && v.title.toLowerCase().includes(query)) ||
       (v.artist && v.artist.toLowerCase().includes(query));
-
     return matchesGenre && matchesSearch;
   });
 
-  const handleAlbumClick = (id) => {
-    setSelectedAlbumId(prev => (prev === id ? null : id));
+  const handleAlbumClick = (album) => {
+    setDetailsModalAlbum(album);
+  };
+
+  // Global Audio Handlers
+  const handleCardHoverStart = (album) => {
+    if (isMuted || detailsModalIdRef.current) return;
+    if (globalAudioRef.current && album.audio_preview_url) {
+      if (playingPreviewId !== album.id) {
+        globalAudioRef.current.src = album.audio_preview_url;
+      }
+      globalAudioRef.current.play().catch(e => console.error(e));
+      setPlayingPreviewId(album.id);
+    }
+  };
+
+  const handleCardHoverEnd = (album) => {
+    if (isMuted) return;
+    // Do NOT stop audio if THIS album is currently opened in the modal
+    if (detailsModalIdRef.current === album.id) return;
+
+    if (globalAudioRef.current && playingPreviewId === album.id) {
+      globalAudioRef.current.pause();
+      globalAudioRef.current.currentTime = 0;
+      setPlayingPreviewId(null);
+    }
+  };
+
+  const toggleGlobalAudio = (album) => {
+    if (!globalAudioRef.current || !album.audio_preview_url) return;
+
+    if (playingPreviewId === album.id && !globalAudioRef.current.paused) {
+      globalAudioRef.current.pause();
+      setPlayingPreviewId(null);
+    } else {
+      if (globalAudioRef.current.src !== album.audio_preview_url) {
+        globalAudioRef.current.src = album.audio_preview_url;
+      }
+      globalAudioRef.current.play().catch(e => console.error(e));
+      setPlayingPreviewId(album.id);
+    }
   };
 
   if (loading) {
@@ -234,9 +300,10 @@ const Catalog = () => {
                 genre={album.genre}
                 audioPreviewUrl={album.audio_preview_url}
                 isMuted={isMuted}
-                isSelected={selectedAlbumId === album.id}
-                onClick={() => handleAlbumClick(album.id)}
-                onViewTracklist={() => setTracklistModalAlbum(album)}
+                isPlaying={playingPreviewId === album.id}
+                onHoverStart={() => handleCardHoverStart(album)}
+                onHoverEnd={() => handleCardHoverEnd(album)}
+                onClick={() => handleAlbumClick(album)}
               />
 
             ))}
@@ -247,10 +314,31 @@ const Catalog = () => {
 
       </main>
 
+      {/* Global Audio Element */}
+      <audio
+        ref={globalAudioRef}
+        onEnded={() => setPlayingPreviewId(null)}
+      />
+
       <TracklistModal
         isOpen={!!tracklistModalAlbum}
         album={tracklistModalAlbum}
         onClose={() => setTracklistModalAlbum(null)}
+      />
+
+      <VinylDetailsModal
+        isOpen={!!detailsModalAlbum}
+        album={detailsModalAlbum}
+        onClose={() => setDetailsModalAlbum(null)}
+        onViewTracklist={(album) => {
+          if (globalAudioRef.current && !globalAudioRef.current.paused) {
+            globalAudioRef.current.pause();
+            setPlayingPreviewId(null);
+          }
+          setTracklistModalAlbum(album);
+        }}
+        isPlaying={playingPreviewId === detailsModalAlbum?.id}
+        onToggleAudio={() => toggleGlobalAudio(detailsModalAlbum)}
       />
 
     </div>
