@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from '../../components/user/Sidebar';
+import BottomNavBar from '../../components/user/BottomNavBar';
 import TopBarUser from '../../components/user/TopBarUser';
 import ProfileVinylWidget from '../../components/user/ProfileVinylWidget';
 import { useTheme } from '../../context/ThemeContext';
@@ -42,7 +43,6 @@ export default function Profile() {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
 
   useEffect(() => {
-    // Hydrate state from localStorage
     const token = localStorage.getItem('vinyl_token');
     const userDataStr = localStorage.getItem('vinyl_user');
 
@@ -52,15 +52,50 @@ export default function Profile() {
         const parsedUser = JSON.parse(userDataStr);
         setUser(parsedUser);
 
-        // Load personalization for THIS specific user
         if (parsedUser?.id) {
-          const savedAvatar = localStorage.getItem(`vinyl_avatar_${parsedUser.id}`);
-          const savedCover = localStorage.getItem(`vinyl_cover_${parsedUser.id}`);
-          if (savedAvatar) setAvatar(savedAvatar);
-          if (savedCover) setCoverImage(savedCover);
+          // 1. Show cached values immediately (no flicker)
+          const cachedAvatar = localStorage.getItem(`vinyl_avatar_${parsedUser.id}`);
+          const cachedCover = localStorage.getItem(`vinyl_cover_${parsedUser.id}`);
+          if (cachedAvatar) setAvatar(cachedAvatar);
+          if (cachedCover) setCoverImage(cachedCover);
+
+          // 2. Fetch fresh profile from server (syncs across devices)
+          fetch(`/api/auth/profile/${parsedUser.id}`)
+            .then(r => r.json())
+            .then(profile => {
+              let needsUpdate = false;
+              const updatePayload = { userId: parsedUser.id };
+
+              if (profile.avatarUrl) {
+                setAvatar(profile.avatarUrl);
+                localStorage.setItem(`vinyl_avatar_${parsedUser.id}`, profile.avatarUrl);
+              } else if (cachedAvatar) {
+                // Migrate local avatar to DB
+                needsUpdate = true;
+                updatePayload.avatarUrl = cachedAvatar;
+              }
+
+              if (profile.coverUrl) {
+                setCoverImage(profile.coverUrl);
+                localStorage.setItem(`vinyl_cover_${parsedUser.id}`, profile.coverUrl);
+              } else if (cachedCover) {
+                // Migrate local cover to DB
+                needsUpdate = true;
+                updatePayload.coverUrl = cachedCover;
+              }
+
+              if (needsUpdate) {
+                fetch('/api/auth/profile', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatePayload)
+                }).catch(() => { });
+              }
+            })
+            .catch(() => {/* silently use cache */ });
         }
 
-        // Fetch real orders from database for this user
+        // Fetch user orders
         fetch('/api/vinyls/orders')
           .then(res => res.json())
           .then(ordersData => {
@@ -104,10 +139,17 @@ export default function Profile() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result);
-        const key = user?.id ? `vinyl_avatar_${user.id}` : 'vinyl_avatar';
-        localStorage.setItem(key, reader.result);
-        toast.success("Avatar updated!");
+        const base64 = reader.result;
+        setAvatar(base64);
+        // Cache locally for instant display
+        if (user?.id) localStorage.setItem(`vinyl_avatar_${user.id}`, base64);
+        // Persist to DB so all devices see it
+        fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user?.id, avatarUrl: base64 })
+        }).then(() => toast.success("Avatar actualizado!"))
+          .catch(() => toast.success("Avatar guardado localmente."));
       };
       reader.readAsDataURL(file);
     }
@@ -150,10 +192,15 @@ export default function Profile() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImage(reader.result);
-        const key = user?.id ? `vinyl_cover_${user.id}` : 'vinyl_cover';
-        localStorage.setItem(key, reader.result);
-        toast.success(t('profile.cover_updated', 'Cover photo updated!'));
+        const base64 = reader.result;
+        setCoverImage(base64);
+        if (user?.id) localStorage.setItem(`vinyl_cover_${user.id}`, base64);
+        fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user?.id, coverUrl: base64 })
+        }).then(() => toast.success(t('profile.cover_updated', 'Cover photo updated!')))
+          .catch(() => toast.success(t('profile.cover_updated', 'Cover photo updated!')));
         setIsCoverModalOpen(false);
       };
       reader.readAsDataURL(file);
@@ -162,9 +209,13 @@ export default function Profile() {
 
   const selectPresetCover = (url) => {
     setCoverImage(url);
-    const key = user?.id ? `vinyl_cover_${user.id}` : 'vinyl_cover';
-    localStorage.setItem(key, url);
-    toast.success(t('profile.cover_updated', 'Cover photo updated!'));
+    if (user?.id) localStorage.setItem(`vinyl_cover_${user.id}`, url);
+    fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user?.id, coverUrl: url })
+    }).then(() => toast.success(t('profile.cover_updated', 'Cover photo updated!')))
+      .catch(() => toast.success(t('profile.cover_updated', 'Cover photo updated!')));
     setIsCoverModalOpen(false);
   };
 
@@ -196,8 +247,9 @@ export default function Profile() {
       `}</style>
 
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isLoggedIn={isLoggedIn} />
+      <BottomNavBar />
 
-      <main className={`${mainMl} transition-all duration-300 min-h-screen relative flex flex-col`}>
+      <main className={`${mainMl} md:ml-64 transition-all duration-300 min-h-screen relative flex flex-col pb-20 md:pb-0`}>
         <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
           <button
             onClick={toggleLanguage}

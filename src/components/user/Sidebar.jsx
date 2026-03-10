@@ -44,7 +44,7 @@ const Sidebar = ({ isLoggedIn = false }) => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 md:w-72 bg-[#EFEFEF] dark:bg-[#091C2A] border-r border-black/10 dark:border-white/10 z-50 flex flex-col transition-colors duration-500 overflow-y-auto custom-scrollbar overflow-x-hidden">
+    <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-64 md:w-72 bg-[#EFEFEF] dark:bg-[#091C2A] border-r border-black/10 dark:border-white/10 z-50 transition-colors duration-500 overflow-y-auto custom-scrollbar overflow-x-hidden">
       {/* LOGO SECTION */}
       <div className="p-8 flex items-center justify-between shrink-0">
         <div className="flex flex-col relative z-20">
