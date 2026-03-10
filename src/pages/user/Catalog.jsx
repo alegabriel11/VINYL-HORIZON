@@ -3,6 +3,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import Sidebar from '../../components/user/Sidebar';
+import BottomNavBar from '../../components/user/BottomNavBar';
 import CatalogCard from '../../components/user/CatalogCard';
 import TopBarUser from '../../components/user/TopBarUser';
 import TracklistModal from '../../components/user/TracklistModal';
@@ -186,10 +187,11 @@ const Catalog = () => {
     <div className="bg-white-berry dark:bg-black-pearl min-h-screen flex text-black-pearl dark:text-rose-fog transition-colors duration-500">
 
       <Sidebar />
+      <BottomNavBar />
 
-      <main className="ml-64 flex-1 h-screen flex flex-col overflow-hidden relative">
+      <main className="md:ml-64 flex-1 h-screen flex flex-col overflow-hidden relative pb-16 md:pb-0">
 
-        <div className="absolute top-8 right-8 z-[60] flex items-center gap-4">
+        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
 
           <button
             onClick={toggleLanguage}
@@ -226,16 +228,17 @@ const Catalog = () => {
 
         </div>
 
-        <header className="pt-24 px-12 pb-6 border-b border-black-pearl/10 dark:border-walnut/30">
+        <header className="pt-16 md:pt-24 px-4 md:px-12 pb-6 border-b border-black-pearl/10 dark:border-walnut/30">
 
-          <div className="flex justify-between items-center mb-8">
+          {/* Title + Search — stacked on mobile, side by side on desktop */}
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-6 md:mb-8">
 
-            <h1 className="serif-font text-4xl font-bold tracking-tight">
+            <h1 className="serif-font text-3xl md:text-4xl font-bold tracking-tight">
               {t('catalog.title')}
             </h1>
 
-            <div className="flex items-center gap-6">
-              <div className="relative flex items-center">
+            <div className="flex items-center gap-3">
+              <div className="relative flex items-center flex-1 md:flex-none">
                 <span className="material-symbols-outlined absolute left-3 text-black-pearl/50 dark:text-rose-fog/50 text-xl pointer-events-none">
                   search
                 </span>
@@ -244,19 +247,19 @@ const Catalog = () => {
                   placeholder={t('catalog.search', 'Search album or artist...')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-48 sm:w-64 rounded-full border border-black-pearl/20 dark:border-rose-fog/20 bg-timberwolf/40 dark:bg-walnut/40 text-black-pearl dark:text-rose-fog focus:outline-none focus:ring-1 focus:ring-wine-berry focus:border-wine-berry transition-all placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 text-sm italic font-['Cormorant_Garamond'] tracking-wide"
+                  className="pl-10 pr-4 py-2 w-full md:w-64 rounded-full border border-black-pearl/20 dark:border-rose-fog/20 bg-timberwolf/40 dark:bg-walnut/40 text-black-pearl dark:text-rose-fog focus:outline-none focus:ring-1 focus:ring-wine-berry focus:border-wine-berry transition-all placeholder:text-black-pearl/40 dark:placeholder:text-rose-fog/40 text-sm italic font-['Cormorant_Garamond'] tracking-wide"
                 />
               </div>
 
-              <span className="material-symbols-outlined cursor-pointer text-black-pearl/70 dark:text-rose-fog/70 hover:text-wine-berry transition-colors">
+              <span className="material-symbols-outlined cursor-pointer text-black-pearl/70 dark:text-rose-fog/70 hover:text-wine-berry transition-colors shrink-0">
                 filter_list
               </span>
             </div>
 
           </div>
 
-          {/* Genre Filter Pills */}
-          <div className="flex flex-wrap gap-2 mt-2">
+          {/* Genre Filter Pills — horizontal scroll on mobile, wrap on desktop */}
+          <div className="flex md:flex-wrap gap-2 mt-2 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {genres.map((genreKey) => {
               const isSelected = selectedGenre === genreKey;
               const label = genreKey === 'all'
@@ -269,7 +272,7 @@ const Catalog = () => {
                   onClick={() => setSelectedGenre(genreKey)}
                   className={`
                     relative px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] 
-                    transition-all duration-300 border whitespace-nowrap
+                    transition-all duration-300 border whitespace-nowrap shrink-0
                     ${isSelected
                       ? 'bg-[#5E1914] text-[#E1C2B3] border-[#5E1914] shadow-[0_4px_18px_-6px_rgba(94,25,20,0.7)]'
                       : 'bg-black-pearl/5 dark:bg-white/5 text-black-pearl/50 dark:text-rose-fog/50 border-black-pearl/10 dark:border-rose-fog/10 hover:border-[#5E1914]/40 hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/10 dark:hover:bg-white/10'

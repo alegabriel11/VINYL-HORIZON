@@ -14,8 +14,8 @@ import { Toaster } from 'react-hot-toast';
   if (!hasActiveSession && hasStoredToken) {
     localStorage.removeItem('vinyl_token');
     localStorage.removeItem('vinyl_user');
-    // Note: personalization keys (vinyl_avatar_*, vinyl_cover_*, vinyl_profile_record_*)
-    // are intentionally left in localStorage — they are user-scoped and harmless.
+    // Cart keys (vinyl_cart_*) are left intact — CartContext checks sessionStorage
+    // before loading them, so the cart appears empty until the user logs in again.
   }
 })();
 // ──────────────────────────────────────────────────────────────────────────────
@@ -55,14 +55,19 @@ function App() {
                 <MusicCursor />
                 <Toaster
                   position="bottom-right"
+                  containerStyle={{
+                    // On mobile: push toasts above the 64px bottom nav bar
+                    bottom: 'calc(64px + env(safe-area-inset-bottom, 0px) + 8px)',
+                  }}
                   toastOptions={{
-                    duration: 4000,
+                    duration: 3000,
                     style: {
                       background: '#091C2A',
                       color: '#E1C2B3',
                       border: '1px solid rgba(225, 194, 179, 0.2)',
-                      padding: '16px',
-                      fontFamily: 'Montserrat, sans-serif'
+                      padding: '12px 16px',
+                      fontFamily: 'Montserrat, sans-serif',
+                      fontSize: '13px',
                     },
                   }}
                 />

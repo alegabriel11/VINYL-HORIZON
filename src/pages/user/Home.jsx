@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/user/Sidebar';
 import TopBarUser from '../../components/user/TopBarUser';
+import BottomNavBar from '../../components/user/BottomNavBar';
 import '../../Styles/Home.css';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -36,19 +37,20 @@ const Home = () => {
     <div className="bg-timberwolf dark:bg-black-pearl text-black-pearl dark:text-rose-fog selection:bg-black-pearl selection:text-timberwolf dark:selection:bg-rose-fog dark:selection:text-black-pearl transition-colors duration-500">
 
       <Sidebar />
+      <BottomNavBar />
 
       {/* Contenedor Principal */}
-      <main className="min-h-screen relative bg-[#EFEFEF] dark:bg-black-pearl-light ml-64 transition-colors duration-500" id="main-content">
+      <main className="min-h-screen relative bg-[#EFEFEF] dark:bg-black-pearl-light md:ml-64 pb-20 md:pb-0 transition-colors duration-500" id="main-content">
 
         {/* Botón Dark Mode & User Profile */}
-        <div className="fixed top-8 right-8 z-[60] flex items-center gap-4 bg-timberwolf/20 dark:bg-walnut/20 backdrop-blur-md px-2 py-2 pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg">
+        <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4 bg-timberwolf/20 dark:bg-walnut/20 backdrop-blur-md px-2 py-2 pr-3 md:pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg">
           <TopBarUser />
           <button
-            className="flex items-center justify-center p-3 bg-timberwolf/60 dark:bg-walnut/60 hover:bg-timberwolf dark:hover:bg-walnut text-black-pearl dark:text-rose-fog rounded-full transition-all group focus:outline-none"
+            className="flex items-center justify-center p-2 md:p-3 bg-timberwolf/60 dark:bg-walnut/60 hover:bg-timberwolf dark:hover:bg-walnut text-black-pearl dark:text-rose-fog rounded-full transition-all group focus:outline-none"
             onClick={toggleTheme}
             aria-label="Toggle Dark Mode"
           >
-            <span className="material-symbols-outlined block">{isDark ? 'dark_mode' : 'light_mode'}</span>
+            <span className="material-symbols-outlined block text-[18px] md:text-[24px]">{isDark ? 'dark_mode' : 'light_mode'}</span>
           </button>
         </div>
         {/* Hero Section */}
@@ -65,7 +67,7 @@ const Home = () => {
             <div className="absolute inset-0 hero-gradient"></div>
           </div>
           <div className="relative z-10 space-y-6">
-            <h1 className="serif-font text-7xl md:text-9xl font-bold tracking-tighter flex items-center justify-center gap-4 text-white dark:text-rose-fog">
+            <h1 className="serif-font text-5xl md:text-7xl lg:text-9xl font-bold tracking-tighter flex items-center justify-center gap-4 text-white dark:text-rose-fog">
               VINYL HORIZON
             </h1>
             <div className="h-1 w-24 mx-auto rounded-full bg-white dark:bg-rose-fog"></div>
@@ -81,17 +83,6 @@ const Home = () => {
 
         {/* Header Content */}
         <header className="px-8 lg:px-12 pt-12 pb-4 relative flex justify-start">
-          <div className="flex gap-4 lg:hidden mb-8 items-center">
-            <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog cursor-pointer hover:opacity-70 transition-opacity">search</span>
-            <Link to="/cart" className="relative group">
-              <span className="material-symbols-outlined text-black-pearl dark:text-rose-fog hover:opacity-70 transition-opacity">shopping_cart</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-wine-berry text-white-berry text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
           <div className="max-w-4xl relative w-full mt-10">
             <span className="material-symbols-outlined absolute -top-20 -left-12 text-black-pearl/5 dark:text-rose-fog/10 text-[150px] leading-none pointer-events-none select-none">graphic_eq</span>
             <h2 className="display-font text-5xl lg:text-7xl text-black-pearl dark:text-rose-fog leading-tight">{t('home.curated_classics')}</h2>

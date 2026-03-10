@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Sidebar from '../../components/user/Sidebar';
+import BottomNavBar from '../../components/user/BottomNavBar';
 import TopBarUser from '../../components/user/TopBarUser';
 import { CartContext } from '../../context/CartContext';
 import { InventoryContext } from '../../context/InventoryContext';
@@ -125,8 +126,9 @@ const CheckoutPage = () => {
     return (
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
             <Sidebar />
-            <main className="relative ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light p-8 lg:p-16">
-                <div className="absolute top-8 right-8 z-[60] flex items-center gap-4">
+            <BottomNavBar />
+            <main className="relative md:ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light p-4 md:p-8 lg:p-16 pb-24 md:pb-8">
+                <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
                     <button
                         onClick={toggleLanguage}
                         className="px-4 py-2 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg font-bold text-sm tracking-widest focus:outline-none"

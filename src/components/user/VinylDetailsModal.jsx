@@ -96,6 +96,15 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
         return () => { document.body.style.overflow = 'unset'; };
     }, [isOpen]);
 
+    // Auto-play audio preview when modal opens (if available and not already playing)
+    useEffect(() => {
+        if (isOpen && album?.audio_preview_url && !isPlaying) {
+            onToggleAudio();
+        }
+        // We only want this to fire when the modal first opens, not on every isPlaying change
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, album?.id]);
+
     if (!isOpen || !album) return null;
 
     const isOutOfStock = parseInt(album.stock, 10) <= 0;
@@ -105,8 +114,9 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
     });
 
     return (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[fadeIn_0.3s_ease-out]">
-            <div className="bg-timberwolf dark:bg-walnut max-w-5xl w-full rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[550px] relative border border-black/10 dark:border-white/10">
+        <div className="fixed inset-0 z-[90] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm animate-[fadeIn_0.3s_ease-out]">
+            {/* On mobile: bottom sheet. On desktop: centered modal */}
+            <div className="bg-timberwolf dark:bg-walnut w-full md:max-w-5xl rounded-t-[2rem] md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row md:h-[550px] relative border border-black/10 dark:border-white/10 max-h-[92dvh] md:max-h-none">
 
                 {/* Close Button */}
                 <button
@@ -116,8 +126,8 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                     <span className="material-symbols-outlined">close</span>
                 </button>
 
-                {/* LEFT PANE: Album Sleeve Cover */}
-                <div className="w-full md:w-1/2 p-6 md:p-8 flex items-center justify-center relative overflow-hidden bg-black/5 dark:bg-black/20">
+                {/* LEFT PANE: Album Sleeve Cover — short strip on mobile, half-panel on desktop */}
+                <div className="w-full h-[200px] md:h-auto md:w-1/2 p-4 md:p-8 flex items-center justify-center relative overflow-hidden bg-black/5 dark:bg-black/20 shrink-0">
 
                     {/* The Vinyl Record (Slides out from behind when playing) */}
                     <div
@@ -170,8 +180,8 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                     </div>
                 </div>
 
-                {/* RIGHT PANE: Wikipedia Details & Actions */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative z-10">
+                {/* RIGHT PANE: Scrollable info area on mobile */}
+                <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col overflow-y-auto md:overflow-visible relative z-10">
                     <div className="space-y-2 w-full pr-8">
                         {!isOutOfStock && <span className="text-xs font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-2 block">{t('catalog.new_release')}</span>}
                         <h2 className="serif-font text-3xl md:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight break-words">
