@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true, // Permite conexiones desde la red local
+    allowedHosts: true, // Permite cualquier host (necesario para el túnel de Pinggy/cloudflare)
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
