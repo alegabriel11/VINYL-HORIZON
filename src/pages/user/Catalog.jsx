@@ -255,29 +255,35 @@ const Catalog = () => {
 
           </div>
 
-          <nav className="flex gap-12 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+          {/* Genre Filter Pills */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {genres.map((genreKey) => {
+              const isSelected = selectedGenre === genreKey;
+              const label = genreKey === 'all'
+                ? t('catalog.all_genres', 'All')
+                : t(`catalog.genres.${genreKey}`, genreKey.charAt(0).toUpperCase() + genreKey.slice(1));
 
-            {genres.map((genreKey) => (
-
-              <button
-                key={genreKey}
-                onClick={() => setSelectedGenre(genreKey)}
-                className={`serif-font text-xl tracking-widest uppercase pb-4 border-b-2 whitespace-nowrap transition-all
-                ${selectedGenre === genreKey
-                    ? 'border-wine-berry text-black-pearl dark:text-rose-fog'
-                    : 'border-transparent text-black-pearl/40 dark:text-rose-fog/40 hover:text-black-pearl dark:hover:text-rose-fog'
-                  }`}
-              >
-
-                {genreKey === 'all'
-                  ? t('catalog.all_genres', 'All')
-                  : t(`catalog.genres.${genreKey}`, genreKey.charAt(0).toUpperCase() + genreKey.slice(1))}
-
-              </button>
-
-            ))}
-
-          </nav>
+              return (
+                <button
+                  key={genreKey}
+                  onClick={() => setSelectedGenre(genreKey)}
+                  className={`
+                    relative px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] 
+                    transition-all duration-300 border whitespace-nowrap
+                    ${isSelected
+                      ? 'bg-[#5E1914] text-[#E1C2B3] border-[#5E1914] shadow-[0_4px_18px_-6px_rgba(94,25,20,0.7)]'
+                      : 'bg-black-pearl/5 dark:bg-white/5 text-black-pearl/50 dark:text-rose-fog/50 border-black-pearl/10 dark:border-rose-fog/10 hover:border-[#5E1914]/40 hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/10 dark:hover:bg-white/10'
+                    }
+                  `}
+                >
+                  {label}
+                  {isSelected && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E1C2B3] rounded-full ring-2 ring-[#5E1914]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
         </header>
 
