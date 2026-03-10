@@ -15,6 +15,7 @@ const CatalogCard = ({
   genre,
   audioPreviewUrl,
   releaseYear,
+  restockedAt,
   isMuted,
   isPlaying,
   onHoverStart,
@@ -28,6 +29,18 @@ const CatalogCard = ({
   const { addToCart } = useContext(CartContext);
   const { toggleWishlist, isInWishlist } = useContext(WishlistContext);
   const isWishlisted = id ? isInWishlist(id) : false;
+
+  // Check if restocked within last 48 hours
+  let isRecentlyRestocked = false;
+  
+  if (restockedAt) {
+    const restockDate = new Date(restockedAt);
+    const now = new Date();
+    const diffTime = Math.abs(now - restockDate);
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60)); 
+    isRecentlyRestocked = diffHours <= 48;
+  }
+
 
   return (
     <div
@@ -50,6 +63,14 @@ const CatalogCard = ({
             <img src={image} alt={album} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${outOfStock ? 'grayscale' : ''}`} />
           ) : (
             <span className="material-symbols-outlined text-black-pearl/20 dark:text-rose-fog/20 text-6xl">album</span>
+          )}
+
+          {isRecentlyRestocked && !outOfStock && (
+            <div className="absolute top-3 left-3 z-20">
+              <span className="bg-wine-berry text-rose-fog text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-widest animate-pulse border border-rose-fog/30">
+                {currentLang === 'es' ? '¡REABASTECIDO!' : 'BACK IN STOCK'}
+              </span>
+            </div>
           )}
 
           {/* Botón Wishlist */}

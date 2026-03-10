@@ -47,6 +47,14 @@ export const CartProvider = ({ children }) => {
     };
 
     const addToCart = (product) => {
+        if (userId === 'guest') {
+            toast.error(t('cart.login_required', 'Inicia sesión para comprar'), {
+                style: { background: '#091C2A', color: '#E1C2B3' }
+            });
+            window.location.href = '/login';
+            return;
+        }
+
         if (parseInt(product.stock, 10) <= 0) {
             toast.error(t('cart.out_of_stock', 'Out of stock'));
             return;

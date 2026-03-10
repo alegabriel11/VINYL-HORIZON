@@ -305,6 +305,7 @@ const Catalog = () => {
                 releaseYear={album.release_year}
                 genre={album.genre}
                 audioPreviewUrl={album.audio_preview_url}
+                restockedAt={album.restocked_at}
                 isMuted={isMuted}
                 isPlaying={playingPreviewId === album.id}
                 onHoverStart={() => handleCardHoverStart(album)}

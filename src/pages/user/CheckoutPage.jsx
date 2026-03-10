@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,6 @@ import Sidebar from '../../components/user/Sidebar';
 import TopBarUser from '../../components/user/TopBarUser';
 import { CartContext } from '../../context/CartContext';
 import { InventoryContext } from '../../context/InventoryContext';
-import { useContext } from 'react';
 
 const CheckoutPage = () => {
     const { isDark, toggleTheme } = useTheme();
@@ -17,6 +16,13 @@ const CheckoutPage = () => {
     const navigate = useNavigate();
     const { cartItems, subtotal, shipping, taxes, total, clearCart } = useContext(CartContext);
     const { fetchVinyls } = useContext(InventoryContext);
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('vinyl_user');
+        if (!userStr || JSON.parse(userStr).role === 'guest' || !JSON.parse(userStr).id) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     const [paymentMethod, setPaymentMethod] = useState('credit');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -72,7 +78,9 @@ const CheckoutPage = () => {
         try {
             const itemsPayload = cartItems.map(item => ({
                 id: item.id,
-                quantity: item.quantity
+                quantity: item.quantity,
+                title: item.title,
+                artist: item.artist
             }));
 
             const userDataStr = localStorage.getItem('vinyl_user');

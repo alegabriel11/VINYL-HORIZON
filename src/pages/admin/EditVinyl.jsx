@@ -145,6 +145,24 @@ export default function EditVinyl() {
     }
   };
 
+  const [waitlistCount, setWaitlistCount] = useState(0);
+
+  useEffect(() => {
+    const fetchWaitlistCount = async () => {
+      try {
+        if (!sku) return;
+        const res = await fetch(`/api/vinyls/${sku}/waitlist/count`);
+        if (res.ok) {
+          const data = await res.json();
+          setWaitlistCount(data.count || 0);
+        }
+      } catch (err) {
+        console.error("Error fetching waitlist count:", err);
+      }
+    };
+    fetchWaitlistCount();
+  }, [sku]);
+
   useEffect(() => {
     const existingVinyl = inventory.find((v) => v.sku === sku);
     if (existingVinyl) {
@@ -384,8 +402,13 @@ export default function EditVinyl() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
-                    Stock Quantity
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2 flex items-center justify-between">
+                    <span>Stock Quantity</span>
+                    {waitlistCount > 0 && (
+                      <span className="text-[9px] text-wine-berry dark:text-rose-fog animate-pulse">
+                        Demanda actual: {waitlistCount} clientes esperando
+                      </span>
+                    )}
                   </label>
                   <input
                     type="number"

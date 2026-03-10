@@ -40,31 +40,78 @@ exports.getVinyls = async (req, res) => {
 };
 
 exports.updateVinyl = async (req, res) => {
+    const client = await pool.connect();
     try {
         const { sku } = req.params;
         const { title, artist, price, description, cover_image_url, stock, release_year, genre, audio_preview_url } = req.body;
 
+        await client.query('BEGIN');
+
+        // Check original stock
+        const checkQuery = 'SELECT stock FROM vinyls WHERE sku = $1 FOR UPDATE;';
+        const checkResult = await client.query(checkQuery, [sku]);
+        
+        if (checkResult.rowCount === 0) {
+            throw new Error('Vinyl not found');
+        }
+
+        const oldStock = checkResult.rows[0].stock;
+        const newStock = stock || 0;
+
+        let restockedAtUpdate = '';
+        const params = [title, artist, price, description, cover_image_url, newStock, release_year || null, genre || null, audio_preview_url || null];
+        
+        let restocked = false;
+        if (oldStock === 0 && newStock > 0) {
+            restockedAtUpdate = ', restocked_at = CURRENT_TIMESTAMP';
+            restocked = true;
+        }
+
         const query = `
             UPDATE vinyls 
-            SET title = $1, artist = $2, price = $3, description = $4, cover_image_url = $5, stock = $6, release_year = $7, genre = $8, audio_preview_url = $9
+            SET title = $1, artist = $2, price = $3, description = $4, cover_image_url = $5, stock = $6, release_year = $7, genre = $8, audio_preview_url = $9${restockedAtUpdate}
             WHERE sku = $10
             RETURNING *;
         `;
-        const values = [title, artist, price, description, cover_image_url, stock || 0, release_year || null, genre || null, audio_preview_url || null, sku];
+        params.push(sku);
 
-        const result = await pool.query(query, values);
+        const result = await client.query(query, params);
+        const updatedVinyl = result.rows[0];
 
-        if (result.rowCount === 0) {
-            return res.status(404).json({ message: 'Vinyl not found' });
+        if (restocked) {
+            // Find users waiting
+            const waitingUsersQuery = 'SELECT user_id FROM restock_requests WHERE sku = $1;';
+            const usersResult = await client.query(waitingUsersQuery, [sku]);
+            
+            if (usersResult.rowCount > 0) {
+                // Insert notifications for each user
+                const message = `El vinilo ${title || 'que esperabas'} ya está disponible. ¡Corre por él!`;
+                
+                for (const row of usersResult.rows) {
+                    await client.query(
+                        'INSERT INTO notifications (user_id, message) VALUES ($1, $2);',
+                        [row.user_id, message]
+                    );
+                }
+
+                // Delete requests for this sku
+                await client.query('DELETE FROM restock_requests WHERE sku = $1;', [sku]);
+                console.log(`Notified ${usersResult.rowCount} users about restock of SKU ${sku}`);
+            }
         }
 
+        await client.query('COMMIT');
+        
         res.status(200).json({
             message: 'Vinyl updated successfully',
-            vinyl: result.rows[0]
+            vinyl: updatedVinyl
         });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Error updating vinyl:', error);
-        res.status(500).json({ message: 'Error updating vinyl', error: error.message });
+        res.status(error.message === 'Vinyl not found' ? 404 : 500).json({ message: 'Error updating vinyl', error: error.message });
+    } finally {
+        client.release();
     }
 };
 
@@ -204,5 +251,85 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(400).json({ message: 'Error updating order status.', error: error.message });
     } finally {
         client.release();
+    }
+};
+
+exports.addToWaitlist = async (req, res) => {
+    try {
+        const { sku } = req.params;
+        const { userId } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const query = `
+            INSERT INTO restock_requests (id, sku, user_id)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (sku, user_id) DO NOTHING
+            RETURNING *;
+        `;
+        const uuidId = require('crypto').randomUUID();
+        
+        try {
+            await pool.query(query, [uuidId, sku, userId]);
+        } catch (err) {
+            if (err.code === '23505') { 
+                console.log('User already on waitlist');
+            } else if (err.code === '42601' || err.code === '42P10') { 
+                const qsBase = `INSERT INTO restock_requests (id, sku, user_id) VALUES ($1, $2, $3) RETURNING *;`;
+                try { await pool.query(qsBase, [uuidId, sku, userId]); } catch (e) {}
+            } else {
+                throw err;
+            }
+        }
+
+        res.status(200).json({ message: 'Added to waitlist' });
+    } catch (error) {
+        console.error('Error adding to waitlist:', error);
+        res.status(500).json({ message: 'Error adding to waitlist', error: error.message });
+    }
+};
+
+exports.getWaitlistCount = async (req, res) => {
+    try {
+        const { sku } = req.params;
+        const query = 'SELECT COUNT(*) FROM restock_requests WHERE sku = $1;';
+        const result = await pool.query(query, [sku]);
+        res.status(200).json({ count: parseInt(result.rows[0].count, 10) });
+    } catch (error) {
+        console.error('Error getting waitlist count:', error);
+        res.status(500).json({ message: 'Error getting count', error: error.message });
+    }
+};
+
+exports.getUserNotifications = async (req, res) => {
+    try {
+        const userId = req.query.userId || req.user?.id;
+        if (!userId) return res.status(400).json({ message: 'User ID required' });
+
+        const query = 'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC;';
+        const result = await pool.query(query, [userId]);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error getting notifications:', error);
+        res.status(500).json({ message: 'Error fetching notifications', error: error.message });
+    }
+};
+
+exports.getAdminNotifications = async (req, res) => {
+    try {
+        const query = `
+            SELECT r.id, r.sku, r.user_id, r.created_at, v.title as product_title
+            FROM restock_requests r
+            JOIN vinyls v ON r.sku = v.sku
+            ORDER BY r.created_at DESC
+            LIMIT 10;
+        `;
+        const result = await pool.query(query);
+        res.status(200).json({ waitlist: result.rows });
+    } catch (error) {
+        console.error('Error getting admin notifications:', error);
+        res.status(500).json({ message: 'Error fetching admin notifications', error: error.message });
     }
 };
