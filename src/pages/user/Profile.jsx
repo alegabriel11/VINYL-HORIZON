@@ -341,10 +341,10 @@ export default function Profile() {
 
                 <div className="flex items-center justify-center gap-4 mt-6 pt-4">
                   <span className="px-4 py-1.5 bg-[#5E1914]/10 dark:bg-[#E1C2B3]/10 text-[#5E1914] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-[#5E1914]/20 dark:border-[#E1C2B3]/20">
-                    {user?.role === 'admin' ? 'Curator Admin' : 'Luxe Collector'}
+                    {user?.role === 'admin' ? (language === 'ES' ? 'Administrador Curador' : 'Curator Admin') : (language === 'ES' ? 'Coleccionista de Lujo' : 'Luxe Collector')}
                   </span>
                   <span className="px-4 py-1.5 bg-[#5E1914]/10 dark:bg-[#E1C2B3]/10 text-[#5E1914] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-[#5E1914]/20 dark:border-[#E1C2B3]/20">
-                    Since {new Date().getFullYear()}
+                    {language === 'ES' ? 'Desde' : 'Since'} {new Date().getFullYear()}
                   </span>
                 </div>
               </div>
