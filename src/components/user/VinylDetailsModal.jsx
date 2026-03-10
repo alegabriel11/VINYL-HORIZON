@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CartContext } from '../context/CartContext';
+import { CartContext } from '../../context/CartContext';
 
 const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying, onToggleAudio }) => {
     const { t, i18n } = useTranslation();

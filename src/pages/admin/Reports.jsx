@@ -6,8 +6,8 @@ import autoTable from 'jspdf-autotable';
 import { toPng } from 'html-to-image';
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
-import TopBarUser from "../../components/TopBarUser";
-import AdminNotifications from "../../components/AdminNotifications";
+import TopBarUser from "../../components/user/TopBarUser";
+import AdminNotifications from "../../components/admin/AdminNotifications";
 import { Link } from "react-router-dom";
 
 const generateChartPaths = (data) => {

@@ -3,8 +3,8 @@ import { InventoryContext } from "../../context/InventoryContext";
 import AdminSidebar from "./cart/AdminSidebar";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import TopBarUser from "../../components/TopBarUser";
-import AdminNotifications from "../../components/AdminNotifications";
+import TopBarUser from "../../components/user/TopBarUser";
+import AdminNotifications from "../../components/admin/AdminNotifications";
 
 export default function Inventory() {
   const navigate = useNavigate();

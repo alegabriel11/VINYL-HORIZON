@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminSidebar from "./cart/AdminSidebar";
 import { useTranslation } from "react-i18next";
-import TopBarUser from "../../components/TopBarUser";
-import AdminNotifications from "../../components/AdminNotifications";
+import TopBarUser from "../../components/user/TopBarUser";
+import AdminNotifications from "../../components/admin/AdminNotifications";
 
 export default function Orders() {
   const { t } = useTranslation();

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Sidebar from '../components/Sidebar';
-import TopBarUser from '../components/TopBarUser';
-import { CartContext } from '../context/CartContext';
-import { InventoryContext } from '../context/InventoryContext';
+import Sidebar from '../../components/user/Sidebar';
+import TopBarUser from '../../components/user/TopBarUser';
+import { CartContext } from '../../context/CartContext';
+import { InventoryContext } from '../../context/InventoryContext';
 import { useContext } from 'react';
 
 const CheckoutPage = () => {

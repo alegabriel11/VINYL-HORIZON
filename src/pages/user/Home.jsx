@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
-import TopBarUser from '../components/TopBarUser';
-import '../Styles/Home.css';
-import { useTheme } from '../context/ThemeContext';
+import Sidebar from '../../components/user/Sidebar';
+import TopBarUser from '../../components/user/TopBarUser';
+import '../../Styles/Home.css';
+import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { CartContext } from '../context/CartContext';
+import { CartContext } from '../../context/CartContext';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 

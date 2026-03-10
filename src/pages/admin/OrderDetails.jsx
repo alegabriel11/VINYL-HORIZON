@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AdminSidebar from "./cart/AdminSidebar";
-import TopBarUser from "../../components/TopBarUser";
+import TopBarUser from "../../components/user/TopBarUser";
 import { useTranslation } from "react-i18next";
 import toast from 'react-hot-toast';
 import { useTheme } from "../../context/ThemeContext";

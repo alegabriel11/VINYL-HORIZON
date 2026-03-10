@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import ProfileVinylWidget from "../components/ProfileVinylWidget";
-import { useTheme } from "../context/ThemeContext";
-import { useLanguage } from "../context/LanguageContext";
+import Sidebar from '../../components/user/Sidebar';
+import ProfileVinylWidget from '../../components/user/ProfileVinylWidget';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from "react-i18next";
 import toast from 'react-hot-toast';
-import { WishlistContext } from '../context/WishlistContext';
-import { CartContext } from '../context/CartContext';
+import { WishlistContext } from '../../context/WishlistContext';
+import { CartContext } from '../../context/CartContext';
 import { useContext } from 'react';
 
 export default function Profile() {

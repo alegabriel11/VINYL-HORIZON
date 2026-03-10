@@ -1,16 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import MusicCursor from "./components/MusicCursor";
+import ProtectedRoute from "./components/shared/ProtectedRoute";
+import MusicCursor from "./components/shared/MusicCursor";
 import { Toaster } from 'react-hot-toast';
 
-import Home from "./pages/Home";
-import Catalog from "./pages/Catalog";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
+import Home from "./pages/user/Home";
+import Catalog from "./pages/user/Catalog";
+import Profile from "./pages/user/Profile";
+import Login from "./pages/user/Login";
+import Register from "./pages/user/Register";
+import ForgotPassword from "./pages/user/ForgotPassword";
+import CartPage from "./pages/user/CartPage";
+import CheckoutPage from "./pages/user/CheckoutPage";
 
 import { LanguageProvider } from "./context/LanguageContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -18,13 +18,13 @@ import { InventoryProvider } from "./context/InventoryContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 
-import AdminDashboard from "./pages/Admin/Dashboard";
-import AdminInventory from "./pages/Admin/Inventory";
-import AdminOrders from "./pages/Admin/Orders";
-import AdminOrderDetails from "./pages/Admin/OrderDetails";
-import AdminReports from "./pages/Admin/Reports";
-import AddNewVinyl from "./pages/Admin/NewVinyl";
-import AdminEditVinyl from "./pages/Admin/EditVinyl";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminInventory from "./pages/admin/Inventory";
+import AdminOrders from "./pages/admin/Orders";
+import AdminOrderDetails from "./pages/admin/OrderDetails";
+import AdminReports from "./pages/admin/Reports";
+import AddNewVinyl from "./pages/admin/NewVinyl";
+import AdminEditVinyl from "./pages/admin/EditVinyl";
 
 function App() {
   return (

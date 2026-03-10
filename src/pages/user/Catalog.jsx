@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import Sidebar from '../components/Sidebar';
-import CatalogCard from '../components/CatalogCard';
-import TopBarUser from '../components/TopBarUser';
-import TracklistModal from '../components/TracklistModal';
-import VinylDetailsModal from '../components/VinylDetailsModal';
+import Sidebar from '../../components/user/Sidebar';
+import CatalogCard from '../../components/user/CatalogCard';
+import TopBarUser from '../../components/user/TopBarUser';
+import TracklistModal from '../../components/user/TracklistModal';
+import VinylDetailsModal from '../../components/user/VinylDetailsModal';
 
 const Catalog = () => {
   const { isDark, toggleTheme } = useTheme();

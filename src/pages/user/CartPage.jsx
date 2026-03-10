@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import Sidebar from '../components/Sidebar';
-import CartItem from '../components/cart/CartItem';
-import CartSummary from '../components/cart/CartSummary';
-import TopBarUser from '../components/TopBarUser';
-import { CartContext } from '../context/CartContext';
+import Sidebar from '../../components/user/Sidebar';
+import CartItem from '../../components/user/cart/CartItem';
+import CartSummary from '../../components/user/cart/CartSummary';
+import TopBarUser from '../../components/user/TopBarUser';
+import { CartContext } from '../../context/CartContext';
 
 const CartPage = () => {
     const { isDark, toggleTheme } = useTheme();
