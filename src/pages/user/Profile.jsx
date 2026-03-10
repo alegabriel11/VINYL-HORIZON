@@ -342,7 +342,7 @@ export default function Profile() {
               {/* Edit Cover Action Button */}
               <button
                 onClick={() => setIsCoverModalOpen(true)}
-                className="absolute top-6 left-10 md:top-8 md:left-14 z-50 flex items-center gap-4 px-5 py-3 md:px-6 md:py-3.5 bg-[#FFFFFF]/80 dark:bg-[#1E1A18] hover:bg-[#FFFFFF] dark:hover:bg-[#2A2321] backdrop-blur-md rounded-full text-[#3A2E29] dark:text-[#E1C2B3] transition-all shadow-xl border border-black/10 dark:border-[#E1C2B3]/20"
+                className="absolute top-20 left-4 md:top-8 md:left-8 z-50 flex items-center gap-2 md:gap-4 px-3 py-3 md:px-6 md:py-3.5 bg-[#FFFFFF]/80 dark:bg-[#1E1A18] hover:bg-[#FFFFFF] dark:hover:bg-[#2A2321] backdrop-blur-md rounded-full text-[#3A2E29] dark:text-[#E1C2B3] transition-all shadow-xl border border-black/10 dark:border-[#E1C2B3]/20"
               >
                 <span className="material-symbols-outlined text-[1rem]">wallpaper</span>
                 <span className="text-xs uppercase tracking-[0.05em] font-bold hidden sm:inline whitespace-nowrap">

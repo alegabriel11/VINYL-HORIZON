@@ -34,7 +34,7 @@ export default function UserNotificationCenter() {
         };
 
         fetchNotifications();
-        
+
         // Polling for demo purposes
         const interval = setInterval(fetchNotifications, 30000);
         return () => clearInterval(interval);
@@ -56,7 +56,7 @@ export default function UserNotificationCenter() {
             // Optimistic update
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
             setUnreadCount(0);
-            
+
             /* In a real app, hit an endpoint to mark as read
             await fetch('/api/notifications/user/read', { method: 'POST' });
             */
@@ -85,7 +85,7 @@ export default function UserNotificationCenter() {
             </button>
 
             {showDropdown && (
-                <div className="absolute right-0 mt-3 w-80 bg-white-berry dark:bg-black-pearl border border-black/10 dark:border-rose-fog/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
+                <div className="fixed top-20 left-4 right-4 md:absolute md:top-auto md:left-auto md:right-0 md:mt-3 w-auto md:w-80 bg-white-berry dark:bg-black-pearl border border-black/10 dark:border-rose-fog/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
                     <div className="p-4 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-black/5 dark:bg-white/5">
                         <h3 className="font-bold text-sm tracking-widest uppercase text-[#0B1B2A] dark:text-[#E1C2B3]">
                             {t('notifications.title', 'Notificaciones')}
@@ -108,8 +108,8 @@ export default function UserNotificationCenter() {
                         ) : (
                             <div className="flex flex-col">
                                 {notifications.map((notif) => (
-                                    <div 
-                                        key={notif.id} 
+                                    <div
+                                        key={notif.id}
                                         className={`p-4 border-b border-black/5 dark:border-white/5 transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer ${notif.is_read ? 'opacity-70' : 'bg-green-500/5'}`}
                                         onClick={() => navigate('/catalog')}
                                     >
