@@ -69,18 +69,20 @@ export default function TopBarUser() {
     return (
         <div className="flex items-center gap-2">
             
-            {/* Shopping Cart Icon (Visible to all) */}
-            <button 
-                onClick={handleCartClick}
-                className="relative flex items-center justify-center p-2.5 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg"
-            >
-                <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-wine-berry text-[9px] font-bold text-white shadow-md">
-                        {cartCount}
-                    </span>
-                )}
-            </button>
+            {/* Shopping Cart Icon (Hidden for admins) */}
+            {(!user || user.role !== 'admin') && (
+                <button 
+                    onClick={handleCartClick}
+                    className="relative flex items-center justify-center p-2.5 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg"
+                >
+                    <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-wine-berry text-[9px] font-bold text-white shadow-md">
+                            {cartCount}
+                        </span>
+                    )}
+                </button>
+            )}
 
             {user && user.role !== 'admin' && <UserNotificationCenter />}
             
