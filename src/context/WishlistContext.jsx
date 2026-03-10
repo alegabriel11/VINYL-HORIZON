@@ -41,8 +41,12 @@ export const WishlistProvider = ({ children }) => {
 
         // 1. Show localStorage cache immediately
         const cached = localStorage.getItem(`vinyl_wishlist_${userId}`);
+        let localData = null;
         if (cached) {
-            try { setWishlistItems(JSON.parse(cached)); } catch (_) { }
+            try {
+                localData = JSON.parse(cached);
+                setWishlistItems(localData);
+            } catch (_) { }
         }
 
         // 2. Load from DB (source of truth)
@@ -52,6 +56,13 @@ export const WishlistProvider = ({ children }) => {
                 if (Array.isArray(profile.wishlistData) && profile.wishlistData.length > 0) {
                     setWishlistItems(profile.wishlistData);
                     localStorage.setItem(`vinyl_wishlist_${userId}`, JSON.stringify(profile.wishlistData));
+                } else if (localData && localData.length > 0) {
+                    // DB is empty, but local has data: migrate local to DB!
+                    fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId, wishlistData: localData })
+                    }).catch(() => { });
                 }
             })
             .catch(() => { /* silently use cache */ });

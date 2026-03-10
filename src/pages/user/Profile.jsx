@@ -63,13 +63,33 @@ export default function Profile() {
           fetch(`/api/auth/profile/${parsedUser.id}`)
             .then(r => r.json())
             .then(profile => {
+              let needsUpdate = false;
+              const updatePayload = { userId: parsedUser.id };
+
               if (profile.avatarUrl) {
                 setAvatar(profile.avatarUrl);
                 localStorage.setItem(`vinyl_avatar_${parsedUser.id}`, profile.avatarUrl);
+              } else if (cachedAvatar) {
+                // Migrate local avatar to DB
+                needsUpdate = true;
+                updatePayload.avatarUrl = cachedAvatar;
               }
+
               if (profile.coverUrl) {
                 setCoverImage(profile.coverUrl);
                 localStorage.setItem(`vinyl_cover_${parsedUser.id}`, profile.coverUrl);
+              } else if (cachedCover) {
+                // Migrate local cover to DB
+                needsUpdate = true;
+                updatePayload.coverUrl = cachedCover;
+              }
+
+              if (needsUpdate) {
+                fetch('/api/auth/profile', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatePayload)
+                }).catch(() => { });
               }
             })
             .catch(() => {/* silently use cache */ });

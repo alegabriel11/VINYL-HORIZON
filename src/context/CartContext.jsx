@@ -42,8 +42,12 @@ export const CartProvider = ({ children }) => {
 
         // 1. Show localStorage cache immediately (no flicker)
         const cached = localStorage.getItem(`vinyl_cart_${userId}`);
+        let localData = null;
         if (cached) {
-            try { setCartItems(JSON.parse(cached)); } catch (_) { }
+            try {
+                localData = JSON.parse(cached);
+                setCartItems(localData);
+            } catch (_) { }
         }
 
         // 2. Fetch from DB and merge (DB is source of truth across devices)
@@ -53,6 +57,13 @@ export const CartProvider = ({ children }) => {
                 if (Array.isArray(profile.cartData) && profile.cartData.length > 0) {
                     setCartItems(profile.cartData);
                     localStorage.setItem(`vinyl_cart_${userId}`, JSON.stringify(profile.cartData));
+                } else if (localData && localData.length > 0) {
+                    // DB is empty, but local has data: migrate local to DB!
+                    fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId, cartData: localData })
+                    }).catch(() => { });
                 }
             })
             .catch(() => { /* silently use cache */ });
