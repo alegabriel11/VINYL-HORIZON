@@ -8,10 +8,19 @@ export default function NewVinyl() {
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
 
+  // ─── SKU Generator ────────────────────────────────────────────────────────
+  const generateSKU = () => {
+    const now = new Date();
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+    const randomPart = Math.random().toString(36).toUpperCase().slice(2, 7); // 5-char alphanum
+    return `VH-${datePart}-${randomPart}`;
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
   const [formData, setFormData] = useState({
     album: "",
     artist: "",
-    sku: "",
+    sku: generateSKU(), // Auto-generated on mount
     year: "",
     genre: "jazz",
     stock: "",
@@ -346,17 +355,25 @@ export default function NewVinyl() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
-                    SKU
+                    SKU <span className="normal-case opacity-50 font-normal tracking-normal">(auto-generated)</span>
                   </label>
-                  <input
-                    type="text"
-                    name="sku"
-                    value={formData.sku}
-                    onChange={handleChange}
-                    placeholder="VH-XXXXX"
-                    className="w-full px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] placeholder:text-[#0B1B2A]/40 dark:placeholder:text-[#E1C2B3]/20 focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3] focus:border-[#0B1B2A] dark:focus:border-[#E1C2B3] outline-none transition-all bg-transparent"
-                    required
-                  />
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      name="sku"
+                      value={formData.sku}
+                      readOnly
+                      className="flex-1 px-4 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] outline-none bg-black/5 dark:bg-white/5 font-mono text-sm tracking-widest opacity-80 cursor-default select-all"
+                    />
+                    <button
+                      type="button"
+                      title="Generate new SKU"
+                      onClick={() => setFormData(prev => ({ ...prev, sku: generateSKU() }))}
+                      className="px-3 py-3 rounded-lg border border-[#0B1B2A]/40 dark:border-[#E1C2B3]/40 text-[#0B1B2A] dark:text-[#E1C2B3] hover:bg-[#0B1B2A]/10 dark:hover:bg-[#E1C2B3]/10 transition-colors shrink-0"
+                    >
+                      <span className="material-symbols-outlined text-lg">refresh</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div>
