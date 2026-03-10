@@ -28,4 +28,18 @@ router.put('/:sku', asyncHandler(vinylController.updateVinyl));
 // DELETE /api/vinyls/:sku
 router.delete('/:sku', asyncHandler(vinylController.deleteVinyl));
 
+// ==== Waitlist & Notifications ====
+
+// POST /api/vinyls/:sku/waitlist
+router.post('/:sku/waitlist', asyncHandler(vinylController.addToWaitlist));
+
+// GET /api/vinyls/:sku/waitlist/count
+router.get('/:sku/waitlist/count', asyncHandler(vinylController.getWaitlistCount));
+
+// GET /api/vinyls/notifications/user
+router.get('/notifications/user', asyncHandler(vinylController.getUserNotifications));
+
+// GET /api/vinyls/notifications/admin
+router.get('/notifications/admin', asyncHandler(vinylController.getAdminNotifications));
+
 module.exports = router;

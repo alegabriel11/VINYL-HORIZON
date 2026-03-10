@@ -59,41 +59,14 @@ export default function OrderDetails() {
 
             if (res.ok) {
                 setOrder(prev => ({ ...prev, status: 'shipped' }));
-                toast.success(t('status.marked_shipped_success', 'Pedido marcado como enviado exitosamente'), {
-                    style: {
-                        borderRadius: '16px',
-                        background: isDark ? '#1c1c1c' : '#EFEFEF',
-                        color: isDark ? '#fff' : '#0B1B2A',
-                        padding: '12px 24px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        letterSpacing: '0.1em',
-                        border: isDark ? '1px solid rgba(225,194,179,0.1)' : '1px solid rgba(11,27,42,0.1)'
-                    },
-                    iconTheme: { primary: '#4ade80', secondary: isDark ? '#1c1c1c' : '#EFEFEF' }
-                });
+                toast.success(t('status.marked_shipped_success', 'Pedido marcado como enviado exitosamente'));
             } else {
                 const errorData = await res.json();
-                toast.error(errorData.message || 'Error updating order status', {
-                    style: {
-                        borderRadius: '16px',
-                        background: isDark ? '#3A2E29' : '#FEE2E2',
-                        color: isDark ? '#E1C2B3' : '#991B1B',
-                        padding: '12px 24px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                    }
-                });
+                toast.error(errorData.message || 'Error updating order status');
             }
         } catch (error) {
             console.error('Error updating status:', error);
-            toast.error('Error updating status', {
-                style: {
-                    borderRadius: '16px',
-                    background: isDark ? '#3A2E29' : '#FEE2E2',
-                    color: isDark ? '#E1C2B3' : '#991B1B'
-                }
-            });
+            toast.error('Error updating status');
         }
     };
 
@@ -355,28 +328,28 @@ export default function OrderDetails() {
             {isShippingModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-[#091C2A]/60 backdrop-blur-md transition-opacity" onClick={() => setIsShippingModalOpen(false)}></div>
-                    <div className={`relative rounded-3xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-300 ${isDark ? 'bg-[#3A2E29] border border-[#E1C2B3]/20 shadow-black/50' : 'bg-[#EFEFEF] border border-black/10 shadow-black/10'}`}>
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-inner ${isDark ? 'bg-[#1c1c1c] border border-[#E1C2B3]/10' : 'bg-white border border-black/5'}`}>
-                            <span className="material-symbols-outlined text-3xl text-[#4ade80]">local_shipping</span>
+                    <div className={`relative rounded-[2rem] p-8 md:p-12 max-w-md w-full shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-300 ${isDark ? 'bg-[#3A2E29] border border-[#E1C2B3]/20 shadow-black/50' : 'bg-[#EFEFEF] border border-[#0B1B2A]/10 shadow-black/10'}`}>
+                        <div className="w-20 h-20 mx-auto bg-[#5E1914] text-[#E1C2B3] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                            <span className="material-symbols-outlined text-4xl">local_shipping</span>
                         </div>
-                        <h3 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
+                        <h3 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
                             {t('admin.confirm_shipping', '¿Marcar como enviado?')}
                         </h3>
-                        <p className="text-xs text-[#0B1B2A]/70 dark:text-[#E1C2B3]/70 mb-8 px-4">
+                        <p className="text-sm text-[#0B1B2A]/70 dark:text-[#E1C2B3]/70 mb-8 px-4">
                             {t('admin.confirm_shipping_desc', 'Esta acción notificará al sistema y registrará el pedido como procesado y en tránsito. No se puede deshacer de forma simple.')}
                         </p>
-                        <div className="flex gap-4 w-full">
-                            <button
-                                onClick={() => setIsShippingModalOpen(false)}
-                                className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3] bg-black/5 dark:bg-[#E1C2B3]/5 hover:bg-black/10 dark:hover:bg-[#E1C2B3]/10 transition-colors"
-                            >
-                                {t('profile.cancel_hold', 'Espera')}
-                            </button>
+                        <div className="flex flex-col gap-3 w-full">
                             <button
                                 onClick={handleMarkShipped}
-                                className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-[#1c1c1c] dark:bg-[#4ade80] dark:text-[#1c1c1c] hover:brightness-110 transition-all shadow-lg flex justify-center items-center gap-2"
+                                className="w-full bg-[#5E1914] text-[#E1C2B3] hover:brightness-110 transition-all py-3 rounded-full font-bold uppercase tracking-widest text-xs shadow-lg flex justify-center items-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-[14px]">check</span> {t('admin.confirm_shipping_yes', 'Sí, enviar')}
+                            </button>
+                            <button
+                                onClick={() => setIsShippingModalOpen(false)}
+                                className="w-full bg-transparent border border-[#0B1B2A]/30 dark:border-[#E1C2B3]/30 text-[#0B1B2A] dark:text-[#E1C2B3] hover:bg-[#0B1B2A]/5 dark:hover:bg-[#E1C2B3]/5 transition-all py-3 rounded-full font-bold uppercase tracking-widest text-xs"
+                            >
+                                {t('profile.cancel_hold', 'Espera')}
                             </button>
                         </div>
                     </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from '../../components/user/Sidebar';
 import BottomNavBar from '../../components/user/BottomNavBar';
+import TopBarUser from '../../components/user/TopBarUser';
 import ProfileVinylWidget from '../../components/user/ProfileVinylWidget';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -229,24 +230,24 @@ export default function Profile() {
       <BottomNavBar />
 
       <main className={`${mainMl} md:ml-64 transition-all duration-300 min-h-screen relative flex flex-col pb-20 md:pb-0`}>
-        {/* Top Actions (Language / Logout) */}
         <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
           <button
             onClick={toggleLanguage}
             className="px-3 py-1.5 md:px-4 md:py-2 bg-[#D1D1D1]/40 dark:bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#D1D1D1]/60 dark:hover:bg-[#3A2E29]/60 rounded-full transition-all border border-black/10 dark:border-white/10 shadow-lg font-bold text-xs md:text-sm tracking-widest focus:outline-none"
+            aria-label="Toggle Language"
           >
             {language === 'ES' ? 'EN' : 'ES'}
           </button>
 
-          {isLoggedIn && (
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 md:px-4 md:py-2 bg-[#5E1914] text-[#E1C2B3] rounded-full transition-all shadow-lg font-bold text-xs md:text-sm tracking-widest hover:brightness-125 focus:outline-none flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-[1rem]">logout</span>
-              <span className="hidden sm:inline">{t('profile.logout') || 'LOGOUT'}</span>
-            </button>
-          )}
+          <TopBarUser />
+
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center p-2.5 bg-[#D1D1D1]/40 dark:bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#D1D1D1]/60 dark:hover:bg-[#3A2E29]/60 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full transition-all border border-black/10 dark:border-white/10 shadow-lg group focus:outline-none"
+            aria-label="Toggle Dark Mode"
+          >
+            <span className="material-symbols-outlined block text-[18px]">{isDark ? 'dark_mode' : 'light_mode'}</span>
+          </button>
         </div>
 
         {!isLoggedIn ? (
@@ -321,10 +322,10 @@ export default function Profile() {
               {/* Edit Cover Action Button */}
               <button
                 onClick={() => setIsCoverModalOpen(true)}
-                className="absolute top-6 left-6 md:top-8 md:left-8 z-50 flex items-center gap-2 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white/90 hover:text-white transition-all shadow-lg border border-white/10 group"
+                className="absolute top-6 left-10 md:top-8 md:left-14 z-50 flex items-center gap-4 px-5 py-3 md:px-6 md:py-3.5 bg-[#FFFFFF]/80 dark:bg-[#1E1A18] hover:bg-[#FFFFFF] dark:hover:bg-[#2A2321] backdrop-blur-md rounded-full text-[#3A2E29] dark:text-[#E1C2B3] transition-all shadow-xl border border-black/10 dark:border-[#E1C2B3]/20"
               >
                 <span className="material-symbols-outlined text-[1rem]">wallpaper</span>
-                <span className="text-xs uppercase tracking-widest font-bold hidden sm:inline md:opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="text-xs uppercase tracking-[0.05em] font-bold hidden sm:inline whitespace-nowrap">
                   {t('profile.edit_cover', 'Edit Cover')}
                 </span>
               </button>
@@ -381,13 +382,12 @@ export default function Profile() {
               </div>
             </section>
 
-            {/* COLLECTION */}
-            {/* COLLECTION */}
-            <section className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
+            {/* RECENT PURCHASES */}
+            <section id="recent-purchases" className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
-                <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{t('profile.my_collection')}</h3>
+                <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{language === 'ES' ? 'ÚLTIMAS COMPRAS' : 'RECENT PURCHASES'}</h3>
                 <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
-                <span className="hidden sm:block material-symbols-outlined opacity-40">library_music</span>
+                <span className="hidden sm:block material-symbols-outlined opacity-40">shopping_bag</span>
               </div>
 
               {purchases.length === 0 ? (
@@ -409,28 +409,29 @@ export default function Profile() {
                           <div className="flex items-center gap-4">
                             <span className="material-symbols-outlined text-[#5E1914] dark:text-[#E1C2B3]">receipt_long</span>
                             <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
-                              Order #{order.id.slice(0, 8).toUpperCase()}
+                              {language === 'ES' ? 'RECIBO' : 'RECEIPT'} #{order.id.slice(0, 8).toUpperCase()}
                             </h4>
                             <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
                               {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
                             </span>
                           </div>
                           <p className="opacity-70 font-light text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">
-                            Placed on {new Date(order.created_at).toLocaleDateString()}
+                            {language === 'ES' ? 'Compra del' : 'Placed on'} {new Date(order.created_at).toLocaleDateString()}
                           </p>
                           <div className="bg-[#D1D1D1]/50 dark:bg-[#122838]/50 p-4 rounded-xl flex items-center justify-between border border-black/5 dark:border-[#E1C2B3]/5">
-                            <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Total Amount</p>
+                            <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Monto Total' : 'Total Amount'}</p>
                             <p className="text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">${parseFloat(order.total_amount).toFixed(2)}</p>
                           </div>
                         </div>
 
                         <div className="w-full md:w-auto flex flex-col gap-4">
                           <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl w-full md:w-64">
-                            <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">Items ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
-                            <ul className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                            <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Artículos' : 'Items'} ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
+                            <ul className="space-y-3 max-h-40 overflow-y-auto custom-scrollbar pr-2 mt-2">
                               {items.map((item, i) => (
-                                <li key={i} className="flex justify-between text-xs text-[#0B1B2A] dark:text-[#E1C2B3]">
-                                  <span className="truncate flex-1 pr-2">- {item.quantity}x unit</span>
+                                <li key={i} className="flex flex-col text-xs text-[#0B1B2A] dark:text-[#E1C2B3] bg-black/5 dark:bg-white/5 p-2 rounded-lg">
+                                  <span className="truncate font-bold">{item.title || 'Vinilo Clásico'} {item.quantity > 1 ? `(x${item.quantity})` : ''}</span>
+                                  <span className="opacity-60 italic truncate text-[10px] pl-1">{item.artist || 'Special Edition'}</span>
                                 </li>
                               ))}
                             </ul>
@@ -439,10 +440,10 @@ export default function Profile() {
                           {isCancellable && (
                             <button
                               onClick={() => handleCancelOrder(order.id)}
-                              className="w-full py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+                              className="w-full mt-4 py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
                             >
                               <span className="material-symbols-outlined text-sm">cancel</span>
-                              {t('profile.cancel_order', 'Cancel Order')}
+                              {language === 'ES' ? 'CANCELAR PEDIDO' : 'CANCEL ORDER'}
                             </button>
                           )}
                         </div>

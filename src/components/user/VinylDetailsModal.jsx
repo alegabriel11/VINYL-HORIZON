@@ -14,6 +14,40 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
     const [wikiLoading, setWikiLoading] = useState(false);
     const [loadedLang, setLoadedLang] = useState(null);
 
+    // Waitlist State
+    const [waitlistStatus, setWaitlistStatus] = useState(null);
+    const isOutOfStock = album ? parseInt(album.stock, 10) <= 0 : false;
+    
+    // Simulate logged in user ID
+    const currentUserId = "user_123"; 
+
+    // Reset waitlist status on open
+    useEffect(() => {
+        if (isOpen) {
+            setWaitlistStatus(null);
+        }
+    }, [isOpen, album]);
+
+    const handleNotifyMe = async () => {
+        if (!album || !album.sku) return;
+        setWaitlistStatus('loading');
+        try {
+            const res = await fetch(`/api/vinyls/${album.sku}/waitlist`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId })
+            });
+            if (res.ok) {
+                setWaitlistStatus('success');
+            } else {
+                setWaitlistStatus('error');
+            }
+        } catch (err) {
+            console.error("Error joining waitlist:", err);
+            setWaitlistStatus('error');
+        }
+    };
+
     useEffect(() => {
         if (isOpen && album && loadedLang !== currentLang) {
             const fetchWiki = async () => {
@@ -107,7 +141,6 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
 
     if (!isOpen || !album) return null;
 
-    const isOutOfStock = parseInt(album.stock, 10) <= 0;
     const fallbackMessage = t('catalog.fallback_desc', {
         artist: album.artist,
         genre: album.genre || (currentLang === 'es' ? 'vinilo' : 'vinyl')
@@ -238,38 +271,55 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                                 {t('catalog.tracks')}
                             </button>
 
-                            {/* Comprar / Añadir al carrito */}
-                            <button
-                                disabled={isOutOfStock}
-                                onClick={() => {
-                                    addToCart({
-                                        id: album.id,
-                                        artist: album.artist,
-                                        title: album.title,
-                                        price: album.price,
-                                        cover_image_url: album.cover_image_url,
-                                        stock: album.stock,
-                                        outOfStock: isOutOfStock
-                                    });
-                                    onClose(); // Auto-close modal after purchase
-                                }}
-                                className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 ${isOutOfStock
-                                    ? 'bg-wine-berry/50 text-white-berry/50 cursor-not-allowed'
-                                    : 'bg-wine-berry hover:bg-[#4a151b] text-rose-fog hover:shadow-xl hover:-translate-y-1 active:scale-95'
+                            {/* Comprar / Añadir al carrito / Notificar */}
+                            {isOutOfStock ? (
+                                <button
+                                    onClick={handleNotifyMe}
+                                    disabled={waitlistStatus === 'loading' || waitlistStatus === 'success'}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-xl ${
+                                        waitlistStatus === 'success'
+                                            ? 'bg-green-600/20 text-green-700 dark:text-green-400 cursor-default border border-green-600/30'
+                                            : 'bg-[#0B1B2A] hover:bg-[#1a365d] dark:bg-rose-fog dark:text-[#0B1B2A] text-white hover:-translate-y-1 active:scale-95'
                                     }`}
-                            >
-                                {isOutOfStock ? (
-                                    <>
-                                        <span className="material-symbols-outlined">hourglass_empty</span>
-                                        {t('catalog.restock')}
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="material-symbols-outlined">shopping_cart</span>
-                                        {t('catalog.buy_now', 'Comprar')}
-                                    </>
-                                )}
-                            </button>
+                                >
+                                    {waitlistStatus === 'success' ? (
+                                        <>
+                                            <span className="material-symbols-outlined">check_circle</span>
+                                            {t('catalog.notified_button', '¡Te avisaremos!')}
+                                        </>
+                                    ) : waitlistStatus === 'loading' ? (
+                                        <>
+                                            <span className="material-symbols-outlined animate-spin">refresh</span>
+                                            {t('catalog.joining_waitlist', 'Añadiendo...')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined">notifications_active</span>
+                                            {t('catalog.notify_restock', 'Notificarme de nuevo')}
+                                        </>
+                                    )}
+                                </button>
+                            ) : (
+                                <button
+                                    disabled={isOutOfStock}
+                                    onClick={() => {
+                                        addToCart({
+                                            id: album.id,
+                                            artist: album.artist,
+                                            title: album.title,
+                                            price: album.price,
+                                            cover_image_url: album.cover_image_url,
+                                            stock: album.stock,
+                                            outOfStock: isOutOfStock
+                                        });
+                                        onClose(); // Auto-close modal after purchase
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 bg-wine-berry hover:bg-[#4a151b] text-rose-fog hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                                >
+                                    <span className="material-symbols-outlined">shopping_cart</span>
+                                    {t('catalog.buy_now', 'Comprar')}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,6 +16,13 @@ const CartPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { cartItems: items, updateQuantity: handleUpdateQuantity, removeFromCart: handleRemove, subtotal, shipping, taxes } = useContext(CartContext);
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('vinyl_user');
+        if (!userStr || JSON.parse(userStr).role === 'guest' || !JSON.parse(userStr).id) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     return (
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
