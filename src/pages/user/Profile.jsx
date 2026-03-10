@@ -24,8 +24,18 @@ export default function Profile() {
   // Auth State
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [avatar, setAvatar] = useState(() => localStorage.getItem('vinyl_avatar') || null);
-  const [coverImage, setCoverImage] = useState(() => localStorage.getItem('vinyl_cover') || null);
+
+  // Determine user ID key suffix — loaded before state so initial state can use it
+  const getUserKey = (baseKey) => {
+    try {
+      const u = JSON.parse(localStorage.getItem('vinyl_user'));
+      if (u?.id) return `${baseKey}_${u.id}`;
+    } catch (e) { }
+    return baseKey;
+  };
+
+  const [avatar, setAvatar] = useState(() => localStorage.getItem(getUserKey('vinyl_avatar')) || null);
+  const [coverImage, setCoverImage] = useState(() => localStorage.getItem(getUserKey('vinyl_cover')) || null);
   const [purchases, setPurchases] = useState([]);
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
@@ -40,6 +50,14 @@ export default function Profile() {
       try {
         const parsedUser = JSON.parse(userDataStr);
         setUser(parsedUser);
+
+        // Load personalization for THIS specific user
+        if (parsedUser?.id) {
+          const savedAvatar = localStorage.getItem(`vinyl_avatar_${parsedUser.id}`);
+          const savedCover = localStorage.getItem(`vinyl_cover_${parsedUser.id}`);
+          if (savedAvatar) setAvatar(savedAvatar);
+          if (savedCover) setCoverImage(savedCover);
+        }
 
         // Fetch real orders from database for this user
         fetch('/api/vinyls/orders')
@@ -66,13 +84,14 @@ export default function Profile() {
 
   const handleLogout = () => {
     const wasAdmin = user?.role === 'admin';
+    // Only clear auth — personalization stays per-user in localStorage
     localStorage.removeItem('vinyl_token');
     localStorage.removeItem('vinyl_user');
     window.dispatchEvent(new Event('storage'));
     setIsLoggedIn(false);
     setUser(null);
     toast.success('Sesión cerrada / Logged out', { icon: '👋' });
-    navigate(wasAdmin ? '/login' : '/');
+    navigate('/login');
   };
 
   const handleAvatarSelect = (e) => {
@@ -85,7 +104,8 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatar(reader.result);
-        localStorage.setItem('vinyl_avatar', reader.result);
+        const key = user?.id ? `vinyl_avatar_${user.id}` : 'vinyl_avatar';
+        localStorage.setItem(key, reader.result);
         toast.success("Avatar updated!");
       };
       reader.readAsDataURL(file);
@@ -130,7 +150,8 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCoverImage(reader.result);
-        localStorage.setItem('vinyl_cover', reader.result);
+        const key = user?.id ? `vinyl_cover_${user.id}` : 'vinyl_cover';
+        localStorage.setItem(key, reader.result);
         toast.success(t('profile.cover_updated', 'Cover photo updated!'));
         setIsCoverModalOpen(false);
       };
@@ -140,7 +161,8 @@ export default function Profile() {
 
   const selectPresetCover = (url) => {
     setCoverImage(url);
-    localStorage.setItem('vinyl_cover', url);
+    const key = user?.id ? `vinyl_cover_${user.id}` : 'vinyl_cover';
+    localStorage.setItem(key, url);
     toast.success(t('profile.cover_updated', 'Cover photo updated!'));
     setIsCoverModalOpen(false);
   };

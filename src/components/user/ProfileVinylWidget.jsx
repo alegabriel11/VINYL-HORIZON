@@ -8,7 +8,16 @@ export default function ProfileVinylWidget() {
     const { isDark } = useTheme();
     const { t } = useTranslation();
 
-    const [selectedRecord, setSelectedRecord] = useState(() => localStorage.getItem('vinyl_profile_record') || null);
+    // Resolve the per-user key for the selected record
+    const getRecordKey = () => {
+        try {
+            const u = JSON.parse(localStorage.getItem('vinyl_user'));
+            if (u?.id) return `vinyl_profile_record_${u.id}`;
+        } catch (e) { }
+        return 'vinyl_profile_record';
+    };
+
+    const [selectedRecord, setSelectedRecord] = useState(() => localStorage.getItem(getRecordKey()) || null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [catalog, setCatalog] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,14 +41,14 @@ export default function ProfileVinylWidget() {
 
     const handleSelectRecord = (coverUrl) => {
         setSelectedRecord(coverUrl);
-        localStorage.setItem('vinyl_profile_record', coverUrl);
+        localStorage.setItem(getRecordKey(), coverUrl);
         toast.success('Record updated!');
         setIsModalOpen(false);
     };
 
     const handleRemoveRecord = () => {
         setSelectedRecord(null);
-        localStorage.removeItem('vinyl_profile_record');
+        localStorage.removeItem(getRecordKey());
         toast.success('Record removed!');
         setIsModalOpen(false);
     };

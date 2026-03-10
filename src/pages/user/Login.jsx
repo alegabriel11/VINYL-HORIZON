@@ -32,9 +32,14 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                // Autenticado: Guardar JWT en LocalStorage y redirigir
+                // Store credentials in localStorage (persists for personalization key lookup)
                 localStorage.setItem('vinyl_token', data.token);
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+
+                // Session flag in sessionStorage — cleared automatically when browser/tab closes
+                // or page reloads after server restart, forcing re-login
+                sessionStorage.setItem('vinyl_session_active', '1');
+
                 window.dispatchEvent(new Event('storage'));
 
                 toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, vamos a comprar hoy?`, {

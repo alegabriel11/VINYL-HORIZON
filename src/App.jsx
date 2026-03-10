@@ -3,6 +3,24 @@ import ProtectedRoute from "./components/shared/ProtectedRoute";
 import MusicCursor from "./components/shared/MusicCursor";
 import { Toaster } from 'react-hot-toast';
 
+// ─── Session Guard ─────────────────────────────────────────────────────────────
+// sessionStorage is automatically cleared by the browser when the tab is closed
+// or the page fully reloads (which happens after a dev server restart).
+// If no active session flag exists but a stale token is present, we wipe it
+// so the user is forced to log in again.
+(function enforceSessionBoundary() {
+  const hasActiveSession = sessionStorage.getItem('vinyl_session_active');
+  const hasStoredToken = localStorage.getItem('vinyl_token');
+  if (!hasActiveSession && hasStoredToken) {
+    localStorage.removeItem('vinyl_token');
+    localStorage.removeItem('vinyl_user');
+    // Note: personalization keys (vinyl_avatar_*, vinyl_cover_*, vinyl_profile_record_*)
+    // are intentionally left in localStorage — they are user-scoped and harmless.
+  }
+})();
+// ──────────────────────────────────────────────────────────────────────────────
+
+
 import Home from "./pages/user/Home";
 import Catalog from "./pages/user/Catalog";
 import Profile from "./pages/user/Profile";

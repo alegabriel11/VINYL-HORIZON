@@ -13,9 +13,13 @@ export default function TopBarUser() {
     useEffect(() => {
         try {
             const u = JSON.parse(localStorage.getItem('vinyl_user'));
-            if (u) setUser(u);
-            const a = localStorage.getItem('vinyl_avatar');
-            if (a) setAvatar(a);
+            if (u) {
+                setUser(u);
+                // Load the avatar scoped to THIS specific user
+                const avatarKey = u.id ? `vinyl_avatar_${u.id}` : 'vinyl_avatar';
+                const a = localStorage.getItem(avatarKey);
+                if (a) setAvatar(a);
+            }
         } catch (e) { }
 
         const handleClickOutside = (event) => {
@@ -30,13 +34,16 @@ export default function TopBarUser() {
     if (!user) return null;
 
     const handleLogout = () => {
-        const wasAdmin = user?.role === 'admin';
+        // Only clear auth credentials — personalization stays safely under user-scoped keys
         localStorage.removeItem('vinyl_token');
         localStorage.removeItem('vinyl_user');
+
         toast.success(t('sidebar.logout', 'Sesión cerrada') + ' 👋', {
             style: { background: '#091C2A', color: '#E1C2B3' }
         });
-        window.location.href = wasAdmin ? '/login' : '/';
+
+        // Hard redirect clears all in-memory React state
+        window.location.href = '/login';
     };
 
     const getRoleLabel = () => {

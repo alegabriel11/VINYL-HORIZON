@@ -39,10 +39,19 @@ export default function Register() {
             const data = await response.json();
 
             if (response.ok) {
+                // Clear any leftover personalization from a previous session
+                // so the new account always starts with a fresh default profile
+                localStorage.removeItem('vinyl_avatar');
+                localStorage.removeItem('vinyl_cover');
+                localStorage.removeItem('vinyl_profile_record');
+
                 // Autenticado: Guardar JWT en LocalStorage y redirigir
                 localStorage.setItem('vinyl_token', data.token);
-                // Opcional: Podríamos guardar detalles del usuario
                 localStorage.setItem('vinyl_user', JSON.stringify(data.user));
+
+                // Session flag — same as login, cleared on restart/tab close
+                sessionStorage.setItem('vinyl_session_active', '1');
+
                 window.dispatchEvent(new Event('storage'));
 
                 toast.success(`Bienvenido ${data.user.nickname || data.user.firstName}, que vamos a comprar hoy?`, {
