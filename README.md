@@ -19,25 +19,11 @@ If you are developing a production application, we recommend using TypeScript wi
 
 ## 🤖 Activar el Chat de Inteligencia Artificial
 
-El chat de IA requiere un archivo de configuración local que **no se sube a GitHub** por seguridad. Sigue estos pasos:
+Después de hacer `git pull`, corre este comando **una sola vez**:
 
-**1. Crea el archivo `server/.env`** en la carpeta del proyecto con este contenido:
-
-```env
-PORT=5000
-DB_USER=neondb_owner
-DB_PASSWORD=npg_ne2baMdHYW6G
-DB_HOST=ep-purple-shadow-aifiyie5-pooler.c-4.us-east-1.aws.neon.tech
-DB_PORT=5432
-DB_NAME=neondb
-DB_SSL=true
-JWT_SECRET=super_secret_vinyl_horizon_key_change_me_in_productio
-GEMINI_API_KEY=TU_API_KEY_AQUI
+```bash
+npm run setup
 ```
 
-**2. Obtén tu propia API Key gratuita de Gemini:**
-- Entra a https://aistudio.google.com/app/apikey
-- Haz clic en **"Create API key in new project"** *(importante: new project para tener cupo independiente)*
-- Copia la llave y pégala en `GEMINI_API_KEY=` del archivo `.env`
+Esto creará automáticamente el archivo `server/.env` con todo lo necesario para que el chat de IA funcione. 🎵
 
-**3. Reinicia el servidor** y el chat de IA estará activo. 🎵

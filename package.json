@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "setup": "node server/setup.js",
     "dev": "concurrently \"vite\" \"npm run start --prefix server\"",
     "dev:all": "npm run dev",
     "build": "vite build",
