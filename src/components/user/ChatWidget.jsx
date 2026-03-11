@@ -6,6 +6,17 @@ import { useLocation } from 'react-router-dom';
 export default function ChatWidget() {
   const { pathname } = useLocation();
   const isAdminRoute = pathname.startsWith('/admin');
+  
+  // Check if user is logged in via localStorage
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    try {
+      const u = localStorage.getItem('vinyl_user');
+      setUser(u ? JSON.parse(u) : null);
+    } catch (e) {
+      setUser(null);
+    }
+  }, [pathname]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -41,10 +52,14 @@ export default function ChatWidget() {
         body: JSON.stringify({ message: userMessage.text, isAdmin: false })
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-
       const data = await response.json();
-      setMessages((prev) => [...prev, { role: 'assistant', text: data.text }]);
+      if (data.errorType === 'quota') {
+        setMessages((prev) => [...prev, { role: 'assistant', text: '🎵 Los créditos de IA de hoy se han agotado. El Curador estará de vuelta mañana — ¡vuelve pronto!' }]);
+      } else if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } else {
+        setMessages((prev) => [...prev, { role: 'assistant', text: data.text }]);
+      }
     } catch (error) {
       console.error('Error in chat:', error);
       setMessages((prev) => [...prev, { role: 'assistant', text: 'Lo siento, he perdido la conexión por un momento. ¿Podrías repetir?' }]);
@@ -53,7 +68,7 @@ export default function ChatWidget() {
     }
   };
 
-  if (isAdminRoute) return null;
+  if (isAdminRoute || !user) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 font-['Montserrat']">

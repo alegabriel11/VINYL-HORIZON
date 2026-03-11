@@ -36,10 +36,14 @@ export default function AdminAICopilot() {
         body: JSON.stringify({ message: userMessage.text, isAdmin: true })
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-
       const data = await response.json();
-      setMessages((prev) => [...prev, { role: 'assistant', text: data.text }]);
+      if (data.errorType === 'quota') {
+        setMessages((prev) => [...prev, { role: 'assistant', text: '⚠️ Los créditos de IA de hoy se han agotado. El Copiloto estará disponible nuevamente mañana.' }]);
+      } else if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } else {
+        setMessages((prev) => [...prev, { role: 'assistant', text: data.text }]);
+      }
     } catch (error) {
       console.error('Error in chat:', error);
       setMessages((prev) => [...prev, { role: 'assistant', text: 'Error de conexión con el Copiloto.' }]);

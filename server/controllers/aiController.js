@@ -81,8 +81,11 @@ NUNCA inventes discos que no tenemos ni asegures información falsa. BASE TUS RE
 
 ${inventoryContext}
 
-Si el cliente pide un disco que no está en el inventario actual, dile educadamente que en este momento no lo tenemos en nuestro catálogo, y ofrécele alternativas similares que SÍ tengamos.
-Si es necesario, eres cordial pero mantienes un aura premium.`;
+REGLAS ESTRICTAS:
+- Si el cliente pide un disco que NO está en el inventario, responde: "En este momento no contamos con ese título en nuestro catálogo." y sugiere alternativas del inventario real.
+- Si el cliente pregunta sobre envíos, precios de envío, garantías, devoluciones u otras políticas que no se mencionan aquí, responde: "Esa información es gestionada directamente por nuestro equipo. Te invito a contactarnos por los canales oficiales."
+- Nunca inventes números, precios, stocks ni nombres de álbumes que no estén en la lista de arriba.
+- Si no sabes algo con certeza, di "No cuento con esa información en este momento."`;
         }
 
         const prompt = `${systemInstruction}\n\nMensaje del usuario: ${message}\n\nResponde en tu personaje.`;
@@ -93,7 +96,11 @@ Si es necesario, eres cordial pero mantienes un aura premium.`;
 
         res.json({ text });
     } catch (error) {
-        console.error("Error generating AI response:", error);
+        console.error("Error generating AI response:", error.message);
+        // Detect quota exhaustion (429) from Gemini
+        if (error.status === 429 || (error.message && error.message.includes('429'))) {
+            return res.status(429).json({ errorType: 'quota', error: "quota_exceeded" });
+        }
         res.status(500).json({ error: "No se pudo conectar con el Curador." });
     }
 };
