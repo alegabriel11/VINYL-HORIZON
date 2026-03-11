@@ -9,19 +9,19 @@ const generateResponse = async (req, res) => {
         const { message, isAdmin } = req.body;
 
         // Escogemos el modelo rápido para chat
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let systemInstruction = "";
-        
+
         if (isAdmin) {
-             // Gather Business Intelligence for Admin Copilot
-             const ordersRes = await pool.query("SELECT COUNT(*) as total_orders, SUM(total_amount) as total_revenue, AVG(total_amount) as avg_ticket FROM orders WHERE status IN ('paid', 'shipped')");
-             const { total_orders, total_revenue, avg_ticket } = ordersRes.rows[0];
+            // Gather Business Intelligence for Admin Copilot
+            const ordersRes = await pool.query("SELECT COUNT(*) as total_orders, SUM(total_amount) as total_revenue, AVG(total_amount) as avg_ticket FROM orders WHERE status IN ('paid', 'shipped')");
+            const { total_orders, total_revenue, avg_ticket } = ordersRes.rows[0];
 
-             const criticalStockRes = await pool.query("SELECT title, artist, stock FROM vinyls WHERE stock > 0 AND stock <= 3");
-             let criticalStockStr = criticalStockRes.rows.map(v => `- ${v.title} por ${v.artist} (Stock: ${v.stock})`).join('\n') || "Ninguno";
+            const criticalStockRes = await pool.query("SELECT title, artist, stock FROM vinyls WHERE stock > 0 AND stock <= 3");
+            let criticalStockStr = criticalStockRes.rows.map(v => `- ${v.title} por ${v.artist} (Stock: ${v.stock})`).join('\n') || "Ninguno";
 
-             const wishlistRes = await pool.query(`
+            const wishlistRes = await pool.query(`
                  SELECT v.title, v.artist, COUNT(r.id) as request_count 
                  FROM restock_requests r 
                  JOIN vinyls v ON r.sku = v.sku 
@@ -29,9 +29,9 @@ const generateResponse = async (req, res) => {
                  ORDER BY request_count DESC 
                  LIMIT 5;
              `);
-             let desiredStr = wishlistRes.rows.map(v => `- ${v.title} por ${v.artist} (${v.request_count} solicitudes)`).join('\n') || "Ninguno";
+            let desiredStr = wishlistRes.rows.map(v => `- ${v.title} por ${v.artist} (${v.request_count} solicitudes)`).join('\n') || "Ninguno";
 
-             const repeatUsersRes = await pool.query(`
+            const repeatUsersRes = await pool.query(`
                  WITH user_order_counts AS (
                      SELECT user_id, COUNT(*) as order_count
                      FROM orders
@@ -43,10 +43,10 @@ const generateResponse = async (req, res) => {
                      SUM(CASE WHEN order_count > 1 THEN 1 ELSE 0 END) as repeat_customers
                  FROM user_order_counts;
              `);
-             const { total_customers, repeat_customers } = repeatUsersRes.rows[0] || { total_customers: 0, repeat_customers: 0 };
-             const repeatRate = total_customers > 0 ? ((repeat_customers / total_customers) * 100).toFixed(2) : 0;
+            const { total_customers, repeat_customers } = repeatUsersRes.rows[0] || { total_customers: 0, repeat_customers: 0 };
+            const repeatRate = total_customers > 0 ? ((repeat_customers / total_customers) * 100).toFixed(2) : 0;
 
-             const adminContext = `
+            const adminContext = `
 REPORTE DE NEGOCIO ACTUAL:
 Ventas Totales: $${Number(total_revenue || 0).toFixed(2)} (en ${total_orders} pedidos)
 Ticket Promedio: $${Number(avg_ticket || 0).toFixed(2)} por pedido
@@ -57,24 +57,24 @@ Discos Más Deseados (Lista de espera):
 ${desiredStr}
              `;
 
-             systemInstruction = `Eres el Asistente de Gerencia de Vinyl Horizon. Ayudas a redactar correos para clientes, traduces textos de productos y ofreces consejos de logística. Eres profesional, eficiente y estás diseñado para facilitar el trabajo del administrador.
+            systemInstruction = `Eres el Asistente de Gerencia de Vinyl Horizon. Ayudas a redactar correos para clientes, traduces textos de productos y ofreces consejos de logística. Eres profesional, eficiente y estás diseñado para facilitar el trabajo del administrador.
 Cuando el administrador te consulte por métricas, reportes o analíticas del negocio, utiliza ESTRICTAMENTE los siguientes datos reales de la base de datos:
 ${adminContext}`;
         } else {
-             // Fetch real inventory from the database
-             const resultDb = await pool.query('SELECT title, artist, genre, stock, price FROM vinyls WHERE stock > 0');
-             const inventory = resultDb.rows;
-             
-             let inventoryContext = "INVENTARIO ACTUAL DISPONIBLE:\n";
-             if(inventory.length > 0) {
-                 inventory.forEach(v => {
-                     inventoryContext += `- ${v.title} por ${v.artist} (${v.genre}) - $${v.price} - Stock: ${v.stock}\n`;
-                 });
-             } else {
-                 inventoryContext += "Actualmente no hay vinilos disponibles.\n";
-             }
+            // Fetch real inventory from the database
+            const resultDb = await pool.query('SELECT title, artist, genre, stock, price FROM vinyls WHERE stock > 0');
+            const inventory = resultDb.rows;
 
-             systemInstruction = `Eres el Curador Experto de Vinyl Horizon, una tienda boutique de discos de vinilo. 
+            let inventoryContext = "INVENTARIO ACTUAL DISPONIBLE:\n";
+            if (inventory.length > 0) {
+                inventory.forEach(v => {
+                    inventoryContext += `- ${v.title} por ${v.artist} (${v.genre}) - $${v.price} - Stock: ${v.stock}\n`;
+                });
+            } else {
+                inventoryContext += "Actualmente no hay vinilos disponibles.\n";
+            }
+
+            systemInstruction = `Eres el Curador Experto de Vinyl Horizon, una tienda boutique de discos de vinilo. 
 Tu tono es elegante, nostálgico, conocedor y apasionado por el audio analógico.
 Ayudas a los clientes a descubrir música, respondes dudas sobre formatos físicos y envíos.
 NUNCA inventes discos que no tenemos ni asegures información falsa. BASE TUS RECOMENDACIONES ESTRICTAMENTE EN EL SIGUIENTE INVENTARIO ACTUAL:
