@@ -17,9 +17,9 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
     // Waitlist State
     const [waitlistStatus, setWaitlistStatus] = useState(null);
     const isOutOfStock = album ? parseInt(album.stock, 10) <= 0 : false;
-    
+
     // Simulate logged in user ID
-    const currentUserId = "user_123"; 
+    const currentUserId = "user_123";
 
     // Reset waitlist status on open
     useEffect(() => {
@@ -213,8 +213,8 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                     </div>
                 </div>
 
-                {/* RIGHT PANE: Scrollable info area on mobile */}
-                <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col overflow-y-auto md:overflow-visible relative z-10">
+                {/* RIGHT PANE: Scrollable info area */}
+                <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col overflow-y-auto relative z-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-wine-berry/50 [&::-webkit-scrollbar-thumb]:rounded-full">
                     <div className="space-y-2 w-full pr-8">
                         {!isOutOfStock && <span className="text-xs font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-2 block">{t('catalog.new_release')}</span>}
                         <h2 className="serif-font text-3xl md:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight break-words">
@@ -276,11 +276,10 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                                 <button
                                     onClick={handleNotifyMe}
                                     disabled={waitlistStatus === 'loading' || waitlistStatus === 'success'}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-xl ${
-                                        waitlistStatus === 'success'
+                                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-xl ${waitlistStatus === 'success'
                                             ? 'bg-green-600/20 text-green-700 dark:text-green-400 cursor-default border border-green-600/30'
                                             : 'bg-[#0B1B2A] hover:bg-[#1a365d] dark:bg-rose-fog dark:text-[#0B1B2A] text-white hover:-translate-y-1 active:scale-95'
-                                    }`}
+                                        }`}
                                 >
                                     {waitlistStatus === 'success' ? (
                                         <>
