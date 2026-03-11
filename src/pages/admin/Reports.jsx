@@ -369,7 +369,6 @@ export default function Reports() {
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-8 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-center mb-8">
               <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.top_selling')}</h4>
-              <span className="material-symbols-outlined text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 cursor-pointer">more_horiz</span>
             </div>
             <div className="space-y-6">
               {reportData.topVinyls.length === 0 ? (
