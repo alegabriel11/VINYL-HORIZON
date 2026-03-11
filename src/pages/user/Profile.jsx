@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import toast from 'react-hot-toast';
 import { WishlistContext } from '../../context/WishlistContext';
 import { CartContext } from '../../context/CartContext';
+import { InventoryContext } from '../../context/InventoryContext';
 import { useContext } from 'react';
 
 export default function Profile() {
@@ -20,6 +21,7 @@ export default function Profile() {
 
   const { wishlistItems, removeFromWishlist } = useContext(WishlistContext);
   const { addToCart } = useContext(CartContext);
+  const { inventory } = useContext(InventoryContext);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -41,6 +43,8 @@ export default function Profile() {
   const [purchases, setPurchases] = useState([]);
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
+  const [isCollectionOpen, setIsCollectionOpen] = useState(false);
+  const [isPurchasesOpen, setIsPurchasesOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('vinyl_token');
@@ -271,6 +275,22 @@ export default function Profile() {
 
   const userTier = getCollectorTier(totalVinylsOwned);
 
+  const uniqueVinylCovers = Array.from(new Set(
+    purchases.flatMap(order => {
+      if (order.status !== 'shipped') return [];
+      const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+
+      // We map the incoming order items to their cover URLs using the global inventory
+      return items.map(item => {
+        // The database order items often only have full UUID 'id' strings.
+        // InventoryContext formats these down to 8-character 'sku's natively. 
+        const shortId = item.id && typeof item.id === 'string' ? item.id.slice(0, 8) : null;
+        const invItem = inventory?.find(v => v.sku === item.id || v.sku === shortId);
+        return invItem ? invItem.img : null;
+      });
+    }).filter(Boolean)
+  ));
+
   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
 
   return (
@@ -436,76 +456,125 @@ export default function Profile() {
               </div>
             </section>
 
+            {/* MY COLLECTION */}
+            <section id="my-collection" className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/10 dark:bg-[#122838]/10 transition-colors">
+              <button
+                onClick={() => setIsCollectionOpen(!isCollectionOpen)}
+                className="w-full flex items-center justify-between mb-8 group"
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                  <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">
+                    {t('profile.my_collection', 'Mi Colección')}
+                  </h3>
+                  <div className="h-px w-16 md:w-32 bg-black/10 dark:bg-[#3A2E29]/50 transition-all group-hover:w-24 md:group-hover:w-48" />
+                </div>
+                <span className={`material-symbols-outlined transition-transform duration-500 text-3xl opacity-40 group-hover:opacity-100 ${isCollectionOpen ? 'rotate-180' : ''}`}>expand_more</span>
+              </button>
+
+              <div className={`transition-all duration-700 ease-in-out relative ${isCollectionOpen ? 'max-h-[5000px] opacity-100' : 'max-h-24 sm:max-h-32 overflow-hidden opacity-80'}`}>
+                {!isCollectionOpen && uniqueVinylCovers.length > 0 && (
+                  <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#EFEFEF] dark:from-[#091C2A] to-transparent z-10 pointer-events-none transition-colors duration-500" />
+                )}
+
+                {uniqueVinylCovers.length === 0 ? (
+                  <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
+                    <span className="material-symbols-outlined text-6xl mb-4">album</span>
+                    <p className="font-['Cormorant_Garamond'] text-2xl italic">
+                      {t('profile.empty_collection', 'Tu colección está vacía.')}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 justify-center pb-8 pt-4 px-2">
+                    {uniqueVinylCovers.map((cover, idx) => (
+                      <div key={idx} className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-xl overflow-hidden vinyl-shadow group shrink-0 border border-black/5 dark:border-white/5">
+                        <img src={cover} alt="Vinyl Cover" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
             {/* RECENT PURCHASES */}
             <section id="recent-purchases" className="px-4 border-t border-black/5 dark:border-[#E1C2B3]/5 lg:px-20 py-16 bg-[#D1D1D1]/30 dark:bg-[#122838]/30 transition-colors">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-12">
-                <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">{language === 'ES' ? 'ÚLTIMAS COMPRAS' : 'RECENT PURCHASES'}</h3>
-                <div className="h-px flex-1 bg-black/10 dark:bg-[#3A2E29]/50 w-full sm:w-auto" />
-                <span className="hidden sm:block material-symbols-outlined opacity-40">shopping_bag</span>
+              <button
+                onClick={() => setIsPurchasesOpen(!isPurchasesOpen)}
+                className="w-full flex items-center justify-between mb-8 group"
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                  <h3 className="font-['Playfair_Display'] text-3xl sm:text-4xl uppercase tracking-tight">
+                    {language === 'ES' ? 'ÚLTIMAS COMPRAS' : 'RECENT PURCHASES'}
+                  </h3>
+                  <div className="h-px w-16 md:w-32 bg-black/10 dark:bg-[#3A2E29]/50 transition-all group-hover:w-24 md:group-hover:w-48" />
+                  <span className="hidden sm:block material-symbols-outlined opacity-40">shopping_bag</span>
+                </div>
+                <span className={`material-symbols-outlined transition-transform duration-500 text-3xl opacity-40 group-hover:opacity-100 ${isPurchasesOpen ? 'rotate-180' : ''}`}>expand_more</span>
+              </button>
+
+              <div className={`transition-all duration-700 ease-in-out overflow-hidden ${isPurchasesOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                {purchases.length === 0 ? (
+                  <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
+                    <span className="material-symbols-outlined text-6xl mb-4">receipt_long</span>
+                    <p className="font-['Cormorant_Garamond'] text-2xl italic">
+                      {language === 'ES' ? 'No has realizado ninguna orden aún.' : 'No orders yet.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6 max-w-5xl mx-auto">
+                    {purchases.map((order, idx) => {
+                      const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+                      const isCancellable = order.status === 'paid' || order.status === 'pending';
+
+                      return (
+                        <div key={`${order.id}-${idx}`} className="bg-[#EFEFEF] dark:bg-[#091C2A] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start justify-between border border-black/10 dark:border-[#E1C2B3]/10 shadow-lg">
+                          <div className="flex-1 space-y-4 w-full">
+                            <div className="flex items-center gap-4">
+                              <span className="material-symbols-outlined text-[#5E1914] dark:text-[#E1C2B3]">receipt_long</span>
+                              <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
+                                {language === 'ES' ? 'RECIBO' : 'RECEIPT'} #{order.id.slice(0, 8).toUpperCase()}
+                              </h4>
+                              <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
+                                {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
+                              </span>
+                            </div>
+                            <p className="opacity-70 font-light text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">
+                              {language === 'ES' ? 'Compra del' : 'Placed on'} {new Date(order.created_at).toLocaleDateString()}
+                            </p>
+                            <div className="bg-[#D1D1D1]/50 dark:bg-[#122838]/50 p-4 rounded-xl flex items-center justify-between border border-black/5 dark:border-[#E1C2B3]/5">
+                              <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Monto Total' : 'Total Amount'}</p>
+                              <p className="text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">${parseFloat(order.total_amount).toFixed(2)}</p>
+                            </div>
+                          </div>
+
+                          <div className="w-full md:w-auto flex flex-col gap-4">
+                            <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl w-full md:w-64">
+                              <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Artículos' : 'Items'} ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
+                              <ul className="space-y-3 max-h-40 overflow-y-auto custom-scrollbar pr-2 mt-2">
+                                {items.map((item, i) => (
+                                  <li key={i} className="flex flex-col text-xs text-[#0B1B2A] dark:text-[#E1C2B3] bg-black/5 dark:bg-white/5 p-2 rounded-lg">
+                                    <span className="truncate font-bold">{item.title || 'Vinilo Clásico'} {item.quantity > 1 ? `(x${item.quantity})` : ''}</span>
+                                    <span className="opacity-60 italic truncate text-[10px] pl-1">{item.artist || 'Special Edition'}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {isCancellable && (
+                              <button
+                                onClick={() => handleCancelOrder(order.id)}
+                                className="w-full mt-4 py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+                              >
+                                <span className="material-symbols-outlined text-sm">cancel</span>
+                                {language === 'ES' ? 'CANCELAR PEDIDO' : 'CANCEL ORDER'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-
-              {purchases.length === 0 ? (
-                <div className="text-center py-12 text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">
-                  <span className="material-symbols-outlined text-6xl mb-4">receipt_long</span>
-                  <p className="font-['Cormorant_Garamond'] text-2xl italic">
-                    {language === 'ES' ? 'No has realizado ninguna orden aún.' : 'No orders yet.'}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-6 max-w-5xl mx-auto">
-                  {purchases.map((order, idx) => {
-                    const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
-                    const isCancellable = order.status === 'paid' || order.status === 'pending';
-
-                    return (
-                      <div key={`${order.id}-${idx}`} className="bg-[#EFEFEF] dark:bg-[#091C2A] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start justify-between border border-black/10 dark:border-[#E1C2B3]/10 shadow-lg">
-                        <div className="flex-1 space-y-4 w-full">
-                          <div className="flex items-center gap-4">
-                            <span className="material-symbols-outlined text-[#5E1914] dark:text-[#E1C2B3]">receipt_long</span>
-                            <h4 className="font-['Cormorant_Garamond'] text-xl font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">
-                              {language === 'ES' ? 'RECIBO' : 'RECEIPT'} #{order.id.slice(0, 8).toUpperCase()}
-                            </h4>
-                            <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
-                              {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
-                            </span>
-                          </div>
-                          <p className="opacity-70 font-light text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">
-                            {language === 'ES' ? 'Compra del' : 'Placed on'} {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                          <div className="bg-[#D1D1D1]/50 dark:bg-[#122838]/50 p-4 rounded-xl flex items-center justify-between border border-black/5 dark:border-[#E1C2B3]/5">
-                            <p className="text-xs uppercase tracking-widest font-bold text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Monto Total' : 'Total Amount'}</p>
-                            <p className="text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">${parseFloat(order.total_amount).toFixed(2)}</p>
-                          </div>
-                        </div>
-
-                        <div className="w-full md:w-auto flex flex-col gap-4">
-                          <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl w-full md:w-64">
-                            <h5 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{language === 'ES' ? 'Artículos' : 'Items'} ({items.reduce((acc, curr) => acc + curr.quantity, 0)})</h5>
-                            <ul className="space-y-3 max-h-40 overflow-y-auto custom-scrollbar pr-2 mt-2">
-                              {items.map((item, i) => (
-                                <li key={i} className="flex flex-col text-xs text-[#0B1B2A] dark:text-[#E1C2B3] bg-black/5 dark:bg-white/5 p-2 rounded-lg">
-                                  <span className="truncate font-bold">{item.title || 'Vinilo Clásico'} {item.quantity > 1 ? `(x${item.quantity})` : ''}</span>
-                                  <span className="opacity-60 italic truncate text-[10px] pl-1">{item.artist || 'Special Edition'}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {isCancellable && (
-                            <button
-                              onClick={() => handleCancelOrder(order.id)}
-                              className="w-full mt-4 py-3 bg-[#5E1914] text-[#E1C2B3] text-xs font-bold uppercase tracking-widest rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-sm">cancel</span>
-                              {language === 'ES' ? 'CANCELAR PEDIDO' : 'CANCEL ORDER'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </section>
 
             {/* WISHLIST SECTION */}
@@ -662,6 +731,6 @@ export default function Profile() {
         )}
 
       </main>
-    </div>
+    </div >
   );
 }
