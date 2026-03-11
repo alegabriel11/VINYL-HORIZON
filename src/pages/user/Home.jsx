@@ -12,9 +12,19 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   const { isDark, toggleTheme } = useTheme();
   const { t } = useTranslation();
-  const { addToCart, cartCount } = useContext(CartContext);
+  const { addToCart } = useContext(CartContext);
 
   const [recentVinyls, setRecentVinyls] = useState([]);
+  const [randomVinyl, setRandomVinyl] = useState(null);
+
+  const isLoggedIn = !!localStorage.getItem('vinyl_token');
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   useEffect(() => {
     const fetchRecentVinyls = async () => {
@@ -22,8 +32,14 @@ const Home = () => {
         const response = await fetch('/api/vinyls');
         if (response.ok) {
           const data = await response.json();
+
+          if (data.length > 0) {
+            const randomIndex = Math.floor(Math.random() * data.length);
+            setRandomVinyl(data[randomIndex]);
+          }
+
           // Assume the latest added are at the end of the array, or sort by id descending
-          const sorted = data.sort((a, b) => b.id - a.id);
+          const sorted = [...data].sort((a, b) => b.id - a.id);
           setRecentVinyls(sorted.slice(0, 3));
         }
       } catch (error) {
@@ -98,57 +114,70 @@ const Home = () => {
             <h3 className="text-xs font-bold tracking-[0.3em] text-black-pearl/60 dark:text-rose-fog/60 uppercase">{t('home.recommended')}</h3>
             <span className="material-symbols-outlined text-black-pearl/40 dark:text-rose-fog/40 text-sm">stars</span>
           </div>
-          <div className="bg-white rounded-friendly p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-16 border border-black-pearl/10 dark:border-white-berry/10 text-black-pearl overflow-hidden shadow-2xl">
-            <div className="flex-1 z-10 w-full">
-              <div className="space-y-8 max-w-md">
-                <div className="space-y-2">
-                  <h4 className="display-font text-4xl lg:text-5xl uppercase tracking-tight">Michael Corey</h4>
-                  <div className="flex items-center gap-4">
-                    <span className="serif-font italic text-2xl opacity-70">1996</span>
-                    <div className="h-px flex-1 bg-black-pearl/20"></div>
+          {randomVinyl ? (
+            <div className="bg-white rounded-friendly p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-16 border border-black-pearl/10 dark:border-white-berry/10 text-black-pearl overflow-hidden shadow-2xl">
+              <div className="flex-1 z-10 w-full">
+                <div className="space-y-8 max-w-md">
+                  <div className="space-y-2">
+                    <h4 className="display-font text-4xl lg:text-5xl uppercase tracking-tight">{randomVinyl.artist}</h4>
+                    <div className="flex items-center gap-4">
+                      <span className="serif-font italic text-2xl opacity-70">{randomVinyl.release_year || 'Unknown'}</span>
+                      <div className="h-px flex-1 bg-black-pearl/20"></div>
+                    </div>
                   </div>
-                </div>
-                <p className="text-xl font-medium italic">Who's round the corner</p>
-                <p className="opacity-70 leading-relaxed font-light">
-                  A haunting exploration of grunge aesthetics softened by a velvet vocal delivery. A definitive record for any serious collector.
-                </p>
-                <div className="pt-6">
-                  <span className="display-font text-5xl font-bold">$85.00</span>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button
-                    onClick={() => addToCart({
-                      id: 9999, // Dummy ID for featured Michael Corey
-                      artist: 'Michael Corey',
-                      title: "Who's round the corner",
-                      price: 85.00,
-                      cover_image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs',
-                      stock: 10,
-                      outOfStock: false
+                  <p className="text-xl font-medium italic">{randomVinyl.title}</p>
+                  <p className="opacity-70 leading-relaxed font-light">
+                    {randomVinyl.description || t('catalog.fallback_desc', {
+                      artist: randomVinyl.artist,
+                      genre: randomVinyl.genre || 'masterpiece'
                     })}
-                    className="bg-rose-fog hover:bg-black-pearl hover:text-white-berry text-black-pearl px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly shadow-lg"
-                  >
-                    {t('home.add_to_collection')}
-                  </button>
-                  <button className="border border-black-pearl/20 text-black-pearl hover:bg-black-pearl hover:text-white-berry px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly">
-                    {t('home.view_catalog')}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 relative flex justify-center items-center w-full min-h-[350px]">
-              <div className="relative group cursor-pointer">
-                <img alt="Album Cover" className="w-64 h-64 lg:w-96 lg:h-96 object-cover shadow-2xl z-20 relative rounded-friendly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSyEMMxDoRgYQsbR7BIv3WfS8cf2my-hk35n6-YI44kOY1Z9tU5pnNkmgmCKlW3OZ1g4rNrvLQ5f4pa1tSNwmNtkcvA8Nra19pVtNQ4bmJ4CEQuTMYWYQaNN5WVJHCatuOVdoLyZi7kMbzRxFOoPR0-ujn1d5DJo0-wxgWmW3D11XwVs0PFBEoLlFnvIyE8nfHDq4iT7ZDKj3J_YTNZxa6SxEl6mTQ5x_dptO97V6U67IkBudue5mxp5iGK38cFwtBN6UKiTjBs7bs" />
-                <div className="absolute top-1/2 -right-16 lg:-right-24 -translate-y-1/2 w-64 h-64 lg:w-96 lg:h-96 bg-[#050505] rounded-full shadow-2xl z-10 transition-transform group-hover:translate-x-12 flex items-center justify-center vinyl-shadow">
-                  <div className="w-24 h-24 lg:w-40 lg:h-40 bg-walnut rounded-full border-[10px] border-black flex items-center justify-center">
-                    <div className="w-2 h-2 bg-rose-fog/20 rounded-full"></div>
+                  </p>
+                  <div className="pt-6">
+                    <span className="display-font text-5xl font-bold">${parseFloat(randomVinyl.price).toFixed(2)}</span>
                   </div>
-                  <div className="absolute inset-4 border border-white/5 rounded-full"></div>
-                  <div className="absolute inset-12 border border-white/5 rounded-full"></div>
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button
+                      disabled={parseInt(randomVinyl.stock, 10) <= 0}
+                      onClick={() => addToCart({
+                        id: randomVinyl.id,
+                        artist: randomVinyl.artist,
+                        title: randomVinyl.title,
+                        price: randomVinyl.price,
+                        cover_image_url: randomVinyl.cover_image_url,
+                        stock: randomVinyl.stock,
+                        outOfStock: parseInt(randomVinyl.stock, 10) <= 0
+                      })}
+                      className={`px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly shadow-lg ${parseInt(randomVinyl.stock, 10) <= 0
+                        ? 'bg-black-pearl/20 text-black-pearl/50 cursor-not-allowed'
+                        : 'bg-rose-fog hover:bg-black-pearl hover:text-white-berry text-black-pearl'
+                        }`}
+                    >
+                      {parseInt(randomVinyl.stock, 10) <= 0 ? t('catalog.out_of_stock', 'OUT OF STOCK') : t('home.add_to_collection')}
+                    </button>
+                    <Link to="/catalog" className="border border-black-pearl/20 text-black-pearl hover:bg-black-pearl hover:text-white-berry px-12 py-5 font-bold transition-all flex-1 tracking-widest uppercase text-xs rounded-friendly text-center inline-block content-center">
+                      {t('home.view_catalog')}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 relative flex justify-center items-center w-full min-h-[350px]">
+                <div className="relative group cursor-pointer">
+                  <img alt={randomVinyl.title} className="w-64 h-64 lg:w-96 lg:h-96 object-cover shadow-2xl z-20 relative rounded-friendly" src={randomVinyl.cover_image_url || "https://picsum.photos/400"} />
+                  <div className="absolute top-1/2 -right-16 lg:-right-24 -translate-y-1/2 w-64 h-64 lg:w-96 lg:h-96 bg-[#050505] rounded-full shadow-2xl z-10 transition-transform group-hover:translate-x-12 flex items-center justify-center vinyl-shadow">
+                    <div className="w-24 h-24 lg:w-40 lg:h-40 bg-walnut rounded-full border-[10px] border-black flex items-center justify-center">
+                      <div className="w-2 h-2 bg-rose-fog/20 rounded-full"></div>
+                    </div>
+                    <div className="absolute inset-4 border border-white/5 rounded-full"></div>
+                    <div className="absolute inset-12 border border-white/5 rounded-full"></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-20 text-black-pearl/50 dark:text-rose-fog/50">
+              Loading recommendation...
+            </div>
+          )}
         </section>
 
         {/* New Arrivals Section */}
@@ -227,9 +256,9 @@ const Home = () => {
           </div>
 
           <div className="mt-20 flex justify-center">
-            <button className="px-16 py-6 bg-rose-fog text-black-pearl font-bold hover:bg-white-berry transition-all uppercase tracking-[0.3em] text-sm rounded-friendly shadow-xl">
+            <Link to="/catalog" className="px-16 py-6 bg-rose-fog text-black-pearl font-bold hover:bg-white-berry transition-all uppercase tracking-[0.3em] text-sm rounded-friendly shadow-xl inline-block text-center cursor-pointer">
               {t('home.explore_archive')}
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -272,17 +301,15 @@ const Home = () => {
               <div className="space-y-4">
                 <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">{t('home.nav_title')}</h5>
                 <ul className="space-y-2 text-black-pearl/70 font-light">
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.catalog')}</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.archives')}</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.journal')}</a></li>
+                  <li><Link onClick={scrollToTop} className="hover:text-black-pearl font-semibold transition-colors cursor-pointer" to="/">{t('sidebar.home')}</Link></li>
+                  <li><Link className="hover:text-black-pearl font-semibold transition-colors" to={isLoggedIn ? "/profile" : "/login"}>{t('sidebar.profile')}</Link></li>
                 </ul>
               </div>
               <div className="space-y-4">
                 <h5 className="font-bold text-black-pearl uppercase tracking-widest text-xs">{t('home.service_title')}</h5>
                 <ul className="space-y-2 text-black-pearl/70 font-light">
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.shipping')}</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.grading_guide')}</a></li>
-                  <li><a className="hover:text-black-pearl font-semibold transition-colors" href="#">{t('home.returns')}</a></li>
+                  <li><Link className="hover:text-black-pearl font-semibold transition-colors" to="/catalog">{t('sidebar.catalog')}</Link></li>
+                  <li><Link className="hover:text-black-pearl font-semibold transition-colors" to={isLoggedIn ? "/cart" : "/login"}>{t('sidebar.cart')}</Link></li>
                 </ul>
               </div>
               <div className="space-y-4">
