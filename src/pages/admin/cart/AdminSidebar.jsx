@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import AdminAICopilot from "../../../components/admin/AdminAICopilot";
 
 export default function AdminSidebar() {
   const { pathname } = useLocation();
@@ -118,6 +119,8 @@ export default function AdminSidebar() {
 
       {/* Decorative Padding */}
       <div className="h-12 shrink-0"></div>
+
+      <AdminAICopilot />
     </aside>
   );
 }

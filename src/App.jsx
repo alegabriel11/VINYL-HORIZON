@@ -44,6 +44,8 @@ import AdminReports from "./pages/admin/Reports";
 import AddNewVinyl from "./pages/admin/NewVinyl";
 import AdminEditVinyl from "./pages/admin/EditVinyl";
 
+import ChatWidget from "./components/user/ChatWidget";
+
 function App() {
   return (
     <LanguageProvider>
@@ -53,6 +55,7 @@ function App() {
             <ThemeProvider>
               <Router>
                 <MusicCursor />
+                <ChatWidget />
                 <Toaster
                   position="bottom-right"
                   containerStyle={{
