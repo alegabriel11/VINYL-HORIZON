@@ -213,49 +213,53 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                     </div>
                 </div>
 
-                {/* RIGHT PANE: Scrollable info area */}
-                <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col overflow-y-auto relative z-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-wine-berry/50 [&::-webkit-scrollbar-thumb]:rounded-full">
-                    <div className="space-y-2 w-full pr-8">
-                        {!isOutOfStock && <span className="text-xs font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-2 block">{t('catalog.new_release')}</span>}
-                        <h2 className="serif-font text-3xl md:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight break-words">
-                            {album.title}
-                        </h2>
-                        <div className="flex items-center gap-3 mt-2">
-                            <p className="text-xl md:text-2xl font-medium text-black-pearl/70 dark:text-rose-fog/80">{album.artist}</p>
-                            <span className="h-1.5 w-1.5 rounded-full bg-wine-berry dark:bg-primary/50 shrink-0"></span>
-                            <p className="text-lg md:text-xl font-normal text-black-pearl/50 dark:text-rose-fog/60">{album.release_year || "2023"}</p>
+                {/* RIGHT PANE: Fixed Footer, Scrollable Content */}
+                <div className="w-full md:w-1/2 py-6 md:py-8 flex flex-col relative z-10 h-full overflow-hidden">
+                    {/* Inner Scrollable Area */}
+                    <div className="flex-1 overflow-y-auto px-6 md:px-12 pb-4 flex flex-col [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-wine-berry/50 [&::-webkit-scrollbar-thumb]:rounded-full">
+                        <div className="space-y-2 w-full pr-8 shrink-0">
+                            {!isOutOfStock && <span className="text-xs font-bold tracking-[0.2em] uppercase text-wine-berry dark:text-primary mb-2 block">{t('catalog.new_release')}</span>}
+                            <h2 className="serif-font text-3xl md:text-5xl font-bold text-black-pearl dark:text-rose-fog leading-tight break-words">
+                                {album.title}
+                            </h2>
+                            <div className="flex items-center gap-3 mt-2">
+                                <p className="text-xl md:text-2xl font-medium text-black-pearl/70 dark:text-rose-fog/80">{album.artist}</p>
+                                <span className="h-1.5 w-1.5 rounded-full bg-wine-berry dark:bg-primary/50 shrink-0"></span>
+                                <p className="text-lg md:text-xl font-normal text-black-pearl/50 dark:text-rose-fog/60">{album.release_year || "2023"}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Wiki Description Block */}
-                    <div className="border-t border-black/10 dark:border-white/10 pt-6 mt-6 flex-1 flex flex-col min-h-0">
-                        {wikiLoading ? (
-                            <div className="flex animate-pulse space-x-4">
-                                <div className="flex-1 space-y-4 py-1">
-                                    <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-3/4"></div>
-                                    <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded"></div>
-                                    <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-5/6"></div>
+                        {/* Wiki Description Block */}
+                        <div className="border-t border-black/10 dark:border-white/10 pt-6 mt-6 shrink-0 flex flex-col">
+                            {wikiLoading ? (
+                                <div className="flex animate-pulse space-x-4 mb-4">
+                                    <div className="flex-1 space-y-4 py-1">
+                                        <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-3/4"></div>
+                                        <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded"></div>
+                                        <div className="h-2 bg-black-pearl/20 dark:bg-rose-fog/20 rounded w-5/6"></div>
+                                    </div>
                                 </div>
+                            ) : (
+                                <div className="pr-4 mb-6">
+                                    <p className="text-base text-black-pearl/60 dark:text-rose-fog/70 leading-relaxed">
+                                        {wikiDescription ? wikiDescription : fallbackMessage}
+                                    </p>
+                                </div>
+                            )}
+                            <div className="flex flex-wrap gap-3 py-1 mt-auto shrink-0">
+                                <span className="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">
+                                    {t('catalog.audiophile_edition')}
+                                </span>
+                                <span className="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">
+                                    {t('catalog.limited_pressing')}
+                                </span>
                             </div>
-                        ) : (
-                            <div className="flex-1 overflow-y-auto pr-4 mb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-wine-berry/50 [&::-webkit-scrollbar-thumb]:rounded-full">
-                                <p className="text-base text-black-pearl/60 dark:text-rose-fog/70 leading-relaxed">
-                                    {wikiDescription ? wikiDescription : fallbackMessage}
-                                </p>
-                            </div>
-                        )}
-                        <div className="flex flex-wrap gap-3 py-1 mt-auto shrink-0">
-                            <span className="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">
-                                {t('catalog.audiophile_edition')}
-                            </span>
-                            <span className="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[10px] uppercase tracking-widest font-bold text-black-pearl/50 dark:text-rose-fog/50">
-                                {t('catalog.limited_pressing')}
-                            </span>
                         </div>
-                    </div>
+
+                    </div> {/* Close Inner Scrollable Area */}
 
                     {/* Footer Actions */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto pt-8">
+                    <div className="shrink-0 flex flex-col sm:flex-row justify-between items-center gap-6 mt-4 pt-4 px-6 md:px-12 border-t border-black/5 dark:border-white/5">
                         <div className="flex flex-col shrink-0 text-center sm:text-left">
                             <span className="text-sm text-black-pearl/40 dark:text-rose-fog/40 uppercase tracking-tighter">{t('catalog.price')}</span>
                             <span className="display-font text-4xl font-bold text-black-pearl dark:text-white">${parseFloat(album.price).toFixed(2)}</span>
@@ -277,8 +281,8 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
                                     onClick={handleNotifyMe}
                                     disabled={waitlistStatus === 'loading' || waitlistStatus === 'success'}
                                     className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-xl ${waitlistStatus === 'success'
-                                            ? 'bg-green-600/20 text-green-700 dark:text-green-400 cursor-default border border-green-600/30'
-                                            : 'bg-[#0B1B2A] hover:bg-[#1a365d] dark:bg-rose-fog dark:text-[#0B1B2A] text-white hover:-translate-y-1 active:scale-95'
+                                        ? 'bg-green-600/20 text-green-700 dark:text-green-400 cursor-default border border-green-600/30'
+                                        : 'bg-[#0B1B2A] hover:bg-[#1a365d] dark:bg-rose-fog dark:text-[#0B1B2A] text-white hover:-translate-y-1 active:scale-95'
                                         }`}
                                 >
                                     {waitlistStatus === 'success' ? (
