@@ -17,6 +17,8 @@ app.use('/api/auth', authRoutes);
 const vinylRoutes = require('./routes/vinylRoutes');
 app.use('/api/vinyls', vinylRoutes);
 
+const aiRoutes = require('./routes/aiRoutes');
+app.use('/api/ai', aiRoutes);
 
 // Ruta base de prueba
 app.get('/', (req, res) => {
