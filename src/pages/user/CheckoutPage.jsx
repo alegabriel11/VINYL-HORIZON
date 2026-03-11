@@ -135,7 +135,7 @@ const CheckoutPage = () => {
         <div className="bg-white-berry dark:bg-black-pearl min-h-screen transition-colors duration-500">
             <Sidebar />
             <BottomNavBar />
-            <main className="relative md:ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light p-4 md:p-8 lg:p-16 pb-24 md:pb-8">
+            <main className="relative md:ml-64 transition-colors duration-500 min-h-screen bg-[#EFEFEF] dark:bg-black-pearl-light px-4 pt-24 pb-24 md:p-8 lg:p-16">
                 <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
                     <button
                         onClick={toggleLanguage}
