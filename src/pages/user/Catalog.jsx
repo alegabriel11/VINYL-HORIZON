@@ -19,6 +19,8 @@ const Catalog = () => {
   const [error, setError] = useState(null);
 
   const [selectedGenre, setSelectedGenre] = useState('all');
+  const [selectedArtist, setSelectedArtist] = useState('all');
+  const [filterMode, setFilterMode] = useState('genre'); // 'genre' | 'artist'
   const [searchQuery, setSearchQuery] = useState('');
   const [tracklistModalAlbum, setTracklistModalAlbum] = useState(null);
   const [detailsModalAlbum, setDetailsModalAlbum] = useState(null);
@@ -84,15 +86,25 @@ const Catalog = () => {
     )
   );
 
+  const dynamicArtists = Array.from(
+    new Set(
+      vinyls
+        .map(v => v.artist)
+        .filter(Boolean)
+    )
+  ).sort();
+
   const genres = ['all', ...dynamicGenres];
+  const artists = ['all', ...dynamicArtists];
 
   const filteredVinyls = vinyls.filter(v => {
     const matchesGenre = selectedGenre === 'all' || (v.genre && v.genre.toLowerCase() === selectedGenre.toLowerCase());
+    const matchesArtist = selectedArtist === 'all' || (v.artist === selectedArtist);
     const query = searchQuery.toLowerCase();
     const matchesSearch = !query ||
       (v.title && v.title.toLowerCase().includes(query)) ||
       (v.artist && v.artist.toLowerCase().includes(query));
-    return matchesGenre && matchesSearch;
+    return matchesGenre && matchesArtist && matchesSearch;
   });
 
   const handleAlbumClick = (album) => {
@@ -231,41 +243,74 @@ const Catalog = () => {
                 />
               </div>
 
-              <span className="material-symbols-outlined cursor-pointer text-black-pearl/70 dark:text-rose-fog/70 hover:text-wine-berry transition-colors shrink-0">
+              <button
+                onClick={() => setFilterMode(prev => prev === 'genre' ? 'artist' : 'genre')}
+                title={filterMode === 'genre' ? t('catalog.filter_by_artist', 'Filtrar por Artista') : t('catalog.filter_by_genre', 'Filtrar por Género')}
+                className={`material-symbols-outlined cursor-pointer transition-colors shrink-0 ${filterMode === 'artist' ? 'text-wine-berry' : 'text-black-pearl/70 dark:text-rose-fog/70 hover:text-wine-berry'}`}
+              >
                 filter_list
-              </span>
+              </button>
             </div>
 
           </div>
 
-          {/* Genre Filter Pills — horizontal scroll on mobile, wrap on desktop */}
+          {/* Filter Pills — horizontal scroll on mobile, wrap on desktop */}
           <div className="flex md:flex-wrap gap-2 mt-2 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {genres.map((genreKey) => {
-              const isSelected = selectedGenre === genreKey;
-              const label = genreKey === 'all'
-                ? t('catalog.all_genres', 'All')
-                : t(`catalog.genres.${genreKey}`, genreKey.charAt(0).toUpperCase() + genreKey.slice(1));
+            {filterMode === 'genre' ? (
+              genres.map((genreKey) => {
+                const isSelected = selectedGenre === genreKey;
+                const label = genreKey === 'all'
+                  ? t('catalog.all_genres', 'All')
+                  : t(`catalog.genres.${genreKey}`, genreKey.charAt(0).toUpperCase() + genreKey.slice(1));
 
-              return (
-                <button
-                  key={genreKey}
-                  onClick={() => setSelectedGenre(genreKey)}
-                  className={`
-                    relative px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] 
-                    transition-all duration-300 border whitespace-nowrap shrink-0
-                    ${isSelected
-                      ? 'bg-[#5E1914] text-[#E1C2B3] border-[#5E1914] shadow-[0_4px_18px_-6px_rgba(94,25,20,0.7)]'
-                      : 'bg-black-pearl/5 dark:bg-white/5 text-black-pearl/50 dark:text-rose-fog/50 border-black-pearl/10 dark:border-rose-fog/10 hover:border-[#5E1914]/40 hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/10 dark:hover:bg-white/10'
-                    }
-                  `}
-                >
-                  {label}
-                  {isSelected && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E1C2B3] rounded-full ring-2 ring-[#5E1914]" />
-                  )}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={genreKey}
+                    onClick={() => setSelectedGenre(genreKey)}
+                    className={`
+                      relative px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] 
+                      transition-all duration-300 border whitespace-nowrap shrink-0
+                      ${isSelected
+                        ? 'bg-[#5E1914] text-[#E1C2B3] border-[#5E1914] shadow-[0_4px_18px_-6px_rgba(94,25,20,0.7)]'
+                        : 'bg-black-pearl/5 dark:bg-white/5 text-black-pearl/50 dark:text-rose-fog/50 border-black-pearl/10 dark:border-rose-fog/10 hover:border-[#5E1914]/40 hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/10 dark:hover:bg-white/10'
+                      }
+                    `}
+                  >
+                    {label}
+                    {isSelected && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E1C2B3] rounded-full ring-2 ring-[#5E1914]" />
+                    )}
+                  </button>
+                );
+              })
+            ) : (
+              artists.map((artistName) => {
+                const isSelected = selectedArtist === artistName;
+                const label = artistName === 'all'
+                  ? t('catalog.all_artists', 'Todos los Artistas')
+                  : artistName;
+
+                return (
+                  <button
+                    key={artistName}
+                    onClick={() => setSelectedArtist(artistName)}
+                    className={`
+                      relative px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] 
+                      transition-all duration-300 border whitespace-nowrap shrink-0
+                      ${isSelected
+                        ? 'bg-[#5E1914] text-[#E1C2B3] border-[#5E1914] shadow-[0_4px_18px_-6px_rgba(94,25,20,0.7)]'
+                        : 'bg-black-pearl/5 dark:bg-white/5 text-black-pearl/50 dark:text-rose-fog/50 border-black-pearl/10 dark:border-rose-fog/10 hover:border-[#5E1914]/40 hover:text-black-pearl dark:hover:text-rose-fog hover:bg-black-pearl/10 dark:hover:bg-white/10'
+                      }
+                    `}
+                  >
+                    {label}
+                    {isSelected && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E1C2B3] rounded-full ring-2 ring-[#5E1914]" />
+                    )}
+                  </button>
+                );
+              })
+            )}
           </div>
 
         </header>
