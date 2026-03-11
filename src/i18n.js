@@ -105,7 +105,18 @@ const resources = {
                 order_cancelled: "Order cancelled successfully.",
                 confirm_cancel: "Are you sure you want to cancel this order?",
                 cancel_hold: "Hold On",
-                cancel_yes: "Yes, Cancel"
+                cancel_yes: "Yes, Cancel",
+                tier_beginner: "First Spin",
+                tier_enthusiast: "Vinyl Hunter",
+                tier_passionate: "Music Archivist",
+                tier_master: "Turntable Legend",
+                vinyls: "Vinyls",
+                guest: {
+                    title: "JOIN THE HORIZON",
+                    subtitle: "Start your collection and share your passion for vinyl with the world.",
+                    create_account: "CREATE ACCOUNT",
+                    login: "LOG IN"
+                }
             },
             auth: {
                 email: "Email Address",
@@ -307,7 +318,18 @@ const resources = {
                 order_cancelled: "Pedido cancelado con éxito.",
                 confirm_cancel: "¿Estás seguro de que deseas cancelar este pedido?",
                 cancel_hold: "Esperar",
-                cancel_yes: "Sí, Cancelar"
+                cancel_yes: "Sí, Cancelar",
+                tier_beginner: "Primer giro",
+                tier_enthusiast: "Cazador de vinilos",
+                tier_passionate: "Archivista musical",
+                tier_master: "Leyenda del tocadiscos",
+                vinyls: "Vinilos",
+                guest: {
+                    title: "ÚNETE A HORIZON",
+                    subtitle: "Empieza tu colección y comparte tu pasión por los vinilos con el mundo.",
+                    create_account: "CREAR CUENTA",
+                    login: "INICIAR SESIÓN"
+                }
             },
             auth: {
                 email: "Correo Electrónico",

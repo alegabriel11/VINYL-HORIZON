@@ -226,6 +226,51 @@ export default function Profile() {
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop", // Mic Vintage
   ];
 
+  const totalVinylsOwned = purchases.reduce((acc, order) => {
+    if (order.status === 'cancelled' || order.status === 'was_cancelled') return acc;
+    const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+    const orderQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    return acc + orderQty;
+  }, 0);
+
+  const getCollectorTier = (total) => {
+    if (total <= 5) {
+      return {
+        bg: 'bg-[#92B8E0] dark:bg-[#92B8E0]',
+        textClass: 'text-white dark:text-[#0B1B2A]',
+        textColorOnly: 'text-[#92B8E0]',
+        labelId: 'tier_beginner',
+        icon: 'album'
+      };
+    } else if (total <= 10) {
+      return {
+        bg: 'bg-[#7DB585] dark:bg-[#7DB585]',
+        textClass: 'text-white dark:text-[#0B1B2A]',
+        textColorOnly: 'text-[#7DB585]',
+        labelId: 'tier_enthusiast',
+        icon: 'library_music'
+      };
+    } else if (total <= 50) {
+      return {
+        bg: 'bg-[#631D1D] dark:bg-[#631D1D]',
+        textClass: 'text-white dark:text-[#E1C2B3]',
+        textColorOnly: 'text-[#631D1D]',
+        labelId: 'tier_passionate',
+        icon: 'workspace_premium'
+      };
+    } else {
+      return {
+        bg: 'bg-[#511B6B] dark:bg-[#511B6B]',
+        textClass: 'text-white dark:text-[#E1C2B3]',
+        textColorOnly: 'text-[#511B6B]',
+        labelId: 'tier_master',
+        icon: 'diamond'
+      };
+    }
+  };
+
+  const userTier = getCollectorTier(totalVinylsOwned);
+
   const mainMl = isSidebarOpen ? "ml-64" : "ml-0";
 
   return (
@@ -291,19 +336,19 @@ export default function Profile() {
 
             <div className="mt-12 text-center max-w-2xl space-y-4 px-4 relative z-40">
               <h1 className={`font-['Playfair_Display'] text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>
-                JOIN THE HORIZON
+                {t('profile.guest.title', 'JOIN THE HORIZON')}
               </h1>
               <p className={`text-lg md:text-xl font-light opacity-90 max-w-lg mx-auto transition-colors duration-500 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>
-                Start your collection and share your passion for vinyl with the world.
+                {t('profile.guest.subtitle', 'Start your collection and share your passion for vinyl with the world.')}
               </p>
             </div>
 
             <div className="mt-12 flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto px-4 relative z-40">
               <Link to="/register" className="bg-[#5E1914] text-[#E1C2B3] px-10 py-4 text-center rounded-friendly font-bold uppercase tracking-widest text-sm hover:brightness-125 transition-all shadow-xl block">
-                CREATE ACCOUNT
+                {t('profile.guest.create_account', 'CREATE ACCOUNT')}
               </Link>
               <Link to="/login" className={`${isDark ? 'bg-[#091C2A] text-[#E1C2B3] border border-[#E1C2B3]/20' : 'bg-[#D1D1D1] text-[#091C2A] border border-[#091C2A]/20'} px-10 py-4 text-center rounded-friendly font-bold uppercase tracking-widest text-sm hover:brightness-125 transition-all shadow-xl block`}>
-                LOG IN
+                {t('profile.guest.login', 'LOG IN')}
               </Link>
             </div>
           </section>
@@ -353,8 +398,8 @@ export default function Profile() {
                   </label>
 
                   {/* Status Badge */}
-                  <div className="absolute bottom-4 right-4 md:bottom-8 md:right-4 w-12 h-12 md:w-16 md:h-16 bg-[#5E1914] rounded-full border-4 border-white dark:border-[#091C2A] flex items-center justify-center shadow-lg" title="Premium Collector">
-                    <span className="material-symbols-outlined text-[#E1C2B3] text-sm md:text-xl">workspace_premium</span>
+                  <div className={`absolute bottom-4 right-4 md:bottom-8 md:right-4 w-12 h-12 md:w-16 md:h-16 ${userTier.bg} rounded-full border-4 flex items-center justify-center shadow-lg`} title={t(`profile.${userTier.labelId}`)}>
+                    <span className={`material-symbols-outlined ${userTier.textClass} text-sm md:text-xl`}>{userTier.icon}</span>
                   </div>
                 </div>
 
@@ -373,11 +418,18 @@ export default function Profile() {
                   {user?.email}
                 </p>
 
-                <div className="flex items-center justify-center gap-4 mt-6 pt-4">
-                  <span className="px-4 py-1.5 bg-[#5E1914]/10 dark:bg-[#E1C2B3]/10 text-[#5E1914] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-[#5E1914]/20 dark:border-[#E1C2B3]/20">
-                    {user?.role === 'admin' ? (language === 'ES' ? 'Administrador Curador' : 'Curator Admin') : (language === 'ES' ? 'Coleccionista de Lujo' : 'Luxe Collector')}
+                <div className="flex items-center justify-center gap-4 mt-6 pt-4 flex-wrap">
+                  <span className="px-4 py-1.5 bg-black/5 dark:bg-white/5 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-white/10 shadow-sm">
+                    {t(`profile.${userTier.labelId}`)}
                   </span>
-                  <span className="px-4 py-1.5 bg-[#5E1914]/10 dark:bg-[#E1C2B3]/10 text-[#5E1914] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-[#5E1914]/20 dark:border-[#E1C2B3]/20">
+
+                  {user?.role === 'admin' && (
+                    <span className="px-4 py-1.5 bg-[#5E1914]/10 dark:bg-[#E1C2B3]/10 text-[#5E1914] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-[#5E1914]/20 dark:border-[#E1C2B3]/20">
+                      {language === 'ES' ? 'Administrador Curador' : 'Curator Admin'}
+                    </span>
+                  )}
+
+                  <span className="px-4 py-1.5 bg-black/5 dark:bg-white/5 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-white/10">
                     {language === 'ES' ? 'Desde' : 'Since'} {new Date().getFullYear()}
                   </span>
                 </div>
