@@ -10,8 +10,8 @@ import TracklistModal from '../../components/user/TracklistModal';
 import VinylDetailsModal from '../../components/user/VinylDetailsModal';
 
 const Catalog = () => {
-  const { isDark, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const { t } = useTranslation();
 
   const [vinyls, setVinyls] = useState([]);
@@ -191,44 +191,24 @@ const Catalog = () => {
 
       <main className="md:ml-64 flex-1 h-screen flex flex-col overflow-hidden relative pb-16 md:pb-0">
 
-        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
-
-          <button
-            onClick={toggleLanguage}
-            className="px-4 py-2 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg font-bold text-sm tracking-widest"
-          >
-            {language === 'ES' ? 'EN' : 'ES'}
-          </button>
-
-          <TopBarUser />
-
-          <button
-            onClick={toggleTheme}
-            className="flex items-center justify-center p-2.5 bg-timberwolf/40 dark:bg-walnut/40 backdrop-blur-md hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog rounded-full transition-all border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {isDark ? 'dark_mode' : 'light_mode'}
-            </span>
-          </button>
-
+        <TopBarUser>
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className={`flex items-center justify-center p-2.5 backdrop-blur-md rounded-full transition-all border shadow-lg
+            className={`flex items-center justify-center p-2 hover:bg-black-pearl/10 dark:hover:bg-rose-fog/10 rounded-full transition-all focus:outline-none
               ${isMuted
-                ? 'bg-wine-berry/20 border-wine-berry text-wine-berry dark:bg-wine-berry/40 dark:border-wine-berry/50 dark:text-rose-fog'
-                : 'bg-timberwolf/40 dark:bg-walnut/40 hover:bg-timberwolf/60 dark:hover:bg-walnut/60 text-black-pearl dark:text-rose-fog border-black-pearl/10 dark:border-rose-fog/10'
+                ? 'text-wine-berry dark:text-wine-berry'
+                : 'text-black-pearl dark:text-rose-fog'
               }
             `}
             title={isMuted ? "Unmute Previews" : "Mute Previews"}
           >
-            <span className="material-symbols-outlined text-[18px]">
+            <span className="material-symbols-outlined text-[20px]">
               {isMuted ? 'volume_off' : 'volume_up'}
             </span>
           </button>
+        </TopBarUser>
 
-        </div>
-
-        <header className="pt-16 md:pt-24 px-4 md:px-12 pb-6 border-b border-black-pearl/10 dark:border-walnut/30">
+        <header className="pt-24 md:pt-32 px-4 md:px-12 pb-6 border-b border-black-pearl/10 dark:border-walnut/30">
 
           {/* Title + Search — stacked on mobile, side by side on desktop */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-6 md:mb-8">

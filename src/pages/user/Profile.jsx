@@ -13,8 +13,8 @@ import { CartContext } from '../../context/CartContext';
 import { useContext } from 'react';
 
 export default function Profile() {
-  const { isDark, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -250,25 +250,7 @@ export default function Profile() {
       <BottomNavBar />
 
       <main className={`${mainMl} md:ml-64 transition-all duration-300 min-h-screen relative flex flex-col pb-20 md:pb-0`}>
-        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4">
-          <button
-            onClick={toggleLanguage}
-            className="px-3 py-1.5 md:px-4 md:py-2 bg-[#D1D1D1]/40 dark:bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#D1D1D1]/60 dark:hover:bg-[#3A2E29]/60 rounded-full transition-all border border-black/10 dark:border-white/10 shadow-lg font-bold text-xs md:text-sm tracking-widest focus:outline-none"
-            aria-label="Toggle Language"
-          >
-            {language === 'ES' ? 'EN' : 'ES'}
-          </button>
-
-          <TopBarUser />
-
-          <button
-            onClick={toggleTheme}
-            className="flex items-center justify-center p-2.5 bg-[#D1D1D1]/40 dark:bg-[#3A2E29]/40 backdrop-blur-md hover:bg-[#D1D1D1]/60 dark:hover:bg-[#3A2E29]/60 text-[#0B1B2A] dark:text-[#E1C2B3] rounded-full transition-all border border-black/10 dark:border-white/10 shadow-lg group focus:outline-none"
-            aria-label="Toggle Dark Mode"
-          >
-            <span className="material-symbols-outlined block text-[18px]">{isDark ? 'dark_mode' : 'light_mode'}</span>
-          </button>
-        </div>
+        <TopBarUser />
 
         {!isLoggedIn ? (
           /* =========================================

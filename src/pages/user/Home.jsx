@@ -10,7 +10,7 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark } = useTheme();
   const { t } = useTranslation();
   const { addToCart } = useContext(CartContext);
 
@@ -59,16 +59,7 @@ const Home = () => {
       <main className="min-h-screen relative bg-[#EFEFEF] dark:bg-black-pearl-light md:ml-64 pb-20 md:pb-0 transition-colors duration-500" id="main-content">
 
         {/* Botón Dark Mode & User Profile */}
-        <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-4 bg-timberwolf/20 dark:bg-walnut/20 backdrop-blur-md px-2 py-2 pr-3 md:pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg">
-          <TopBarUser />
-          <button
-            className="flex items-center justify-center p-2 md:p-3 bg-timberwolf/60 dark:bg-walnut/60 hover:bg-timberwolf dark:hover:bg-walnut text-black-pearl dark:text-rose-fog rounded-full transition-all group focus:outline-none"
-            onClick={toggleTheme}
-            aria-label="Toggle Dark Mode"
-          >
-            <span className="material-symbols-outlined block text-[18px] md:text-[24px]">{isDark ? 'dark_mode' : 'light_mode'}</span>
-          </button>
-        </div>
+        <TopBarUser />
         {/* Hero Section */}
         <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center px-4">
           <div className="absolute inset-0 z-0">
