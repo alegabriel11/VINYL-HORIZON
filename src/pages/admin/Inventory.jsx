@@ -14,7 +14,7 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeMenuSku, setActiveMenuSku] = useState(null);
-  const rowsPerPage = 5; // You can adjust this when you have more albums
+  const rowsPerPage = 15;
 
   const filteredRows = rows.filter(
     (r) =>
@@ -112,18 +112,25 @@ export default function Inventory() {
         {/* Table Card */}
         <div className="rounded-friendly shadow-2xl overflow-hidden bg-[#D9D9D9] dark:bg-walnut border border-black/5 dark:border-rose-fog/5">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse table-fixed">
               <thead>
                 <tr className="bg-black-pearl/10 dark:bg-black-pearl/40">
-                  {[t('admin.table_album'), t('admin.table_artist'), t('admin.table_genre'), t('admin.table_stock'), t('admin.table_price')].map((h) => (
-                    <th
-                      key={h}
-                      className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                  <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50 text-right">
+                  <th className="w-[40%] px-8 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50">
+                    {t('admin.table_album')}
+                  </th>
+                  <th className="w-[20%] px-6 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50">
+                    {t('admin.table_artist')}
+                  </th>
+                  <th className="w-[15%] px-6 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50">
+                    {t('admin.table_genre')}
+                  </th>
+                  <th className="w-[15%] px-6 py-5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50">
+                    {t('admin.table_stock')}
+                  </th>
+                  <th className="w-[10%] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50">
+                    {t('admin.table_price')}
+                  </th>
+                  <th className="w-[140px] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/55 dark:text-rose-fog/50 text-right">
                     {t('admin.table_actions')}
                   </th>
                 </tr>
@@ -136,20 +143,20 @@ export default function Inventory() {
                     className="group transition-colors hover:bg-black/5 dark:hover:bg-black-pearl/20"
                   >
                     {/* Album */}
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded shadow-lg overflow-hidden flex-shrink-0 bg-black-pearl">
+                    <td className="px-8 py-3">
+                      <div className="flex items-center gap-4 overflow-hidden">
+                        <div className="w-12 h-12 rounded shadow-lg overflow-hidden flex-shrink-0 bg-black-pearl">
                           <img
                             alt="Album"
                             className="w-full h-full object-cover"
                             src={r.img}
                           />
                         </div>
-                        <div>
-                          <p className="font-bold text-[#0B1B2A] dark:text-rose-fog">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[#0B1B2A] dark:text-rose-fog truncate" title={r.album}>
                             {r.album}
                           </p>
-                          <p className="text-[10px] text-[#0B1B2A]/45 dark:text-rose-fog/40 uppercase">
+                          <p className="text-[10px] text-[#0B1B2A]/45 dark:text-rose-fog/40 uppercase truncate">
                             {r.sku}
                           </p>
                         </div>
@@ -157,19 +164,21 @@ export default function Inventory() {
                     </td>
 
                     {/* Artist */}
-                    <td className="px-6 py-5 text-sm text-[#0B1B2A]/80 dark:text-rose-fog/80">
-                      {r.artist}
+                    <td className="px-6 py-3 text-sm text-[#0B1B2A]/80 dark:text-rose-fog/80 overflow-hidden">
+                      <div className="truncate" title={r.artist}>
+                        {r.artist}
+                      </div>
                     </td>
 
                     {/* Genre */}
-                    <td className="px-6 py-5">
-                      <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A]/70 dark:text-rose-fog/70">
+                    <td className="px-6 py-3 overflow-hidden">
+                      <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A]/70 dark:text-rose-fog/70 inline-block max-w-full truncate" title={r.genre}>
                         {r.genre}
                       </span>
                     </td>
 
                     {/* Stock */}
-                    <td className="px-6 py-5">
+                    <td className="px-6 py-3">
                       <div className="flex items-center gap-2">
                         {/* 
                           Color logic:
@@ -192,42 +201,45 @@ export default function Inventory() {
                     </td>
 
                     {/* Price */}
-                    <td className="px-6 py-5 font-bold text-[#0B1B2A] dark:text-rose-fog">
+                    <td className="px-6 py-3 font-bold text-[#0B1B2A] dark:text-rose-fog">
                       {r.price}
                     </td>
 
                     {/* Actions */}
-                    <td className="px-8 py-5 text-right relative">
-                      <button
-                        onClick={() => handleEdit(r.sku)}
-                        className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-xl">
-                          edit
-                        </span>
-                      </button>
-
-                      <div className="inline-block relative">
+                    <td className="px-8 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => toggleOptions(r.sku)}
-                          className="p-2 hover:bg-whine-berry/20 rounded-lg transition-colors"
+                          onClick={() => handleEdit(r.sku)}
+                          className="p-1.5 hover:bg-whine-berry/20 rounded-lg transition-colors text-pale-taupe dark:text-rose-fog/70"
+                          title={t('admin.edit')}
                         >
-                          <span className="material-symbols-outlined text-xl">
-                            more_vert
+                          <span className="material-symbols-outlined text-lg">
+                            edit
                           </span>
                         </button>
 
-                        {activeMenuSku === r.sku && (
-                          <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-black-pearl rounded shadow-lg border border-black/10 dark:border-rose-fog/20 z-10 overflow-hidden">
-                            <button
-                              onClick={() => handleDelete(r.sku)}
-                              className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-semibold flex items-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-sm">delete</span>
-                              Delete Album
-                            </button>
-                          </div>
-                        )}
+                        <div className="relative">
+                          <button
+                            onClick={() => toggleOptions(r.sku)}
+                            className="p-1.5 hover:bg-whine-berry/20 rounded-lg transition-colors text-pale-taupe dark:text-rose-fog/70"
+                          >
+                            <span className="material-symbols-outlined text-lg">
+                              more_vert
+                            </span>
+                          </button>
+
+                          {activeMenuSku === r.sku && (
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-black-pearl rounded shadow-lg border border-black/10 dark:border-rose-fog/20 z-10 overflow-hidden">
+                              <button
+                                onClick={() => handleDelete(r.sku)}
+                                className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-semibold flex items-center gap-2"
+                              >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                Delete Album
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
