@@ -290,12 +290,13 @@ export default function Dashboard() {
               <h4 className="serif-font text-2xl font-bold text-[#0B1B2A] dark:text-rose-fog">
                 {t('admin.recent_orders')}
               </h4>
-              <button
+              <Link
+                to="/admin/orders"
                 className="text-[10px] font-bold uppercase text-[#0B1B2A]/45 hover:text-[#0B1B2A] dark:text-rose-fog/40 dark:hover:text-rose-fog transition-colors"
                 type="button"
               >
                 {t('admin.view_all')}
-              </button>
+              </Link>
             </div>
 
             <div className="space-y-6">
