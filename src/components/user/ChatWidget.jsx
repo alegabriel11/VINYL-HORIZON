@@ -36,6 +36,9 @@ export default function ChatWidget() {
     }
   }, [messages, isOpen]);
 
+  // handleSendMessage village
+
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -49,16 +52,21 @@ export default function ChatWidget() {
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.text, isAdmin: false })
+        body: JSON.stringify({
+          message: userMessage.text,
+          isAdmin: false,
+          model: 'gemini-2.5-flash'
+        })
       });
+
       const data = await response.json();
 
       if (data.errorType === 'quota') {
-        setMessages((prev) => [...prev, { role: 'assistant', text: '🎵 Los créditos de IA de hoy se han agotado. El Curador estará de vuelta mañana — ¡vuelve pronto!' }]);
+        setMessages((prev) => [...prev, { role: 'assistant', text: '🎵 Los créditos de este modelo se han agotado. Inténtalo más tarde.' }]);
       } else if (data.errorType === 'auth') {
         setMessages((prev) => [...prev, { role: 'assistant', text: '☕️ Parece que hay un problema con mi identificación (API Key). Por favor, contacta al administrador del sistema.' }]);
       } else if (data.errorType === 'model') {
-        setMessages((prev) => [...prev, { role: 'assistant', text: '💎 El modelo solicitado no está disponible para esta llave. Es posible que necesite una actualización en la consola de Google.' }]);
+        setMessages((prev) => [...prev, { role: 'assistant', text: '💎 El modelo solicitado no está disponible para esta llave. Prueba con otro modelo.' }]);
       } else if (!response.ok) {
         throw new Error(data.error || 'Unknown error');
       } else {
@@ -99,7 +107,7 @@ export default function ChatWidget() {
             </div>
             <div>
               <h3 className="font-['Cormorant_Garamond'] text-[#E1C2B3] font-bold text-lg leading-tight">Vinyl Concierge</h3>
-              <p className="text-[10px] text-[#E1C2B3]/70 uppercase tracking-widest">Always Listening</p>
+              <p className="text-[10px] text-[#E1C2B3]/70 uppercase tracking-widest">Always Listening (Flash)</p>
             </div>
           </div>
 

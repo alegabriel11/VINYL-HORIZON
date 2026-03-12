@@ -6,10 +6,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const generateResponse = async (req, res) => {
     try {
-        const { message, isAdmin } = req.body;
+        const { message, isAdmin, model: requestedModel } = req.body;
 
-        // Escogemos el modelo rápido para chat
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // Forzamos el uso de Gemini 2.5 Flash según lo solicitado village
+        const selectedModel = "gemini-2.5-flash";
+        console.log("--- AI REQUEST ---");
+        console.log("Model requested by UI:", requestedModel);
+        console.log("Model actually used:", selectedModel);
+        console.log("------------------");
+
+        const model = genAI.getGenerativeModel({ model: selectedModel });
 
         let systemInstruction = "";
 
