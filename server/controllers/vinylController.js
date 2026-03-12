@@ -332,7 +332,7 @@ exports.getAdminNotifications = async (req, res) => {
         const lowStockQuery = `
             SELECT id, sku, title as product_title, artist, stock
             FROM vinyls
-            WHERE stock <= 10 AND stock > 0
+            WHERE stock < 10 AND stock > 0
             ORDER BY stock ASC;
         `;
         const lowStockResult = await pool.query(lowStockQuery);
