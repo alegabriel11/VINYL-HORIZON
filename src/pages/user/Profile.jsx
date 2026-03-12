@@ -277,15 +277,14 @@ export default function Profile() {
 
   const uniqueVinylCovers = Array.from(new Set(
     purchases.flatMap(order => {
-      if (order.status !== 'shipped') return [];
+      // We show vinyls once they are paid or shipped
+      if (!['shipped', 'paid'].includes(order.status)) return [];
       const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
 
-      // We map the incoming order items to their cover URLs using the global inventory
       return items.map(item => {
-        // The database order items often only have full UUID 'id' strings.
-        // InventoryContext formats these down to 8-character 'sku's natively. 
         const shortId = item.id && typeof item.id === 'string' ? item.id.slice(0, 8) : null;
-        const invItem = inventory?.find(v => v.sku === item.id || v.sku === shortId);
+        // Match by full ID or SKU
+        const invItem = inventory?.find(v => v.id === item.id || v.sku === item.id || v.sku === shortId);
         return invItem ? invItem.img : null;
       });
     }).filter(Boolean)

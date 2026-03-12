@@ -15,6 +15,7 @@ export const InventoryProvider = ({ children }) => {
 
       // Map DB fields to what frontend expects
       const formattedData = data.map(v => ({
+        id: v.id,
         album: v.title || "Untitled",
         sku: v.sku || (v.id ? v.id.slice(0, 8) : "VH-XXXXX"),
         artist: v.artist || "Unknown Artist",
