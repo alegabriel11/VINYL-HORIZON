@@ -83,7 +83,7 @@ export default function ChatWidget() {
   if (isAdminRoute || !user) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-['Montserrat']">
+    <div className="fixed bottom-[84px] md:bottom-6 right-6 z-[60] font-['Montserrat']">
       {/* Botón Flotante */}
       <button
         onClick={() => setIsOpen(!isOpen)}

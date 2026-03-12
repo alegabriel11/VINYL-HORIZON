@@ -9,7 +9,7 @@ export default function AdminAICopilot() {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { isDark } = useTheme();
   const { t } = useTranslation();
   const messagesEndRef = useRef(null);
@@ -53,7 +53,7 @@ export default function AdminAICopilot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] font-['Montserrat']">
+    <div className="fixed bottom-[84px] md:bottom-6 right-6 z-[9999] font-['Montserrat']">
       {/* Botón Flotante */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -85,23 +85,22 @@ export default function AdminAICopilot() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#EFEFEF] dark:bg-black/20">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div 
-                  className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${
-                    msg.role === 'user' 
-                      ? 'bg-[#0B1B2A] dark:bg-[#E1C2B3] text-[#F3F0EC] dark:text-[#0B1B2A]' 
-                      : 'bg-white dark:bg-[#3A2E29] text-[#0B1B2A] dark:text-[#E1C2B3] border border-black/5 dark:border-white/5 shadow-sm'
-                  }`}
+                <div
+                  className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
+                    ? 'bg-[#0B1B2A] dark:bg-[#E1C2B3] text-[#F3F0EC] dark:text-[#0B1B2A]'
+                    : 'bg-white dark:bg-[#3A2E29] text-[#0B1B2A] dark:text-[#E1C2B3] border border-black/5 dark:border-white/5 shadow-sm'
+                    }`}
                 >
                   {msg.text.split('\n').map((line, i) => (
                     <span key={i}>
                       {line}
-                      <br/>
+                      <br />
                     </span>
                   ))}
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-white dark:bg-[#3A2E29] p-3 rounded-xl border border-black/5 dark:border-white/5 flex gap-1 items-center">
@@ -124,8 +123,8 @@ export default function AdminAICopilot() {
                 placeholder="Solicita ayuda de gestión..."
                 className="flex-1 bg-black/5 dark:bg-black/20 text-[#0B1B2A] dark:text-[#E1C2B3] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#0B1B2A] dark:focus:ring-[#E1C2B3]/50 transition-all"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={!inputText.trim() || isLoading}
                 className="w-10 h-10 rounded-xl bg-[#0B1B2A] dark:bg-[#E1C2B3] flex items-center justify-center text-[#F3F0EC] dark:text-[#0B1B2A] disabled:opacity-50 transition-all hover:scale-105"
               >
