@@ -9,6 +9,8 @@ export default function Orders() {
   const { t } = useTranslation();
   const [filterStatus, setFilterStatus] = useState("admin.all_orders");
   const [ordersData, setOrdersData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 15;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -50,6 +52,17 @@ export default function Orders() {
     return order.statusKey === filterStatus;
   });
 
+  const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
+  const safeCurrentPage = Math.min(currentPage, totalPages > 0 ? totalPages : 1);
+  const paginatedOrders = filteredOrders.slice(
+    (safeCurrentPage - 1) * rowsPerPage,
+    safeCurrentPage * rowsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
+
   return (
     <div className="min-h-screen bg-[#E1E5F0] text-[#0B1B2A] dark:bg-black-pearl dark:text-rose-fog">
       <AdminSidebar />
@@ -89,31 +102,31 @@ export default function Orders() {
 
         <div className="bg-[#D9D9D9] dark:bg-walnut rounded-2xl border border-black/5 dark:border-rose-fog/5 shadow-2xl overflow-hidden transition-all duration-300">
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[800px] table-fixed">
               <thead>
                 <tr className="border-b border-black/10 dark:border-rose-fog/10">
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_order_id')}</th>
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_customer')}</th>
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_date')}</th>
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_total')}</th>
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_status')}</th>
-                  <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_actions')}</th>
+                  <th className="w-[15%] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_order_id')}</th>
+                  <th className="w-[30%] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_customer')}</th>
+                  <th className="w-[15%] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_date')}</th>
+                  <th className="w-[15%] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_total')}</th>
+                  <th className="w-[15%] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_status')}</th>
+                  <th className="w-[160px] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0B1B2A]/50 dark:text-rose-fog/50">{t('admin.table_actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 dark:divide-rose-fog/5">
-                {filteredOrders.map((order, index) => (
+                {paginatedOrders.map((order, index) => (
                   <tr key={index} className="hover:bg-black/5 dark:hover:bg-rose-fog/5 transition-colors">
-                    <td className="px-8 py-5 text-sm font-medium text-[#0B1B2A] dark:text-rose-fog">{order.id}</td>
-                    <td className="px-8 py-5 text-sm text-[#0B1B2A]/80 dark:text-rose-fog/80">{order.name}</td>
-                    <td className="px-8 py-5 text-sm text-[#0B1B2A]/60 dark:text-rose-fog/60">{order.date}</td>
-                    <td className="px-8 py-5 text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">{order.total}</td>
-                    <td className="px-8 py-5">
-                      <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border ${order.statusClass}`}>
+                    <td className="px-8 py-3 text-sm font-medium text-[#0B1B2A] dark:text-rose-fog truncate" title={order.rawId}>{order.id}</td>
+                    <td className="px-8 py-3 text-sm text-[#0B1B2A]/80 dark:text-rose-fog/80 truncate" title={order.name}>{order.name}</td>
+                    <td className="px-8 py-3 text-sm text-[#0B1B2A]/60 dark:text-rose-fog/60">{order.date}</td>
+                    <td className="px-8 py-3 text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">{order.total}</td>
+                    <td className="px-8 py-3">
+                      <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border truncate inline-block max-w-full ${order.statusClass}`}>
                         {t(order.statusKey)}
                       </span>
                     </td>
-                    <td className="px-8 py-5">
-                      <Link to={`/admin/orders/${order.rawId}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all">
+                    <td className="px-8 py-3 whitespace-nowrap">
+                      <Link to={`/admin/orders/${order.rawId}`} className="inline-block px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-rose-fog border border-black/20 dark:border-rose-fog/40 rounded-lg hover:bg-[#0B1B2A] hover:text-[#E1E5F0] dark:hover:bg-rose-fog dark:hover:text-walnut transition-all whitespace-nowrap">
                         {t('admin.view_details')}
                       </Link>
                     </td>
@@ -124,17 +137,39 @@ export default function Orders() {
           </div>
 
           <div className="px-8 py-6 flex justify-between items-center border-t border-black/10 dark:border-rose-fog/10">
-            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-rose-fog/40 uppercase tracking-widest">Showing {filteredOrders.length} entries</p>
-            <div className="flex gap-2">
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut transition-colors">
-                <span className="material-symbols-outlined text-sm">chevron_left</span>
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded bg-[#5E1914] text-white text-xs font-bold">1</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut transition-colors text-xs font-bold">2</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut transition-colors">
-                <span className="material-symbols-outlined text-sm">chevron_right</span>
-              </button>
-            </div>
+            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-rose-fog/40 uppercase tracking-widest">
+              Showing {Math.min(filteredOrders.length, safeCurrentPage * rowsPerPage)} of {filteredOrders.length} entries
+            </p>
+            {totalPages > 1 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className="w-8 h-8 flex items-center justify-center rounded border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut transition-colors disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-8 h-8 flex items-center justify-center rounded text-xs font-bold transition-all ${safeCurrentPage === page
+                      ? "bg-[#5E1914] text-white"
+                      : "border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut"
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={safeCurrentPage === totalPages}
+                  className="w-8 h-8 flex items-center justify-center rounded border border-black/20 dark:border-rose-fog/20 text-[#0B1B2A] dark:text-rose-fog hover:bg-black/10 dark:hover:bg-rose-fog dark:hover:text-walnut transition-colors disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
