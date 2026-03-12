@@ -19,10 +19,9 @@ export default function UserNotificationCenter() {
         const fetchNotifications = async () => {
             try {
                 const user = JSON.parse(localStorage.getItem('vinyl_user'));
-                if (!user || user.role === 'admin') return;
-
-                // User ID would ideally come from token, passing query param for demo
-                const res = await fetch(`/api/vinyls/notifications/user?userId=${user.id || 'user_123'}`);
+                if (!user || !user.id || user.role === 'admin') return;
+                
+                const res = await fetch(`/api/vinyls/notifications/user?userId=${user.id}`);
                 if (res.ok) {
                     const data = await res.json();
                     setNotifications(data);

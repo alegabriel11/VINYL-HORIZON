@@ -18,8 +18,9 @@ const VinylDetailsModal = ({ isOpen, onClose, album, onViewTracklist, isPlaying,
     const [waitlistStatus, setWaitlistStatus] = useState(null);
     const isOutOfStock = album ? parseInt(album.stock, 10) <= 0 : false;
 
-    // Simulate logged in user ID
-    const currentUserId = "user_123";
+    // Get logged in user ID
+    const vinylUser = JSON.parse(localStorage.getItem('vinyl_user') || '{}');
+    const currentUserId = vinylUser.id || null;
 
     // Reset waitlist status on open
     useEffect(() => {

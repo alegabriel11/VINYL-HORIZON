@@ -179,8 +179,17 @@ exports.checkout = async (req, res) => {
 
         await client.query(createOrderQuery, orderValues);
 
+        // Notify user about successful payment
+        if (userId && userId !== 'guest') {
+            const notificationMessage = `¡Pago procesado con éxito! Tu pedido #${orderId.substring(0, 8)} ha sido confirmado.`;
+            await client.query(
+                'INSERT INTO notifications (user_id, message) VALUES ($1, $2);',
+                [userId, notificationMessage]
+            );
+        }
+
         await client.query('COMMIT');
-        res.status(200).json({ message: 'Checkout successful.' });
+        res.status(200).json({ message: 'Checkout successful.', orderId });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error during checkout:', error);
@@ -242,9 +251,29 @@ exports.updateOrderStatus = async (req, res) => {
         // Update the order status
         const updateOrderQuery = 'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *;';
         const updatedOrderResult = await client.query(updateOrderQuery, [status, id]);
+        const updatedOrder = updatedOrderResult.rows[0];
+
+        // Create notification for the user
+        if (order.user_id && order.user_id !== 'guest') {
+            let notificationMessage = '';
+            if (status === 'shipped' && order.status !== 'shipped') {
+                notificationMessage = `¡Tu pedido #${id.substring(0, 8)} ha sido enviado! Estará contigo pronto.`;
+            } else if (status === 'paid' && order.status !== 'paid') {
+                notificationMessage = `Tu pago para el pedido #${id.substring(0, 8)} ha sido procesado correctamente.`;
+            } else if (status === 'cancelled' && order.status !== 'cancelled') {
+                notificationMessage = `Tu pedido #${id.substring(0, 8)} ha sido cancelado.`;
+            }
+
+            if (notificationMessage) {
+                await client.query(
+                    'INSERT INTO notifications (user_id, message) VALUES ($1, $2);',
+                    [order.user_id, notificationMessage]
+                );
+            }
+        }
 
         await client.query('COMMIT');
-        res.status(200).json({ message: 'Order status updated successfully.', order: updatedOrderResult.rows[0] });
+        res.status(200).json({ message: 'Order status updated successfully.', order: updatedOrder });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error updating order status:', error);
