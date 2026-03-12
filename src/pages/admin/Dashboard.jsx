@@ -48,8 +48,11 @@ export default function Dashboard() {
     totalOrders: 0,
     lowStockCount: 0,
     recentOrders: [],
-    chartData: Array(30).fill(0)
+    chartData: Array(30).fill(0),
+    lowStockVinyls: []
   });
+
+  const [showLowStockModal, setShowLowStockModal] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -93,7 +96,8 @@ export default function Dashboard() {
             totalOrders: orders.length,
             lowStockCount,
             recentOrders: orders.slice(0, 4),
-            chartData
+            chartData,
+            lowStockVinyls: vinyls.filter(v => parseInt(v.stock) > 0 && parseInt(v.stock) <= 10)
           });
         }
       } catch (err) {
@@ -222,14 +226,18 @@ export default function Dashboard() {
           {/* Low Stock */}
           <div className="admin-card p-6 rounded-friendly border border-black/5 dark:border-rose-fog/5 shadow-xl bg-[#D9D9D9] dark:bg-walnut">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-black-pearl/20 rounded-xl">
-                <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">
+              <div className="p-3 bg-red-500/10 dark:bg-red-500/20 rounded-xl">
+                <span className="material-symbols-outlined text-red-500">
                   warning
                 </span>
               </div>
-              <span className="text-xs font-bold uppercase tracking-tighter text-[#0B1B2A]/80 dark:text-rose-fog">
-                {dashboardData.lowStockCount} {t('admin.critical_items')}
-              </span>
+              <button
+                onClick={() => setShowLowStockModal(true)}
+                className="text-[10px] font-bold uppercase tracking-widest bg-[#5E1914] text-[#E1C2B3] px-3 py-1.5 rounded-lg hover:brightness-110 transition-all flex items-center gap-1 shadow-md active:scale-95"
+              >
+                {t('admin.view_details', 'Ver Detalles')}
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+              </button>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-rose-fog/60">
               {t('admin.low_stock')}
@@ -424,6 +432,88 @@ export default function Dashboard() {
           </p>
         </footer>
       </main>
+
+      {/* Low Stock Modal */}
+      {showLowStockModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-[#0B1B2A]/60 backdrop-blur-sm"
+            onClick={() => setShowLowStockModal(false)}
+          />
+
+          <div className="relative w-full max-w-2xl bg-[#E1E5F0] dark:bg-walnut rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-300">
+            {/* Modal Header */}
+            <div className="p-8 border-b border-black/10 dark:border-rose-fog/10 flex justify-between items-center bg-white/5">
+              <div>
+                <h2 className="serif-font text-3xl font-bold text-[#0B1B2A] dark:text-rose-fog">
+                  {t('admin.low_stock_report', 'Reporte de Bajo Stock')}
+                </h2>
+                <p className="text-[10px] uppercase tracking-widest text-red-500 font-bold mt-1">
+                  {dashboardData.lowStockVinyls.length} {t('admin.critical_items')}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowLowStockModal(false)}
+                className="w-12 h-12 rounded-full bg-black/5 dark:bg-black/20 flex items-center justify-center hover:bg-[#5E1914] hover:text-white transition-all group"
+              >
+                <span className="material-symbols-outlined transition-transform group-hover:rotate-90">close</span>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-auto p-8 custom-scrollbar">
+              {dashboardData.lowStockVinyls.length === 0 ? (
+                <div className="text-center py-12">
+                  <span className="material-symbols-outlined text-6xl text-emerald-500 mb-4 opacity-70">task_alt</span>
+                  <p className="text-lg font-bold text-[#0B1B2A] dark:text-rose-fog">{t('admin.no_low_stock', 'Todo el stock está ok.')}</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {dashboardData.lowStockVinyls.map((v) => (
+                    <div key={v.id} className="bg-white/40 dark:bg-black/20 p-5 rounded-2xl flex items-center justify-between border border-black/5 dark:border-white/5 group">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-black shadow-md">
+                          <img src={v.cover_image_url} alt={v.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-[#0B1B2A] dark:text-rose-fog">{v.title}</h4>
+                          <p className="text-xs text-[#0B1B2A]/60 dark:text-rose-fog/50 italic">{v.artist}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`w-2 h-2 rounded-full ${parseInt(v.stock) <= 5 ? 'bg-red-500' : 'bg-amber-500'} animate-pulse`} />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/70 dark:text-rose-fog/70">
+                              {v.stock} {t('admin.units')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(v.title);
+                          toast.success(t('admin.copied', 'Nombre copiado'));
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#0B1B2A]/5 dark:bg-white/5 hover:bg-[#5E1914] hover:text-white rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest"
+                      >
+                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                        {t('admin.copy_name', 'Copiar')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-black/5 text-center">
+              <Link
+                to="/admin/inventory"
+                onClick={() => setShowLowStockModal(false)}
+                className="text-[10px] font-bold uppercase tracking-widest text-[#5E1914] dark:text-rose-fog hover:underline"
+              >
+                {t('admin.go_to_inventory', 'Ir al inventario completo')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

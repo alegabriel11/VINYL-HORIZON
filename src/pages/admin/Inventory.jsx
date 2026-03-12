@@ -171,26 +171,23 @@ export default function Inventory() {
                     {/* Stock */}
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
+                        {/* 
+                          Color logic:
+                          Stock <= 5: Red (#EF4444)
+                          Stock <= 10: Orange (#F59E0B)
+                          Stock > 10: Green (#10B981)
+                        */}
                         <span
-                          className={`w-2 h-2 rounded-full ${r.stock.status === "low"
-                            ? "bg-whine-berry"
-                            : "bg-green-500"
+                          className={`w-3 h-3 rounded-full shadow-sm ${r.stock.value <= 5
+                            ? "bg-red-500"
+                            : r.stock.value <= 10
+                              ? "bg-amber-500"
+                              : "bg-emerald-500"
                             }`}
                         />
-                        <span
-                          className={`text-sm font-semibold ${r.stock.status === "low"
-                            ? "text-whine-berry"
-                            : "text-[#0B1B2A] dark:text-rose-fog"
-                            }`}
-                        >
+                        <span className="text-sm font-bold text-[#0B1B2A] dark:text-rose-fog">
                           {r.stock.value} {t('admin.units')}
                         </span>
-
-                        {r.stock.status === "low" && (
-                          <span className="text-[9px] font-bold uppercase bg-whine-berry text-rose-fog px-1.5 rounded">
-                            {t('admin.low_stock').split(' ')[0]}
-                          </span>
-                        )}
                       </div>
                     </td>
 

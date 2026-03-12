@@ -50,7 +50,7 @@ exports.updateVinyl = async (req, res) => {
         // Check original stock
         const checkQuery = 'SELECT stock FROM vinyls WHERE sku = $1 FOR UPDATE;';
         const checkResult = await client.query(checkQuery, [sku]);
-        
+
         if (checkResult.rowCount === 0) {
             throw new Error('Vinyl not found');
         }
@@ -60,7 +60,7 @@ exports.updateVinyl = async (req, res) => {
 
         let restockedAtUpdate = '';
         const params = [title, artist, price, description, cover_image_url, newStock, release_year || null, genre || null, audio_preview_url || null];
-        
+
         let restocked = false;
         if (oldStock === 0 && newStock > 0) {
             restockedAtUpdate = ', restocked_at = CURRENT_TIMESTAMP';
@@ -82,11 +82,11 @@ exports.updateVinyl = async (req, res) => {
             // Find users waiting
             const waitingUsersQuery = 'SELECT user_id FROM restock_requests WHERE sku = $1;';
             const usersResult = await client.query(waitingUsersQuery, [sku]);
-            
+
             if (usersResult.rowCount > 0) {
                 // Insert notifications for each user
                 const message = `El vinilo ${title || 'que esperabas'} ya está disponible. ¡Corre por él!`;
-                
+
                 for (const row of usersResult.rows) {
                     await client.query(
                         'INSERT INTO notifications (user_id, message) VALUES ($1, $2);',
@@ -101,7 +101,7 @@ exports.updateVinyl = async (req, res) => {
         }
 
         await client.query('COMMIT');
-        
+
         res.status(200).json({
             message: 'Vinyl updated successfully',
             vinyl: updatedVinyl
@@ -258,7 +258,7 @@ exports.addToWaitlist = async (req, res) => {
     try {
         const { sku } = req.params;
         const { userId } = req.body;
-        
+
         if (!userId) {
             return res.status(400).json({ message: 'User ID is required' });
         }
@@ -270,15 +270,15 @@ exports.addToWaitlist = async (req, res) => {
             RETURNING *;
         `;
         const uuidId = require('crypto').randomUUID();
-        
+
         try {
             await pool.query(query, [uuidId, sku, userId]);
         } catch (err) {
-            if (err.code === '23505') { 
+            if (err.code === '23505') {
                 console.log('User already on waitlist');
-            } else if (err.code === '42601' || err.code === '42P10') { 
+            } else if (err.code === '42601' || err.code === '42P10') {
                 const qsBase = `INSERT INTO restock_requests (id, sku, user_id) VALUES ($1, $2, $3) RETURNING *;`;
-                try { await pool.query(qsBase, [uuidId, sku, userId]); } catch (e) {}
+                try { await pool.query(qsBase, [uuidId, sku, userId]); } catch (e) { }
             } else {
                 throw err;
             }
@@ -326,8 +326,21 @@ exports.getAdminNotifications = async (req, res) => {
             ORDER BY r.created_at DESC
             LIMIT 10;
         `;
-        const result = await pool.query(query);
-        res.status(200).json({ waitlist: result.rows });
+        const waitlistResult = await pool.query(query);
+
+        // Also fetch low stock alerts (stock <= 10)
+        const lowStockQuery = `
+            SELECT id, sku, title as product_title, artist, stock
+            FROM vinyls
+            WHERE stock <= 10 AND stock > 0
+            ORDER BY stock ASC;
+        `;
+        const lowStockResult = await pool.query(lowStockQuery);
+
+        res.status(200).json({
+            waitlist: waitlistResult.rows,
+            lowStock: lowStockResult.rows
+        });
     } catch (error) {
         console.error('Error getting admin notifications:', error);
         res.status(500).json({ message: 'Error fetching admin notifications', error: error.message });
