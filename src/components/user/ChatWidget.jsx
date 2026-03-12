@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 export default function ChatWidget() {
   const { pathname } = useLocation();
   const isAdminRoute = pathname.startsWith('/admin');
-  
+
   // Check if user is logged in via localStorage
   const [user, setUser] = useState(null);
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function ChatWidget() {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { isDark } = useTheme();
   const { t } = useTranslation();
   const messagesEndRef = useRef(null);
@@ -51,12 +51,16 @@ export default function ChatWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.text, isAdmin: false })
       });
-
       const data = await response.json();
+
       if (data.errorType === 'quota') {
         setMessages((prev) => [...prev, { role: 'assistant', text: '🎵 Los créditos de IA de hoy se han agotado. El Curador estará de vuelta mañana — ¡vuelve pronto!' }]);
+      } else if (data.errorType === 'auth') {
+        setMessages((prev) => [...prev, { role: 'assistant', text: '☕️ Parece que hay un problema con mi identificación (API Key). Por favor, contacta al administrador del sistema.' }]);
+      } else if (data.errorType === 'model') {
+        setMessages((prev) => [...prev, { role: 'assistant', text: '💎 El modelo solicitado no está disponible para esta llave. Es posible que necesite una actualización en la consola de Google.' }]);
       } else if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error(data.error || 'Unknown error');
       } else {
         setMessages((prev) => [...prev, { role: 'assistant', text: data.text }]);
       }
@@ -103,24 +107,23 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/5 dark:bg-black/20">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div 
-                  className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === 'user' 
-                      ? 'bg-[#5E1914] text-[#F3F0EC] rounded-br-sm' 
-                      : 'bg-[#D9D9D9] dark:bg-[#3A2E29] text-[#0B1B2A] dark:text-[#E1C2B3] rounded-bl-sm border border-black/5 dark:border-white/5 shadow-sm'
-                  }`}
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
+                    ? 'bg-[#5E1914] text-[#F3F0EC] rounded-br-sm'
+                    : 'bg-[#D9D9D9] dark:bg-[#3A2E29] text-[#0B1B2A] dark:text-[#E1C2B3] rounded-bl-sm border border-black/5 dark:border-white/5 shadow-sm'
+                    }`}
                 >
                   {/* Si necesitamos renderizar un poco de Markdown o líneas lo hacemos sencillo */}
                   {msg.text.split('\n').map((line, i) => (
                     <span key={i}>
                       {line}
-                      <br/>
+                      <br />
                     </span>
                   ))}
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-3 rounded-2xl rounded-bl-sm border border-black/5 dark:border-white/5 flex gap-1 items-center">
@@ -143,8 +146,8 @@ export default function ChatWidget() {
                 placeholder="Pregunta sobre algún vinilo..."
                 className="flex-1 bg-black/5 dark:bg-black/20 text-[#0B1B2A] dark:text-[#E1C2B3] text-sm rounded-full px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#5E1914] dark:focus:ring-[#E1C2B3]/50 transition-all"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={!inputText.trim() || isLoading}
                 className="w-10 h-10 rounded-full bg-[#0B1B2A] dark:bg-[#3A2E29] flex items-center justify-center text-[#E1C2B3] disabled:opacity-50 transition-all hover:bg-[#5E1914]"
               >
