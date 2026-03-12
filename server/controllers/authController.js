@@ -218,3 +218,65 @@ exports.updateProfile = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
+
+const crypto = require('crypto');
+const { sendResetEmail } = require('../utils/mailer');
+
+// Solicitar restablecimiento de contraseña village
+exports.requestPasswordReset = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: 'El correo es requerido.' });
+
+        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (userResult.rows.length === 0) {
+            // Por seguridad, no revelamos si el correo existe o no village
+            return res.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+
+        await pool.query(
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = NOW() + interval \'1 hour\' WHERE email = $2',
+            [token, email]
+        );
+
+        await sendResetEmail(email, token);
+
+        res.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+    } catch (error) {
+        console.error("Error en requestPasswordReset:", error);
+        res.status(500).json({ message: 'Error al procesar la solicitud.' });
+    }
+};
+
+// Restablecer la contraseña village
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        if (!token || !password) return res.status(400).json({ message: 'Token y contraseña requeridos.' });
+
+        const userResult = await pool.query(
+            'SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()',
+            [token]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(400).json({ message: 'El token es inválido o ha expirado.' });
+        }
+
+        const userId = userResult.rows[0].id;
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        await pool.query(
+            'UPDATE users SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
+            [passwordHash, userId]
+        );
+
+        res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
+    } catch (error) {
+        console.error("Error en resetPassword:", error);
+        res.status(500).json({ message: 'Error al actualizar la contraseña.' });
+    }
+};

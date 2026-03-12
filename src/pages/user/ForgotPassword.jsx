@@ -1,13 +1,84 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import Swal from 'sweetalert2';
 
 export default function ForgotPassword() {
     const { isDark, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useLanguage();
     const { t } = useTranslation();
+    const location = useLocation();
+
+    // Estado para manejar el flujo village
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [token, setToken] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Detectar si hay un token en la URL village
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const tkn = queryParams.get('token');
+        if (tkn) setToken(tkn);
+    }, [location]);
+
+    const handleRequestReset = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/auth/request-password-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                Swal.fire({
+                    title: 'Enlace enviado',
+                    text: 'Si el correo existe, recibirás un enlace pronto.',
+                    icon: 'success',
+                    confirmButtonColor: '#5E1914'
+                });
+            } else {
+                Swal.fire('Atención', data.message || 'No se pudo procesar la solicitud.', 'warning');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo enviar el correo.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Tu contraseña ha sido actualizada.',
+                    icon: 'success',
+                    confirmButtonColor: '#5E1914'
+                }).then(() => window.location.href = '/login');
+            } else {
+                Swal.fire('Atención', data.message || 'Error al restablecer.', 'warning');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-500 font-['Montserrat'] ${isDark ? 'bg-[#091C2A]' : 'bg-[#D1D1D1]'}`}>
@@ -20,7 +91,6 @@ export default function ForgotPassword() {
         }
       `}</style>
 
-            {/* Background from Login / Register */}
             <div className="absolute inset-0 z-0">
                 <img
                     alt="Vintage Record Player"
@@ -30,21 +100,9 @@ export default function ForgotPassword() {
                 <div className="absolute inset-0 hero-overlay transition-colors duration-500"></div>
             </div>
 
-            <div className="fixed top-8 right-8 z-[60] flex items-center gap-4">
-                <button
-                    onClick={toggleLanguage}
-                    className={`px-4 py-2 backdrop-blur-md rounded-full transition-all border shadow-lg font-bold text-sm tracking-widest focus:outline-none ${isDark ? 'bg-[#3A2E29]/40 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20 text-[#E1C2B3]' : 'bg-[#3A2E29]/20 border-[#E1C2B3]/20 hover:bg-[#E1C2B3]/20 text-[#091C2A]'}`}
-                    aria-label="Toggle Language"
-                >
-                    {language === 'ES' ? 'EN' : 'ES'}
-                </button>
-
-            </div>
-
             <main className="relative z-10 min-h-screen flex items-center justify-center p-6 w-full">
                 <div className={`w-full max-w-md p-10 md:p-14 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[#E1C2B3]/10 transition-colors duration-500 ${isDark ? 'bg-[#3A2E29]' : 'bg-[#D1D1D1]'}`}>
 
-                    {/* Header */}
                     <div className="text-center mb-12">
                         <Link to="/" className="flex flex-col relative inline-block group">
                             <span className={`material-symbols-outlined absolute -left-8 -top-3 scale-75 transition-colors ${isDark ? 'text-[#E1C2B3]/40 group-hover:text-[#E1C2B3]/60' : 'text-[#0B1B2A]/40 group-hover:text-[#0B1B2A]/60'}`}>album</span>
@@ -52,11 +110,13 @@ export default function ForgotPassword() {
                             <h2 className={`font-['Cormorant_Garamond'] text-2xl tracking-[0.3em] uppercase -mt-1 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`}>Horizon</h2>
                         </Link>
                         <div className={`h-px w-12 mx-auto mt-6 ${isDark ? 'bg-[#E1C2B3]/30' : 'bg-[#0B1B2A]/30'}`}></div>
-                        <p className={`text-[10px] uppercase tracking-[0.4em] mt-4 ${isDark ? 'text-[#E1C2B3]/60' : 'text-[#0B1B2A]/60'}`}>{t('forgot_password.recovery')}</p>
+                        <p className={`text-[10px] uppercase tracking-[0.4em] mt-4 ${isDark ? 'text-[#E1C2B3]/60' : 'text-[#0B1B2A]/60'}`}>
+                            {token ? t('forgot_password.new_password_title') || 'NUEVA CONTRASEÑA' : t('forgot_password.recovery')}
+                        </p>
                     </div>
 
-                    <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-                        <div className="space-y-6">
+                    <form className="space-y-8" onSubmit={token ? handleResetPassword : handleRequestReset}>
+                        {!token ? (
                             <div className="relative group">
                                 <label className={`block text-xs font-semibold uppercase tracking-widest mb-2 ml-1 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`} htmlFor="email">{t('forgot_password.email')}</label>
                                 <input
@@ -65,8 +125,12 @@ export default function ForgotPassword() {
                                     name="email"
                                     placeholder="curator@vinylhorizon.com"
                                     type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
+                        ) : (
                             <div className="relative group">
                                 <label className={`block text-xs font-semibold uppercase tracking-widest mb-2 ml-1 ${isDark ? 'text-[#E1C2B3]' : 'text-[#0B1B2A]'}`} htmlFor="password">{t('forgot_password.new_password')}</label>
                                 <input
@@ -75,15 +139,20 @@ export default function ForgotPassword() {
                                     name="password"
                                     placeholder="••••••••••••"
                                     type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
-                        </div>
+                        )}
+
                         <div className="pt-4">
                             <button
-                                className={`w-full py-5 rounded-[2rem] font-bold uppercase tracking-[0.2em] text-xs hover:brightness-125 transition-all shadow-xl active:scale-[0.98] ${isDark ? 'bg-[#5E1914] text-[#E1C2B3]' : 'bg-[#5E1914] text-[#F3F0EC]'}`}
+                                disabled={isLoading}
+                                className={`w-full py-5 rounded-[2rem] font-bold uppercase tracking-[0.2em] text-xs hover:brightness-125 transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 ${isDark ? 'bg-[#5E1914] text-[#E1C2B3]' : 'bg-[#5E1914] text-[#F3F0EC]'}`}
                                 type="submit"
                             >
-                                {t('forgot_password.reset')}
+                                {isLoading ? 'Cargando...' : (token ? t('forgot_password.reset') : t('forgot_password.send_link') || 'Enviar Enlace')}
                             </button>
                         </div>
                     </form>
@@ -99,10 +168,6 @@ export default function ForgotPassword() {
                     </div>
                 </div>
             </main>
-
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:block">
-                <p className={`text-[9px] uppercase tracking-[0.5em] ${isDark ? 'text-[#E1C2B3]/30' : 'text-[#0B1B2A]/50 font-bold'}`}>{t('forgot_password.footer')}</p>
-            </div>
         </div>
     );
 }

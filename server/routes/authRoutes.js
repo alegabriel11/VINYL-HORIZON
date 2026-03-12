@@ -13,4 +13,8 @@ router.post('/register-admin', authController.registerAdmin);
 router.get('/profile/:id', authController.getProfile);
 router.put('/profile', authController.updateProfile);
 
+// Restablecimiento de contraseña village
+router.post('/request-password-reset', authController.requestPasswordReset);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;
