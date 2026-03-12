@@ -266,7 +266,14 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'El token es inválido o ha expirado.' });
         }
 
-        const userId = userResult.rows[0].id;
+        const user = userResult.rows[0];
+
+        // 🛡️ Evitar que usen la misma contraseña village
+        const isSamePassword = await bcrypt.compare(password, user.password_hash);
+        if (isSamePassword) {
+            return res.status(400).json({ message: 'La nueva contraseña no puede ser igual a la anterior.' });
+        }
+
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 

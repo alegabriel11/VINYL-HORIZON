@@ -37,16 +37,16 @@ export default function ForgotPassword() {
 
             if (res.ok) {
                 Swal.fire({
-                    title: 'Enlace enviado',
-                    text: 'Si el correo existe, recibirás un enlace pronto.',
+                    title: t('forgot_password.alerts.link_sent_title'),
+                    text: t('forgot_password.alerts.link_sent_text'),
                     icon: 'success',
                     confirmButtonColor: '#5E1914'
                 });
             } else {
-                Swal.fire('Atención', data.message || 'No se pudo procesar la solicitud.', 'warning');
+                Swal.fire(t('forgot_password.alerts.attention'), data.message || t('forgot_password.alerts.unexpected_error'), 'warning');
             }
         } catch (error) {
-            Swal.fire('Error', 'No se pudo enviar el correo.', 'error');
+            Swal.fire(t('forgot_password.alerts.error'), t('forgot_password.alerts.network_error'), 'error');
         } finally {
             setIsLoading(false);
         }
@@ -65,16 +65,16 @@ export default function ForgotPassword() {
 
             if (res.ok) {
                 Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Tu contraseña ha sido actualizada.',
+                    title: t('forgot_password.alerts.success_title'),
+                    text: t('forgot_password.alerts.success_text'),
                     icon: 'success',
                     confirmButtonColor: '#5E1914'
                 }).then(() => window.location.href = '/login');
             } else {
-                Swal.fire('Atención', data.message || 'Error al restablecer.', 'warning');
+                Swal.fire(t('forgot_password.alerts.attention'), data.message || t('forgot_password.alerts.unexpected_error'), 'warning');
             }
         } catch (error) {
-            Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
+            Swal.fire(t('forgot_password.alerts.error'), t('forgot_password.alerts.unexpected_error'), 'error');
         } finally {
             setIsLoading(false);
         }
@@ -111,7 +111,7 @@ export default function ForgotPassword() {
                         </Link>
                         <div className={`h-px w-12 mx-auto mt-6 ${isDark ? 'bg-[#E1C2B3]/30' : 'bg-[#0B1B2A]/30'}`}></div>
                         <p className={`text-[10px] uppercase tracking-[0.4em] mt-4 ${isDark ? 'text-[#E1C2B3]/60' : 'text-[#0B1B2A]/60'}`}>
-                            {token ? t('forgot_password.new_password_title') || 'NUEVA CONTRASEÑA' : t('forgot_password.recovery')}
+                            {token ? t('forgot_password.new_password_title') : t('forgot_password.recovery')}
                         </p>
                     </div>
 
@@ -152,7 +152,7 @@ export default function ForgotPassword() {
                                 className={`w-full py-5 rounded-[2rem] font-bold uppercase tracking-[0.2em] text-xs hover:brightness-125 transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 ${isDark ? 'bg-[#5E1914] text-[#E1C2B3]' : 'bg-[#5E1914] text-[#F3F0EC]'}`}
                                 type="submit"
                             >
-                                {isLoading ? 'Cargando...' : (token ? t('forgot_password.reset') : t('forgot_password.send_link') || 'Enviar Enlace')}
+                                {isLoading ? t('forgot_password.loading') : (token ? t('forgot_password.reset') : t('forgot_password.send_link'))}
                             </button>
                         </div>
                     </form>

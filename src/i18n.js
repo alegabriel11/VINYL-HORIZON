@@ -135,9 +135,22 @@ const resources = {
                 recovery: "Password Recovery",
                 email: "Email Address",
                 new_password: "New Password",
+                new_password_title: "NEW PASSWORD",
                 reset: "Reset Password",
+                send_link: "Send Link",
+                loading: "Loading...",
                 back_to_login: "Back to Login",
-                footer: "Curated for the discerning ear since 1996"
+                footer: "Curated for the discerning ear since 1996",
+                alerts: {
+                    link_sent_title: "Link Sent",
+                    link_sent_text: "If the email exists, you will receive a link shortly.",
+                    success_title: "Success!",
+                    success_text: "Your password has been updated.",
+                    attention: "Attention",
+                    error: "Error",
+                    network_error: "Could not send email.",
+                    unexpected_error: "An unexpected error occurred."
+                }
             },
             checkout: {
                 title: "Checkout",
@@ -348,9 +361,22 @@ const resources = {
                 recovery: "Recuperación de Contraseña",
                 email: "Correo Electrónico",
                 new_password: "Nueva Contraseña",
+                new_password_title: "NUEVA CONTRASEÑA",
                 reset: "Restablecer Contraseña",
+                send_link: "Enviar Enlace",
+                loading: "Cargando...",
                 back_to_login: "Volver a Iniciar Sesión",
-                footer: "Curado para el oído exigente desde 1996"
+                footer: "Curado para el oído exigente desde 1996",
+                alerts: {
+                    link_sent_title: "Enlace enviado",
+                    link_sent_text: "Si el correo existe, recibirás un enlace pronto.",
+                    success_title: "¡Éxito!",
+                    success_text: "Tu contraseña ha sido actualizada.",
+                    attention: "Atención",
+                    error: "Error",
+                    network_error: "No se pudo enviar el correo.",
+                    unexpected_error: "Ocurrió un error inesperado."
+                }
             },
             checkout: {
                 title: "Pago",
