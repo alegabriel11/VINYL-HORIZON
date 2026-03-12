@@ -483,10 +483,40 @@ export default function Profile() {
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 justify-center pb-8 pt-4 px-2">
+                  <div className="flex flex-wrap gap-8 md:gap-12 justify-center pb-12 pt-8 px-4">
                     {uniqueVinylCovers.map((cover, idx) => (
-                      <div key={idx} className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-xl overflow-hidden vinyl-shadow group shrink-0 border border-black/5 dark:border-white/5">
-                        <img src={cover} alt="Vinyl Cover" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div key={idx} className="group relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 shrink-0">
+                        {/* Vinyl Disc Background */}
+                        <div className="absolute inset-0 bg-black rounded-full vinyl-shadow border-4 border-[#122838] overflow-hidden transition-all duration-700 group-hover:rotate-[360deg]">
+                          {/* Grooves */}
+                          <div className="absolute inset-2 border border-white/10 rounded-full z-10 pointer-events-none"></div>
+                          <div className="absolute inset-8 border border-white/5 rounded-full z-10 pointer-events-none"></div>
+                          <div className="absolute inset-16 border border-white/5 rounded-full z-10 pointer-events-none"></div>
+                          <div className="absolute inset-24 border border-white/5 rounded-full z-10 pointer-events-none"></div>
+
+                          {/* Album Cover as label or full surface */}
+                          <img
+                            src={cover}
+                            alt="Collection Item"
+                            className="w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
+                          />
+
+                          {/* Reflection Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 rounded-full z-20"></div>
+                        </div>
+
+                        {/* Spindle Hole */}
+                        <div className="absolute inset-0 m-auto w-8 h-8 md:w-10 md:h-10 bg-black/40 backdrop-blur-md rounded-full border-2 border-black flex items-center justify-center z-30">
+                          <div className="w-2 h-2 bg-[#E1C2B3]/30 rounded-full" />
+                          <div className="absolute inset-0 m-auto w-3 h-3 bg-black rounded-full border border-white/20 z-10"></div>
+                        </div>
+
+                        {/* Hover Name Badge - Optional enhancement */}
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 whitespace-nowrap">
+                          <span className="text-[10px] font-bold uppercase tracking-widest bg-[#5E1914] text-[#E1C2B3] px-3 py-1 rounded-full shadow-lg">
+                            {t('profile.owned_item', 'En posesión')}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
