@@ -429,22 +429,22 @@ export default function Reports() {
                   <svg className="w-full h-full" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet">
                     <defs>
                       <linearGradient id="growthGradient" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#5E1914" stopOpacity="0.25"></stop>
-                        <stop offset="100%" stopColor="#5E1914" stopOpacity="0"></stop>
+                        <stop offset="0%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0.25"></stop>
+                        <stop offset="100%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0"></stop>
                       </linearGradient>
                     </defs>
                     
                     {/* Grid */}
                     {gridLines.map((g, i) => (
                       <g key={`grid-${i}`}>
-                        <line x1="50" y1={g.y} x2="730" y2={g.y} stroke="#E5E7EB" strokeWidth="1" strokeDasharray="4 4" />
-                        <text x="40" y={g.y + 3} fill="#6B7280" fontSize="10" fontFamily="helvetica" textAnchor="end">${g.val.toFixed(0)}</text>
+                        <line x1="50" y1={g.y} x2="730" y2={g.y} stroke={isDark ? "rgba(255,255,255,0.1)" : "#E5E7EB"} strokeWidth="1" strokeDasharray="4 4" />
+                        <text x="40" y={g.y + 3} fill={isDark ? "rgba(225,194,179,0.6)" : "#6B7280"} fontSize="10" fontFamily="helvetica" textAnchor="end">${g.val.toFixed(0)}</text>
                       </g>
                     ))}
 
                     {/* Area and Line */}
                     <path d={fillPath} fill="url(#growthGradient)"></path>
-                    <path d={linePath} fill="none" stroke="#5E1914" strokeWidth="3" strokeLinecap="round"></path>
+                    <path d={linePath} fill="none" stroke={isDark ? "#ef4444" : "#5E1914"} strokeWidth="3" strokeLinecap="round"></path>
 
                     {/* Points and Labels */}
                     {points.map((p, i) => {
@@ -454,20 +454,20 @@ export default function Reports() {
                           <circle 
                             cx={p.x} cy={p.y} 
                             r={isLast ? "5" : "3"} 
-                            fill={isLast ? "#5E1914" : "#FFFFFF"} 
-                            stroke="#5E1914" 
+                            fill={isLast ? (isDark ? "#ef4444" : "#5E1914") : (isDark ? "#3A2E29" : "#FFFFFF")} 
+                            stroke={isDark ? "#ef4444" : "#5E1914"} 
                             strokeWidth={isLast ? "0" : "2"} 
                           />
                           {isLast && (
                             <g>
-                              <rect x={p.x - 30} y={p.y - 32} width="60" height="22" rx="4" fill="#0B1B2A" />
-                              <path d={`M${p.x-5},${p.y-10} L${p.x+5},${p.y-10} L${p.x},${p.y-3} Z`} fill="#0B1B2A" />
-                              <text x={p.x} y={p.y - 17} fill="#FFFFFF" fontSize="11" fontFamily="helvetica" textAnchor="middle" fontWeight="bold">
+                              <rect x={p.x - 30} y={p.y - 32} width="60" height="22" rx="4" fill={isDark ? "#E1C2B3" : "#0B1B2A"} />
+                              <path d={`M${p.x-5},${p.y-10} L${p.x+5},${p.y-10} L${p.x},${p.y-3} Z`} fill={isDark ? "#E1C2B3" : "#0B1B2A"} />
+                              <text x={p.x} y={p.y - 17} fill={isDark ? "#0B1B2A" : "#FFFFFF"} fontSize="11" fontFamily="helvetica" textAnchor="middle" fontWeight="bold">
                                 ${p.val.toFixed(0)}
                               </text>
                             </g>
                           )}
-                          <text x={p.x} y="240" fill="#6B7280" fontSize="10" fontFamily="helvetica" textAnchor="middle" fontWeight="bold" textTransform="uppercase">
+                          <text x={p.x} y="240" fill={isDark ? "rgba(225,194,179,0.6)" : "#6B7280"} fontSize="10" fontFamily="helvetica" textAnchor="middle" fontWeight="bold" textTransform="uppercase">
                             {reportData.chartLabels[i]}
                           </text>
                         </g>
