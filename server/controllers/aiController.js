@@ -1,11 +1,16 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const pool = require("../config/db");
 
-// Inicializamos el SDK con la API Key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Removemos la inicialización global para evitar problemas de orden al leer el .env
 
 const generateResponse = async (req, res) => {
     try {
+        // Inicializamos el SDK de manera diferida, asegurándonos de que las variables de entorno ya existen
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("API key not found en el entorno de Node");
+        }
+        
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const { message, isAdmin, model: requestedModel } = req.body;
 
         // Forzamos el uso de Gemini 2.5 Flash según lo solicitado village
