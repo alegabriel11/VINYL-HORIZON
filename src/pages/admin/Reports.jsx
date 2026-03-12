@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 
 export default function Reports() {
   const { isDark, toggleTheme } = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const printRef = useRef();
 
   const [reportData, setReportData] = useState({
@@ -86,13 +86,14 @@ export default function Reports() {
           })).sort((a, b) => b.percentage - a.percentage).slice(0, 4);
 
           // Calculate 6-month revenue chart
-          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const lng = i18n.language || 'en';
           const monthlyData = [];
           const currentDate = new Date();
 
           for (let i = 5; i >= 0; i--) {
             const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-            monthlyData.push({ monthKey: `${d.getFullYear()}-${d.getMonth()}`, label: monthNames[d.getMonth()], sales: 0 });
+            const monthLabel = new Intl.DateTimeFormat(lng, { month: 'short' }).format(d);
+            monthlyData.push({ monthKey: `${d.getFullYear()}-${d.getMonth()}`, label: monthLabel, sales: 0 });
           }
 
           orders.forEach(order => {
@@ -128,7 +129,7 @@ export default function Reports() {
 
   const handleGenerateFullReport = async () => {
     try {
-      toast.loading('Capturing data & generating report...', { id: 'report-gen' });
+      toast.loading(t('admin.provisioning', 'Procesando...'), { id: 'report-gen' });
       const doc = new jsPDF();
 
       // Premium Header Banner
@@ -144,13 +145,16 @@ export default function Reports() {
       doc.setFontSize(12);
       doc.setFont('times', 'normal');
       doc.setTextColor(200, 200, 200);
-      doc.text("EXECUTIVE INTELLIGENCE REPORT", 14, 32);
+      doc.text(t('admin.reports.pdf.executive_title', 'EXECUTIVE INTELLIGENCE REPORT'), 14, 32);
 
       // Subtitle outside banner
       doc.setFontSize(9);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(120, 120, 120);
-      doc.text(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} by System Administrator`, 14, 55);
+      doc.text(t('admin.reports.pdf.generated_by', {
+        date: new Date().toLocaleDateString(i18n.language),
+        time: new Date().toLocaleTimeString(i18n.language)
+      }), 14, 55);
 
       // Calculations for dynamic data
       const currentMonthSales = reportData.chartData[5] || 0;
@@ -165,15 +169,19 @@ export default function Reports() {
       doc.setFontSize(14);
       doc.setFont('times', 'bold');
       doc.setTextColor(11, 27, 42);
-      doc.text("1. Executive Summary", 14, 68);
+      doc.text(t('admin.reports.pdf.summary_title', '1. Executive Summary'), 14, 68);
 
       autoTable(doc, {
         startY: 72,
-        head: [['Key Metric', 'Current Value', 'MoM Growth']],
+        head: [[
+          t('admin.reports.pdf.metric_header', 'Key Metric'),
+          t('admin.reports.pdf.value_header', 'Current Value'),
+          t('admin.reports.pdf.mom_header', 'MoM Growth')
+        ]],
         body: [
-          ['Total Revenue', `$${reportData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, revenueGrowth],
-          ['Average Order Value', `$${reportData.avgOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, '-'],
-          ['Customer Database', `${reportData.customersCount} Active`, '-'],
+          [t('admin.reports.total_revenue', 'Total Revenue'), `$${reportData.totalRevenue.toLocaleString(i18n.language || 'en-US', { minimumFractionDigits: 2 })}`, revenueGrowth],
+          [t('admin.reports.avg_order', 'Average Order Value'), `$${reportData.avgOrderValue.toLocaleString(i18n.language || 'en-US', { minimumFractionDigits: 2 })}`, '-'],
+          [t('admin.reports.unique_customers', 'Unique Customers'), `${reportData.customersCount}`, '-'],
         ],
         theme: 'striped',
         styles: { font: 'helvetica', fontSize: 10, cellPadding: 4 },
@@ -185,14 +193,18 @@ export default function Reports() {
       doc.setFontSize(14);
       doc.setFont('times', 'bold');
       doc.setTextColor(11, 27, 42);
-      doc.text("2. Monthly Volume by Genre", 14, doc.lastAutoTable.finalY + 15);
+      doc.text(t('admin.reports.pdf.genre_title', '2. Monthly Volume by Genre'), 14, doc.lastAutoTable.finalY + 15);
 
       const genreBody = reportData.genres.map(g => [g.name, `${g.percentage.toFixed(1)}%`, 'Active']);
-      if (genreBody.length === 0) genreBody.push(['No Data Available', '0%', '-']);
+      if (genreBody.length === 0) genreBody.push([t('admin.reports.no_genre_data', 'No Data Available'), '0%', '-']);
 
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
-        head: [['Genre', 'Distribution %', 'Status']],
+        head: [[
+          t('admin.reports.pdf.genre_header', 'Genre'),
+          t('admin.reports.pdf.dist_header', 'Distribution %'),
+          t('admin.reports.pdf.status_header', 'Status')
+        ]],
         body: genreBody,
         theme: 'grid',
         styles: { font: 'helvetica', fontSize: 10, cellPadding: 4 },
@@ -203,19 +215,24 @@ export default function Reports() {
       doc.setFontSize(14);
       doc.setFont('times', 'bold');
       doc.setTextColor(11, 27, 42);
-      doc.text("3. Top Performing Vinyls", 14, doc.lastAutoTable.finalY + 15);
+      doc.text(t('admin.reports.pdf.top_title', '3. Top Performing Vinyls'), 14, doc.lastAutoTable.finalY + 15);
 
       const topSellersBody = reportData.topVinyls.map(v => [
         v.title,
         v.genre,
         v.units.toString(),
-        `$${v.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+        `$${v.revenue.toLocaleString(i18n.language || 'en-US', { minimumFractionDigits: 2 })}`
       ]);
-      if (topSellersBody.length === 0) topSellersBody.push(['No Sales Data', '-', '0', '$0.00']);
+      if (topSellersBody.length === 0) topSellersBody.push([t('admin.reports.top_selling_empty', 'No Sales Data'), '-', '0', '$0.00']);
 
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
-        head: [['Album Title', 'Genre', 'Units Sold', 'Gross Revenue']],
+        head: [[
+          t('admin.reports.pdf.album_header', 'Album Title'),
+          t('admin.table_genre', 'Genre'),
+          t('admin.reports.pdf.units_header', 'Units Sold'),
+          t('admin.reports.pdf.gross_header', 'Gross Revenue')
+        ]],
         body: topSellersBody,
         theme: 'striped',
         styles: { font: 'helvetica', fontSize: 10, cellPadding: 4 },
@@ -226,9 +243,9 @@ export default function Reports() {
       // --- Visual Monthly Growth ---
       if (doc.lastAutoTable.finalY > 200) {
         doc.addPage();
-        doc.text("4. Monthly Growth Chart", 14, 20);
+        doc.text(t('admin.reports.pdf.growth_title', '4. Monthly Growth Chart'), 14, 20);
       } else {
-        doc.text("4. Monthly Growth Chart", 14, doc.lastAutoTable.finalY + 15);
+        doc.text(t('admin.reports.pdf.growth_title', '4. Monthly Growth Chart'), 14, doc.lastAutoTable.finalY + 15);
       }
 
       const chartElement = document.getElementById('monthly-growth-chart');
@@ -252,12 +269,12 @@ export default function Reports() {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`CONFIDENTIAL - Vinyl Horizon Internal Use Only • Page ${i} of ${totalPages}`, 14, 285);
+        doc.text(t('admin.reports.pdf.confidential', { page: i, total: totalPages }), 14, 285);
       }
 
       // Download
       doc.save(`VinylHorizon_Report_${new Date().getTime()}.pdf`);
-      toast.success('Executive Report downloaded securely!', { id: 'report-gen', icon: '📉' });
+      toast.success(t('admin.reports.pdf.download_success', 'Executive Report downloaded securely!'), { id: 'report-gen', icon: '📉' });
 
     } catch (error) {
       console.error(error);
@@ -299,8 +316,8 @@ export default function Reports() {
       <main className="ml-64 min-h-screen p-8 lg:p-12 relative" id="main-content">
         <div className="flex justify-between items-center mb-12">
           <div>
-            <h1 className="font-['Cormorant_Garamond'] text-5xl font-bold">{t('admin.reports')}</h1>
-            <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-[0.3em] mt-1 font-semibold">{t('admin.terminal')}</p>
+            <h1 className="font-['Cormorant_Garamond'] text-5xl font-bold">{t('admin.reports.title', 'Reports & Analytics')}</h1>
+            <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-[0.3em] mt-1 font-semibold">{t('admin.terminal', 'Admin Terminal')}</p>
           </div>
           <div className="flex items-center gap-6">
             <button
@@ -326,8 +343,8 @@ export default function Reports() {
                 <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">payments</span>
               </div>
             </div>
-            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Total Revenue</p>
-            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">{t('admin.reports.total_revenue', 'Total Revenue')}</p>
+            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.totalRevenue.toLocaleString(i18n.language || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
           </div>
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-start mb-4">
@@ -335,8 +352,8 @@ export default function Reports() {
                 <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">shopping_cart</span>
               </div>
             </div>
-            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Avg. Order Value</p>
-            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.avgOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">{t('admin.reports.avg_order', 'Avg. Order Value')}</p>
+            <h3 className="font-['Playfair_Display'] text-3xl mt-1">${reportData.avgOrderValue.toLocaleString(i18n.language || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
           </div>
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-start mb-4">
@@ -344,7 +361,7 @@ export default function Reports() {
                 <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">group_add</span>
               </div>
             </div>
-            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Unique Customers</p>
+            <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">{t('admin.reports.unique_customers', 'Unique Customers')}</p>
             <h3 className="font-['Playfair_Display'] text-3xl mt-1">{reportData.customersCount}</h3>
           </div>
         </div>
@@ -353,7 +370,7 @@ export default function Reports() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.sales_by_genre')}</h4>
-              <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">Distribution of monthly volume</p>
+              <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">{t('admin.reports.sales_by_genre_desc', 'Distribution of monthly volume')}</p>
             </div>
           </div>
           <div className="flex items-end justify-between h-64 gap-8 px-4">
@@ -363,7 +380,7 @@ export default function Reports() {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">{g.name} ({Math.round(g.percentage)}%)</span>
               </div>
             ))}
-            {reportData.genres.length === 0 && <p className="text-center w-full mt-24 text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">No genre data available</p>}
+            {reportData.genres.length === 0 && <p className="text-center w-full mt-24 text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">{t('admin.reports.no_genre_data', 'No genre data available')}</p>}
           </div>
         </div>
 
@@ -374,7 +391,7 @@ export default function Reports() {
             </div>
             <div className="space-y-6">
               {reportData.topVinyls.length === 0 ? (
-                <p className="text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">No sales data yet.</p>
+                <p className="text-[10px] uppercase font-bold text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50">{t('admin.reports.top_selling_empty', 'No sales data yet.')}</p>
               ) : reportData.topVinyls.map((v, idx) => (
                 <div key={idx} className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-lg bg-black/10 dark:bg-black-pearl/40 overflow-hidden shadow-md">
@@ -382,7 +399,7 @@ export default function Reports() {
                   </div>
                   <div className="flex-1">
                     <h5 className="text-sm font-bold">{v.title}</h5>
-                    <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">{v.genre} • {v.units} Units</p>
+                    <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-widest">{v.genre} • {v.units} {t('admin.units', 'Units')}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold">${v.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -396,7 +413,7 @@ export default function Reports() {
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h4 className="font-['Cormorant_Garamond'] text-2xl font-bold">{t('admin.monthly_growth')}</h4>
-                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">6 month trajectory</p>
+                <p className="text-[10px] text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 uppercase tracking-[0.2em]">{t('admin.reports.monthly_growth_desc', '6 month trajectory')}</p>
               </div>
             </div>
             <div id="monthly-growth-chart" className="h-[280px] w-full relative pt-4 pb-4">
