@@ -53,7 +53,7 @@ export default function AdminSidebar() {
       </div>
 
       {/* NAVIGATION LINKS - VINYL STACK */}
-      <nav className="flex-1 px-4 md:px-6 py-6 space-y-12">
+      <nav className="flex-1 px-4 md:px-6 py-6 space-y-6">
         {NAV.map((item) => {
           const active = isActive(item.to);
 
@@ -61,7 +61,7 @@ export default function AdminSidebar() {
             <Link
               key={item.to}
               to={item.to}
-              className={`relative block w-full aspect-square group transition-all duration-500 hover:z-20 ${active ? 'z-30' : 'z-10'}`}
+              className={`relative block w-full aspect-[4/3] group transition-all duration-500 hover:z-20 ${active ? 'z-30' : 'z-10'}`}
               style={{ perspective: '1000px' }}
             >
               <div
