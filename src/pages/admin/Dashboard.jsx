@@ -166,7 +166,7 @@ export default function Dashboard() {
             </button>
 
             <div className="border-l border-black/10 dark:border-walnut pl-6">
-              <TopBarUser />
+              <TopBarUser isFixed={false} />
             </div>
           </div>
         </div>

@@ -113,7 +113,7 @@ export default function OrderDetails() {
 
 
                         <div className="border-l border-[#0B1B2A]/10 dark:border-[#3A2E29]/30 pl-6">
-                            <TopBarUser />
+                            <TopBarUser isFixed={false} />
                         </div>
                     </div>
                 </header>

@@ -7,7 +7,7 @@ import { CartContext } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-export default function TopBarUser({ children }) {
+export default function TopBarUser({ children, isFixed = true }) {
     const [user, setUser] = useState(null);
     const [avatar, setAvatar] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
@@ -71,7 +71,7 @@ export default function TopBarUser({ children }) {
     };
 
     return (
-        <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-1 sm:gap-2 bg-timberwolf/60 dark:bg-walnut/60 backdrop-blur-xl px-2 py-2 pr-3 md:pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg transition-colors duration-500">
+        <div className={`${isFixed ? 'fixed top-4 right-4 md:top-8 md:right-8 z-[60]' : ''} flex items-center gap-1 sm:gap-2 bg-timberwolf/60 dark:bg-walnut/60 backdrop-blur-xl px-2 py-2 pr-3 md:pr-4 rounded-full border border-black-pearl/10 dark:border-rose-fog/10 shadow-lg transition-colors duration-500`}>
 
             {/* Language Toggle */}
             <button
