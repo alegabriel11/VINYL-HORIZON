@@ -10,7 +10,7 @@ import TopBarUser from "../../components/user/TopBarUser";
 import AdminNotifications from "../../components/admin/AdminNotifications";
 import { Link } from "react-router-dom";
 
- // Removed generateChartPaths function as it's no longer used
+// Removed generateChartPaths function as it's no longer used
 
 export default function Reports() {
   const { isDark, toggleTheme } = useTheme();
@@ -134,13 +134,13 @@ export default function Reports() {
       // Premium Header Banner
       doc.setFillColor(11, 27, 42); // #0B1B2A
       doc.rect(0, 0, 210, 45, 'F');
-      
+
       // Title
       doc.setFontSize(28);
       doc.setFont('times', 'bold');
       doc.setTextColor(225, 194, 179); // #E1C2B3
       doc.text("VINYL HORIZON", 14, 22);
-      
+
       doc.setFontSize(12);
       doc.setFont('times', 'normal');
       doc.setTextColor(200, 200, 200);
@@ -206,9 +206,9 @@ export default function Reports() {
       doc.text("3. Top Performing Vinyls", 14, doc.lastAutoTable.finalY + 15);
 
       const topSellersBody = reportData.topVinyls.map(v => [
-        v.title, 
-        v.genre, 
-        v.units.toString(), 
+        v.title,
+        v.genre,
+        v.units.toString(),
         `$${v.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
       ]);
       if (topSellersBody.length === 0) topSellersBody.push(['No Sales Data', '-', '0', '$0.00']);
@@ -322,8 +322,8 @@ export default function Reports() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
-                <span className="material-symbols-outlined text-[#5E1914]">payments</span>
+              <div className="p-2.5 bg-black-pearl/20 rounded-lg">
+                <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">payments</span>
               </div>
             </div>
             <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Total Revenue</p>
@@ -331,8 +331,8 @@ export default function Reports() {
           </div>
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
-                <span className="material-symbols-outlined text-[#5E1914]">shopping_cart</span>
+              <div className="p-2.5 bg-black-pearl/20 rounded-lg">
+                <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">shopping_cart</span>
               </div>
             </div>
             <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Avg. Order Value</p>
@@ -340,8 +340,8 @@ export default function Reports() {
           </div>
           <div className="bg-[#D9D9D9] dark:bg-[#3A2E29] p-6 rounded-[1rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-xl transition-all">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-[#5E1914]/10 rounded-lg">
-                <span className="material-symbols-outlined text-[#5E1914]">group_add</span>
+              <div className="p-2.5 bg-black-pearl/20 rounded-lg">
+                <span className="material-symbols-outlined text-[#0B1B2A] dark:text-rose-fog">group_add</span>
               </div>
             </div>
             <p className="text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-[10px] font-bold uppercase tracking-widest">Unique Customers</p>
@@ -416,7 +416,7 @@ export default function Reports() {
                   const cx = (p0.x + p1.x) / 2;
                   linePath += ` C${cx},${p0.y} ${cx},${p1.y} ${p1.x},${p1.y}`;
                 }
-                const fillPath = `${linePath} L${points[points.length-1]?.x || 0},220 L${points[0]?.x || 0},220 Z`;
+                const fillPath = `${linePath} L${points[points.length - 1]?.x || 0},220 L${points[0]?.x || 0},220 Z`;
 
                 const gridLines = [];
                 for (let i = 0; i <= 4; i++) {
@@ -433,7 +433,7 @@ export default function Reports() {
                         <stop offset="100%" stopColor={isDark ? "#ef4444" : "#5E1914"} stopOpacity="0"></stop>
                       </linearGradient>
                     </defs>
-                    
+
                     {/* Grid */}
                     {gridLines.map((g, i) => (
                       <g key={`grid-${i}`}>
@@ -451,17 +451,17 @@ export default function Reports() {
                       const isLast = i === points.length - 1;
                       return (
                         <g key={`point-${i}`}>
-                          <circle 
-                            cx={p.x} cy={p.y} 
-                            r={isLast ? "5" : "3"} 
-                            fill={isLast ? (isDark ? "#ef4444" : "#5E1914") : (isDark ? "#3A2E29" : "#FFFFFF")} 
-                            stroke={isDark ? "#ef4444" : "#5E1914"} 
-                            strokeWidth={isLast ? "0" : "2"} 
+                          <circle
+                            cx={p.x} cy={p.y}
+                            r={isLast ? "5" : "3"}
+                            fill={isLast ? (isDark ? "#ef4444" : "#5E1914") : (isDark ? "#3A2E29" : "#FFFFFF")}
+                            stroke={isDark ? "#ef4444" : "#5E1914"}
+                            strokeWidth={isLast ? "0" : "2"}
                           />
                           {isLast && (
                             <g>
                               <rect x={p.x - 30} y={p.y - 32} width="60" height="22" rx="4" fill={isDark ? "#E1C2B3" : "#0B1B2A"} />
-                              <path d={`M${p.x-5},${p.y-10} L${p.x+5},${p.y-10} L${p.x},${p.y-3} Z`} fill={isDark ? "#E1C2B3" : "#0B1B2A"} />
+                              <path d={`M${p.x - 5},${p.y - 10} L${p.x + 5},${p.y - 10} L${p.x},${p.y - 3} Z`} fill={isDark ? "#E1C2B3" : "#0B1B2A"} />
                               <text x={p.x} y={p.y - 17} fill={isDark ? "#0B1B2A" : "#FFFFFF"} fontSize="11" fontFamily="helvetica" textAnchor="middle" fontWeight="bold">
                                 ${p.val.toFixed(0)}
                               </text>
