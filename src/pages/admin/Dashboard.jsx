@@ -97,7 +97,7 @@ export default function Dashboard() {
             lowStockCount,
             recentOrders: orders.slice(0, 4),
             chartData,
-            lowStockVinyls: vinyls.filter(v => parseInt(v.stock) > 0 && parseInt(v.stock) <= 10)
+            lowStockVinyls: vinyls.filter(v => parseInt(v.stock) > 0 && parseInt(v.stock) < 10)
           });
         }
       } catch (err) {

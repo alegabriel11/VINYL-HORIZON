@@ -189,7 +189,7 @@ export default function Inventory() {
                         <span
                           className={`w-3 h-3 rounded-full shadow-sm ${r.stock.value <= 5
                             ? "bg-red-500"
-                            : r.stock.value <= 10
+                            : r.stock.value < 10
                               ? "bg-amber-500"
                               : "bg-emerald-500"
                             }`}
