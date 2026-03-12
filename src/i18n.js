@@ -219,11 +219,61 @@ const resources = {
                 table_total: "Total Amount",
                 table_status: "Status",
                 view_details: "View Details",
-                reports: "Reports",
+                reports: {
+                    title: "Reports & Analytics",
+                    total_revenue: "Total Revenue",
+                    avg_order: "Avg. Order Value",
+                    unique_customers: "Unique Customers",
+                    sales_by_genre_desc: "Distribution of monthly volume",
+                    no_genre_data: "No genre data available",
+                    top_selling_empty: "No sales data yet.",
+                    monthly_growth_desc: "6 month trajectory",
+                    pdf: {
+                        executive_title: "EXECUTIVE INTELLIGENCE REPORT",
+                        generated_by: "Generated: {{date}} {{time}} by System Administrator",
+                        summary_title: "1. Executive Summary",
+                        metric_header: "Key Metric",
+                        value_header: "Current Value",
+                        mom_header: "MoM Growth",
+                        genre_title: "2. Monthly Volume by Genre",
+                        genre_header: "Genre",
+                        dist_header: "Distribution %",
+                        status_header: "Status",
+                        top_title: "3. Top Performing Vinyls",
+                        album_header: "Album Title",
+                        units_header: "Units Sold",
+                        gross_header: "Gross Revenue",
+                        growth_title: "4. Monthly Growth Chart",
+                        confidential: "CONFIDENTIAL - Vinyl Horizon Internal Use Only • Page {{page}} of {{total}}",
+                        download_success: "Executive Report downloaded securely!"
+                    }
+                },
                 generate_full: "Generate Full Report",
                 sales_by_genre: "Sales by Genre",
                 top_selling: "Top Selling Vinyls",
                 monthly_growth: "Monthly Growth",
+                order_details: {
+                    title: "Order Details",
+                    mark_shipped: "Mark Shipped",
+                    print_invoice: "Print Invoice",
+                    order_items: "Order Items",
+                    qty: "Qty",
+                    placed_on: "Placed on",
+                    items_count: "Items",
+                    delivery_timeline: "Delivery Timeline",
+                    customer_info: "Customer Info",
+                    order_reference: "Order Reference",
+                    payment_summary: "Payment Summary",
+                    payment_validated: "Payment Validated",
+                    loading: "Loading order details...",
+                    not_found: "Order not found",
+                    confirm_shipping: "¿Mark as shipped?",
+                    confirm_shipping_desc: "This action will notify the system and record the order as processed and in transit. It cannot be easily undone.",
+                    confirm_shipping_yes: "Yes, ship",
+                    payment_method: "Payment Method",
+                    paypal: "PayPal",
+                    credit_card: "Credit Card"
+                },
                 admin_footer: "© 2024 VINYL HORIZON • ADMIN TERMINAL LUXE v1.2"
             }
         }
@@ -450,20 +500,69 @@ const resources = {
                 sales_by_genre: "Ventas por Género",
                 top_selling: "Vinilos más Vendidos",
                 monthly_growth: "Crecimiento Mensual",
+                order_details: {
+                    title: "Detalles del Pedido",
+                    mark_shipped: "Marcar como Enviado",
+                    print_invoice: "Imprimir Factura",
+                    order_items: "Artículos del Pedido",
+                    qty: "Cant",
+                    placed_on: "Realizado el",
+                    items_count: "Artículos",
+                    delivery_timeline: "Línea de Tiempo de Entrega",
+                    customer_info: "Información del Cliente",
+                    order_reference: "Referencia de Pedido",
+                    payment_summary: "Resumen de Pago",
+                    payment_validated: "Pago Validado",
+                    loading: "Cargando detalles del pedido...",
+                    not_found: "Pedido no encontrado",
+                    confirm_shipping: "¿Marcar como enviado?",
+                    confirm_shipping_desc: "Esta acción notificará al sistema y registrará el pedido como procesado y en tránsito. No se puede deshacer de forma simple.",
+                    confirm_shipping_yes: "Sí, enviar",
+                    payment_method: "Método de Pago",
+                    paypal: "PayPal",
+                    credit_card: "Tarjeta de Crédito"
+                },
+                reports: {
+                    title: "Reportes y Estadísticas",
+                    total_revenue: "Ingresos Totales",
+                    avg_order: "Promedio de Orden",
+                    unique_customers: "Clientes Únicos",
+                    sales_by_genre_desc: "Distribución del volumen mensual",
+                    no_genre_data: "No hay datos de género disponibles",
+                    top_selling_empty: "Aún no hay datos de ventas.",
+                    monthly_growth_desc: "Trayectoria de 6 meses",
+                    pdf: {
+                        executive_title: "REPORTE DE INTELIGENCIA EJECUTIVA",
+                        generated_by: "Generado: {{date}} {{time}} por Administrador del Sistema",
+                        summary_title: "1. Resumen Ejecutivo",
+                        metric_header: "Métrica Clave",
+                        value_header: "Valor Actual",
+                        mom_header: "Crecimiento MoM",
+                        genre_title: "2. Volumen Mensual por Género",
+                        genre_header: "Género",
+                        dist_header: "Distribución %",
+                        status_header: "Estado",
+                        top_title: "3. Vinilos de Mayor Rendimiento",
+                        album_header: "Título del Álbum",
+                        units_header: "Unidades Vendidas",
+                        gross_header: "Ingresos Brutos",
+                        growth_title: "4. Gráfico de Crecimiento Mensual",
+                        confidential: "CONFIDENCIAL - Uso Interno de Vinyl Horizon • Página {{page}} de {{total}}",
+                        download_success: "¡Reporte Ejecutivo descargado de forma segura!"
+                    }
+                },
                 admin_footer: "© 2024 VINYL HORIZON • TERMINAL ADMIN LUXE v1.2"
             }
         }
     }
 };
 
-const savedLanguage = localStorage.getItem('language') || 'ES';
-
 i18n
     .use(initReactI18next)
     .init({
         resources,
-        lng: savedLanguage,
-        fallbackLng: "EN",
+        lng: (localStorage.getItem('language') || 'en').toLowerCase(),
+        fallbackLng: "en",
         interpolation: {
             escapeValue: false
         }

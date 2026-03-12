@@ -70,8 +70,8 @@ export default function OrderDetails() {
         }
     };
 
-    if (loading) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">Cargando detalles de orden...</div>;
-    if (!order) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">Orden no encontrada</div>;
+    if (loading) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">{t('admin.order_details.loading', 'Cargando detalles de orden...')}</div>;
+    if (!order) return <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#091C2A] flex items-center justify-center text-[#0B1B2A] dark:text-[#E1C2B3]">{t('admin.order_details.not_found', 'Orden no encontrada')}</div>;
 
     const orderDate = new Date(order.created_at).toLocaleString();
 
@@ -89,10 +89,10 @@ export default function OrderDetails() {
                                 <span className="material-symbols-outlined">arrow_back</span>
                             </Link>
                             <h1 className="font-['Cormorant_Garamond'] text-4xl text-[#0B1B2A] dark:text-[#E1C2B3] font-bold">
-                                Order Details <span className="text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 ml-2">{id}</span>
+                                {t('admin.order_details.title', 'Order Details')} <span className="text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 ml-2">{id}</span>
                             </h1>
                         </div>
-                        <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-widest mt-1 ml-10 uppercase">ADMIN TERMINAL</p>
+                        <p className="font-variant-small-caps text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60 text-sm tracking-widest mt-1 ml-10 uppercase">{t('admin.terminal', 'ADMIN TERMINAL')}</p>
                     </div>
 
                     <div className="flex items-center gap-6 print:hidden">
@@ -101,14 +101,14 @@ export default function OrderDetails() {
                                 className="flex items-center gap-2 px-6 py-2.5 bg-[#0B1B2A] dark:bg-[#E1C2B3] text-white dark:text-[#0B1B2A] text-xs font-bold uppercase tracking-widest rounded-full shadow-lg hover:brightness-110 transition-all"
                                 onClick={() => setIsShippingModalOpen(true)}
                             >
-                                <span className="material-symbols-outlined text-sm">local_shipping</span> Mark Shipped
+                                <span className="material-symbols-outlined text-sm">local_shipping</span> {t('admin.order_details.mark_shipped', 'Mark Shipped')}
                             </button>
                         )}
                         <button
                             className="flex items-center gap-2 px-6 py-2.5 bg-[#5E1914] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg hover:brightness-110 transition-all"
                             onClick={() => window.print()}
                         >
-                            <span className="material-symbols-outlined text-sm">print</span> Print Invoice
+                            <span className="material-symbols-outlined text-sm">print</span> {t('admin.order_details.print_invoice', 'Print Invoice')}
                         </button>
 
 
@@ -123,7 +123,7 @@ export default function OrderDetails() {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl overflow-hidden p-8">
                             <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 flex items-center justify-between">
-                                Order Items
+                                {t('admin.order_details.order_items', 'Order Items')}
                                 <span className={`px-3 py-1 text-[10px] font-bold uppercase text-white rounded-full border ${order.status === 'cancelled' ? 'bg-red-700 border-red-900' : 'bg-[#5E1914] border-black/10 dark:border-[#5E1914]/30'}`}>
                                     {t(`status.${order.status || 'paid'}`, order.status || 'PAID')}
                                 </span>
@@ -139,7 +139,7 @@ export default function OrderDetails() {
                                             <p className="text-xs text-[#0B1B2A]/50 dark:text-[#E1C2B3]/50 uppercase tracking-widest mt-1">{item.genre}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Qty: {item.quantity}</p>
+                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">{t('admin.order_details.qty', 'Qty')}: {item.quantity}</p>
                                             <p className="text-lg font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">${parseFloat(item.price).toFixed(2)}</p>
                                         </div>
                                     </div>
@@ -147,13 +147,13 @@ export default function OrderDetails() {
                             </div>
                             <div className="mt-8 pt-6">
                                 <div className="flex justify-between items-center text-[#0B1B2A]/60 dark:text-[#E1C2B3]/60">
-                                    <p className="text-sm">Placed on {orderDate}</p>
-                                    <p className="text-sm">Items: {order.hydratedItems.reduce((acc, curr) => acc + curr.quantity, 0)}</p>
+                                    <p className="text-sm">{t('admin.order_details.placed_on', 'Placed on')} {orderDate}</p>
+                                    <p className="text-sm">{t('admin.order_details.items_count', 'Items')}: {order.hydratedItems.reduce((acc, curr) => acc + curr.quantity, 0)}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl p-8">
-                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6">Delivery Timeline</h2>
+                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6">{t('admin.order_details.delivery_timeline', 'Delivery Timeline')}</h2>
                             <div className="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-black/10 dark:before:bg-[#E1C2B3]/20">
                                 <div className="flex gap-6 relative">
                                     <div className="w-6 h-6 rounded-full bg-[#5E1914] flex items-center justify-center z-10">
@@ -203,12 +203,12 @@ export default function OrderDetails() {
                     {/* Sidebar Info */}
                     <div className="space-y-8">
                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl p-8">
-                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 border-b border-black/10 dark:border-[#E1C2B3]/10 pb-4">Customer Info</h2>
+                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 border-b border-black/10 dark:border-[#E1C2B3]/10 pb-4">{t('admin.order_details.customer_info', 'Customer Info')}</h2>
                             <div className="space-y-6">
                                 <div className="flex items-start gap-4">
                                     <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">person</span>
                                     <div>
-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Full Name</p>
+                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">{t('auth.full_name', 'Full Name')}</p>
                                         <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">{order.customer_name || 'Anonymous'}</p>
                                     </div>
                                 </div>
@@ -216,7 +216,7 @@ export default function OrderDetails() {
                                     <div className="flex items-start gap-4">
                                         <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">home</span>
                                         <div>
-                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Shipping Address</p>
+                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">{t('checkout.address', 'Shipping Address')}</p>
                                             <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1">{order.shipping_address}</p>
                                         </div>
                                     </div>
@@ -224,37 +224,35 @@ export default function OrderDetails() {
                                 <div className="flex items-start gap-4">
                                     <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">receipt_long</span>
                                     <div>
-                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Order Reference</p>
+                                        <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">{t('admin.order_details.order_reference', 'Order Reference')}</p>
                                         <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1 break-all">{order.id}</p>
                                     </div>
                                 </div>
-                                {order.payment_method && (
                                     <div className="flex items-start gap-4">
                                         <span className="material-symbols-outlined text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40">
                                             {order.payment_method === 'paypal' ? 'account_balance_wallet' : 'credit_card'}
                                         </span>
                                         <div>
-                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">Payment Method</p>
+                                            <p className="text-[10px] text-[#0B1B2A]/40 dark:text-[#E1C2B3]/40 uppercase tracking-widest">{t('admin.order_details.payment_method', 'Payment Method')}</p>
                                             <p className="text-sm font-medium text-[#0B1B2A] dark:text-[#E1C2B3] mt-1 capitalize">
-                                                {order.payment_method === 'paypal' ? 'PayPal' : 'Credit Card'}
+                                                {order.payment_method === 'paypal' ? t('admin.order_details.paypal', 'PayPal') : t('admin.order_details.credit_card', 'Credit Card')}
                                             </p>
                                         </div>
                                     </div>
-                                )}
                             </div>
                         </div>
 
                         <div className="bg-[#D1D1D1] dark:bg-[#3A2E29] transition-all duration-300 rounded-[1.5rem] border border-black/5 dark:border-[#E1C2B3]/10 shadow-2xl p-8">
-                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 border-b border-black/10 dark:border-[#E1C2B3]/10 pb-4">Payment Summary</h2>
+                            <h2 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-6 border-b border-black/10 dark:border-[#E1C2B3]/10 pb-4">{t('admin.order_details.payment_summary', 'Payment Summary')}</h2>
                             <div className="space-y-4">
                                 <div className="pt-2 flex justify-between items-baseline">
-                                    <p className="font-['Cormorant_Garamond'] text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">Total</p>
+                                    <p className="font-['Cormorant_Garamond'] text-xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3]">{t('cart.total', 'Total')}</p>
                                     <p className="text-2xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] tracking-tight">${parseFloat(order.total_amount).toFixed(2)}</p>
                                 </div>
                             </div>
                             <div className="mt-8 flex items-center justify-center gap-2 py-3 bg-black/5 dark:bg-[#091C2A]/20 rounded-lg border border-black/5 dark:border-[#E1C2B3]/5">
                                 <span className="material-symbols-outlined text-sm text-[#0B1B2A] dark:text-[#E1C2B3]">verified_user</span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">Payment Validated</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0B1B2A] dark:text-[#E1C2B3]">{t('admin.order_details.payment_validated', 'Payment Validated')}</span>
                             </div>
                         </div>
                     </div>
@@ -333,17 +331,17 @@ export default function OrderDetails() {
                             <span className="material-symbols-outlined text-4xl">local_shipping</span>
                         </div>
                         <h3 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#0B1B2A] dark:text-[#E1C2B3] mb-2">
-                            {t('admin.confirm_shipping', '¿Marcar como enviado?')}
+                            {t('admin.order_details.confirm_shipping', '¿Mark as shipped?')}
                         </h3>
                         <p className="text-sm text-[#0B1B2A]/70 dark:text-[#E1C2B3]/70 mb-8 px-4">
-                            {t('admin.confirm_shipping_desc', 'Esta acción notificará al sistema y registrará el pedido como procesado y en tránsito. No se puede deshacer de forma simple.')}
+                            {t('admin.order_details.confirm_shipping_desc', 'This action will notify the system and record the order as processed and in transit. It cannot be easily undone.')}
                         </p>
                         <div className="flex flex-col gap-3 w-full">
                             <button
                                 onClick={handleMarkShipped}
                                 className="w-full bg-[#5E1914] text-[#E1C2B3] hover:brightness-110 transition-all py-3 rounded-full font-bold uppercase tracking-widest text-xs shadow-lg flex justify-center items-center gap-2"
                             >
-                                <span className="material-symbols-outlined text-[14px]">check</span> {t('admin.confirm_shipping_yes', 'Sí, enviar')}
+                                <span className="material-symbols-outlined text-[14px]">check</span> {t('admin.order_details.confirm_shipping_yes', 'Yes, ship')}
                             </button>
                             <button
                                 onClick={() => setIsShippingModalOpen(false)}
