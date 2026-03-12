@@ -9,7 +9,7 @@ const generateResponse = async (req, res) => {
         if (!process.env.GEMINI_API_KEY) {
             throw new Error("API key not found en el entorno de Node");
         }
-        
+
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const { message, isAdmin, model: requestedModel } = req.body;
 
