@@ -254,25 +254,66 @@ const Home = () => {
         </section>
 
         {/* About Section */}
-        <section className="px-8 lg:px-12 py-32">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8 relative">
-              <span className="material-symbols-outlined absolute -top-24 right-0 lg:-right-10 text-black-pearl/5 dark:text-rose-fog/5 text-[500px] leading-none pointer-events-none select-none">waves</span>
-              <h2 className="display-font text-6xl text-black-pearl dark:text-rose-fog leading-tight">{t('home.about_title')}</h2>
-              <div className="w-20 h-2 bg-black-pearl dark:bg-rose-fog rounded-full"></div>
-              <p className="text-black-pearl dark:text-rose-fog text-lg leading-relaxed font-light italic">
-                {t('home.about_quote')}
-              </p>
-              <p className="text-black-pearl/70 dark:text-rose-fog/70 leading-relaxed font-light">
-                {t('home.about_desc')}
-              </p>
-            </div>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-friendly border border-black-pearl/20 dark:border-walnut group shadow-2xl">
-              <img alt="Atmospheric Record Player" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwd5f_2pO3ByFQ6jDL-pOzKP6aBFQDChVOUYsJZrGyCcGWNISaganc1lBZkTdBLkoFk0Mt4T6TeZM4BmBwxWSrXvIqPbi1Jj87dc1AijiO9aS3IaO33IOzQieuwKk8SKQwkK6HwIqrtpBh0p74IEjDBhVwZqLkudPHb6jTomQhrtnogmY-DMmhUc2NI2p5FZoNnMltJ-Q3GS-5FQ-b-IC8Lof0WGTGAkDx8DhRCX3nfAfsj7ZsrSP49WfEObNbgV3Y7SthhB08y1Yp" />
-              <div className="absolute inset-0 bg-black-pearl/30 flex items-center justify-center group-hover:bg-black-pearl/10 transition-all">
-                <div className="w-24 h-24 rounded-full border border-rose-fog/30 flex items-center justify-center bg-black-pearl/20 backdrop-blur-sm group-hover:scale-110 transition-all">
-                  <span className="material-symbols-outlined text-rose-fog text-4xl">play_circle</span>
-                </div>
+        <section className="pt-32 relative overflow-hidden">
+          {/* Full Width Text Content */}
+          <div className="max-w-4xl mx-auto text-center space-y-10 relative z-20 mb-20 px-8 lg:px-12">
+            <span className="material-symbols-outlined absolute -top-16 left-1/2 -translate-x-1/2 text-black-pearl/5 dark:text-rose-fog/5 text-[300px] leading-none pointer-events-none select-none">waves</span>
+            <h2 className="display-font text-6xl md:text-7xl text-black-pearl dark:text-rose-fog leading-tight">
+              {t('home.about_title')}
+            </h2>
+            <div className="w-24 h-2 bg-black-pearl dark:bg-rose-fog rounded-full mx-auto"></div>
+            <p className="text-black-pearl dark:text-rose-fog text-xl md:text-2xl leading-relaxed font-light italic">
+              {t('home.about_quote')}
+            </p>
+            <p className="text-black-pearl/80 dark:text-rose-fog/80 text-lg leading-relaxed font-light max-w-3xl mx-auto">
+              {t('home.about_desc')}
+            </p>
+          </div>
+
+          {/* Cinematic Image container with Overlaying Carousel */}
+          <div className="relative w-full overflow-hidden z-10 mx-0 mt-8 aspect-[16/9] md:aspect-[3/1]">
+            <img 
+              alt="Atmospheric Record Player" 
+              className="absolute inset-0 w-full h-full object-cover" 
+              src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=2000&auto=format&fit=crop" 
+            />
+            
+            {/* Mask to make the image fade perfectly into the background (Top and Bottom) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black-pearl dark:from-black-pearl-light via-transparent to-black-pearl dark:to-black-pearl-light z-10 pointer-events-none"></div>
+
+            {/* Record Labels Carousel overlayed on image */}
+            <div className="absolute bottom-16 left-0 w-full overflow-hidden z-20">
+              <div className="flex w-[200%] animate-[scroll_40s_linear_infinite] items-center gap-24 md:gap-40 px-8">
+                {/* Partner Logos - Set 1 */}
+                {[
+                  "Warner",
+                  "Sony Music",
+                  "EMI",
+                  "Blue Note",
+                  "Def Jam",
+                  "Atlantic",
+                  "Capitol",
+                  "Motown"
+                ].map((label, idx) => (
+                  <div key={`label-1-${idx}`} className="flex-shrink-0 w-40 md:w-64 opacity-50 hover:opacity-100 transition-all duration-500 text-center hover:scale-105">
+                    <span className="text-white display-font text-4xl md:text-6xl tracking-widest drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] whitespace-nowrap">{label}</span>
+                  </div>
+                ))}
+                {/* Partner Logos - Set 2 (for infinite scroll) */}
+                {[
+                  "Warner",
+                  "Sony Music",
+                  "EMI",
+                  "Blue Note",
+                  "Def Jam",
+                  "Atlantic",
+                  "Capitol",
+                  "Motown"
+                ].map((label, idx) => (
+                  <div key={`label-2-${idx}`} className="flex-shrink-0 w-40 md:w-64 opacity-50 hover:opacity-100 transition-all duration-500 text-center hover:scale-105">
+                    <span className="text-white display-font text-4xl md:text-6xl tracking-widest drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] whitespace-nowrap">{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
