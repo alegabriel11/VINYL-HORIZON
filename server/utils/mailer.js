@@ -12,23 +12,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendResetEmail = async (email, token) => {
-    // Si las credenciales son las por defecto o están vacías, usamos modo desarrollo village
-    const isDefault = !process.env.EMAIL_USER ||
-        !process.env.EMAIL_PASS ||
-        process.env.EMAIL_USER.includes('tu_correo') ||
-        process.env.EMAIL_PASS.includes('tu_app_password');
-
-    if (isDefault) {
-        console.log("\n--- 🛠️  MODO DESARROLLO: Token de Recuperación ---");
-        console.log(`📧 Destinatario: ${email}`);
-        console.log(`🔑 Token: ${token}`);
-        console.log(`🔗 Link: http://localhost:5173/forgot-password?token=${token}`);
-        console.log("------------------------------------------------\n");
-        return;
-    }
-
-    const resetLink = `http://localhost:5173/forgot-password?token=${token}`;
+const sendResetEmail = async (email, token, clientOrigin) => {
+    const origin = clientOrigin || 'http://localhost:5173';
+    const resetLink = `${origin}/forgot-password?token=${token}`;
 
     const mailOptions = {
         from: `"Vinyl Horizon" <${process.env.EMAIL_USER}>`,

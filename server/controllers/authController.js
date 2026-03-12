@@ -235,13 +235,14 @@ exports.requestPasswordReset = async (req, res) => {
         }
 
         const token = crypto.randomBytes(32).toString('hex');
+        const clientOrigin = req.headers.origin || 'http://localhost:5173'; // Obtener el origen dinámicamente village
 
         await pool.query(
             'UPDATE users SET reset_password_token = $1, reset_password_expires = NOW() + interval \'1 hour\' WHERE email = $2',
             [token, email]
         );
 
-        await sendResetEmail(email, token);
+        await sendResetEmail(email, token, clientOrigin);
 
         res.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
     } catch (error) {
